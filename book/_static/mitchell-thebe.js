@@ -21,6 +21,14 @@
   let activating = false;
   let activated = false;
 
+  function runWhenReady(cb) {
+    if (document.readyState !== "loading") {
+      cb();
+    } else {
+      document.addEventListener("DOMContentLoaded", cb);
+    }
+  }
+
   function hasSavedSession() {
     try {
       for (let i = 0; i < window.localStorage.length; i++) {
@@ -80,14 +88,57 @@
   }
 
   /**
+   * Reliable desktop sidebar toggle for both primary (left) and secondary (right)
+   * sidebars, working around pydata-sphinx-theme / sphinx-book-theme toggle issues.
+   */
+  function wireSidebarToggles() {
+    const primaryToggle = document.querySelector(".primary-toggle, label[for='__primary']");
+    const primarySidebar = document.querySelector(".bd-sidebar-primary, #pst-primary-sidebar");
+
+    if (primaryToggle && primarySidebar) {
+      primaryToggle.addEventListener(
+        "click",
+        (evt) => {
+          if (window.matchMedia("(min-width: 992px)").matches) {
+            evt.preventDefault();
+            evt.stopImmediatePropagation();
+            document.documentElement.classList.toggle("mitchell-hide-primary-sidebar");
+          }
+        },
+        true
+      );
+    }
+
+    const secondaryToggle = document.querySelector(".secondary-toggle, label[for='__secondary']");
+    const secondarySidebar = document.querySelector(".bd-sidebar-secondary, #pst-secondary-sidebar");
+
+    if (secondaryToggle && secondarySidebar) {
+      secondaryToggle.addEventListener(
+        "click",
+        (evt) => {
+          if (window.matchMedia("(min-width: 1200px)").matches) {
+            evt.preventDefault();
+            evt.stopImmediatePropagation();
+            document.documentElement.classList.toggle("mitchell-hide-secondary-sidebar");
+          }
+        },
+        true
+      );
+    }
+  }
+
+  /**
    * Prepare every notebook cell DOM node for Thebe, guaranteeing an exact 1-to-1
    * match between [data-executable] inputs and [data-output] containers even for
    * cells that have no pre-rendered outputs.
    */
   function prepareCellsForThebe() {
+    // Remove any pre-activation helper pills first
+    document.querySelectorAll(".mitchell-cell-activate-pill").forEach((el) => el.remove());
+
     const cells = document.querySelectorAll("div.cell");
     cells.forEach((cell) => {
-      const pre = cell.querySelector("div.cell_input pre");
+      const pre = cell.querySelector("div.cell_input pre") || cell.querySelector("pre");
       if (!pre) return;
 
       pre.setAttribute("data-executable", "true");
@@ -135,22 +186,50 @@
       </div>
     `;
 
-    const h1 = document.querySelector("article.bd-article h1, main h1");
-    if (h1 && h1.parentNode) {
-      h1.insertAdjacentElement("afterend", bar);
-    } else {
-      const article = document.querySelector("article.bd-article, main");
-      if (article) article.prepend(bar);
+    // Place sticky toolbar right at the top of the article so it stays visible while scrolling
+    const article =
+      document.querySelector("article.bd-article") ||
+      document.querySelector("main#main-content") ||
+      document.querySelector("main");
+    if (article) {
+      article.prepend(bar);
+    }
+
+    // Also add a quick-activate button in the top-right article header bar
+    let headerBtn = null;
+    const headerRight = document.querySelector(".article-header-buttons");
+    if (headerRight) {
+      headerBtn = document.createElement("button");
+      headerBtn.type = "button";
+      headerBtn.id = "mitchell-header-launch-btn";
+      headerBtn.className = "btn btn-sm mitchell-header-live-btn";
+      headerBtn.title = "Activate live editable Julia code cells";
+      headerBtn.textContent = "⚡ Live Julia";
+      headerRight.prepend(headerBtn);
     }
 
     return {
       bar,
       launchBtn: bar.querySelector("#mitchell-launch-btn"),
+      headerBtn,
       statusPill: bar.querySelector("#mitchell-status-pill"),
       statusMsg: bar.querySelector("#mitchell-status-msg"),
       labLink: bar.querySelector("#mitchell-lab-link"),
       resetBtn: bar.querySelector("#mitchell-reset-btn"),
     };
+  }
+
+  function addPreActivationCellPills(onActivate) {
+    document.querySelectorAll("div.cell").forEach((cell) => {
+      const inputDiv = cell.querySelector("div.cell_input");
+      if (!inputDiv) return;
+      const pill = document.createElement("button");
+      pill.type = "button";
+      pill.className = "mitchell-cell-activate-pill";
+      pill.textContent = "⚡ Click to edit & run live in Julia";
+      pill.addEventListener("click", onActivate);
+      inputDiv.appendChild(pill);
+    });
   }
 
   function setStatus(ui, state, pillText, message) {
@@ -164,7 +243,16 @@
     activating = true;
     ui.launchBtn.disabled = true;
     ui.launchBtn.textContent = "⏳ Connecting to Julia…";
-    setStatus(ui, "loading", "Connecting…", "Loading interactive editor and connecting to kernels.mitchell.science…");
+    if (ui.headerBtn) {
+      ui.headerBtn.disabled = true;
+      ui.headerBtn.textContent = "⏳ Connecting…";
+    }
+    setStatus(
+      ui,
+      "loading",
+      "Connecting…",
+      "Loading interactive editor and connecting to kernels.mitchell.science…"
+    );
 
     try {
       loadStylesheet(THEBE_CSS_URL);
@@ -193,6 +281,10 @@
           setStatus(ui, "error", "Error", msg);
           ui.launchBtn.disabled = false;
           ui.launchBtn.textContent = "⚡ Retry Connection";
+          if (ui.headerBtn) {
+            ui.headerBtn.disabled = false;
+            ui.headerBtn.textContent = "⚡ Retry Julia";
+          }
           ui.resetBtn.style.display = "inline-flex";
           activating = false;
         });
@@ -233,6 +325,10 @@
       activated = true;
       activating = false;
       ui.launchBtn.style.display = "none";
+      if (ui.headerBtn) {
+        ui.headerBtn.textContent = "✅ Julia Live";
+        ui.headerBtn.classList.add("is-ready");
+      }
       ui.resetBtn.style.display = "inline-flex";
       setStatus(
         ui,
@@ -250,6 +346,10 @@
       activating = false;
       ui.launchBtn.disabled = false;
       ui.launchBtn.textContent = "⚡ Retry Connection";
+      if (ui.headerBtn) {
+        ui.headerBtn.disabled = false;
+        ui.headerBtn.textContent = "⚡ Retry Julia";
+      }
       ui.resetBtn.style.display = "inline-flex";
       setStatus(
         ui,
@@ -260,16 +360,25 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  runWhenReady(() => {
+    wireSidebarToggles();
+
     const cells = document.querySelectorAll("div.cell");
     if (cells.length === 0) return;
 
     const ui = createToolbar();
-    ui.launchBtn.addEventListener("click", () => activateThebe(ui));
+    const triggerActivate = () => activateThebe(ui);
+
+    ui.launchBtn.addEventListener("click", triggerActivate);
+    if (ui.headerBtn) {
+      ui.headerBtn.addEventListener("click", triggerActivate);
+    }
     ui.resetBtn.addEventListener("click", () => {
       clearSavedSessions();
       window.location.reload();
     });
+
+    addPreActivationCellPills(triggerActivate);
 
     // If the student already launched a Julia session on another chapter,
     // seamlessly reconnect on this page so cells are editable immediately.
