@@ -89,74 +89,98 @@
 
   /**
    * Reliable sidebar toggle for both primary (left) and secondary (right)
-   * sidebars across all viewport widths (desktop collapse + narrow drawer).
-   * Uses querySelectorAll because sphinx-book-theme renders duplicate toggle
-   * buttons in .bd-header and .bd-header-article.
+   * sidebars across all viewport widths (desktop collapse + narrow slide-over drawer).
    */
   function wireSidebarToggles() {
     const htmlEl = document.documentElement;
+    const primarySel =
+      ".primary-toggle, [aria-label='Toggle primary sidebar'], [title='Toggle primary sidebar'], [data-bs-original-title='Toggle primary sidebar'], label[for='__primary'], label[for='pst-primary-sidebar-checkbox']";
+    const secondarySel =
+      ".secondary-toggle, [aria-label='Toggle secondary sidebar'], [title='Toggle secondary sidebar'], [data-bs-original-title='Toggle secondary sidebar'], label[for='__secondary'], label[for='pst-secondary-sidebar-checkbox']";
+
+    let backdrop = document.querySelector(".mitchell-drawer-backdrop");
+    if (!backdrop && document.body) {
+      backdrop = document.createElement("div");
+      backdrop.className = "mitchell-drawer-backdrop";
+      backdrop.setAttribute("aria-hidden", "true");
+      document.body.appendChild(backdrop);
+    }
+
+    function ensureSidebarHasContent(sidebarSel, modalId) {
+      const sidebar = document.querySelector(sidebarSel);
+      const modal = document.getElementById(modalId);
+      if (sidebar && modal && sidebar.children.length === 0 && modal.children.length > 0) {
+        while (modal.firstChild) sidebar.appendChild(modal.firstChild);
+      }
+      if (modal && typeof modal.close === "function" && modal.open) {
+        modal.close();
+      }
+    }
 
     function closeMobileDrawers() {
       htmlEl.classList.remove("mitchell-show-primary-mobile", "mitchell-show-secondary-mobile");
     }
 
-    const primaryToggles = document.querySelectorAll(
-      ".primary-toggle, button[title='Toggle primary sidebar'], label[for='__primary']"
-    );
-    primaryToggles.forEach((btn) => {
-      btn.addEventListener(
-        "click",
-        (evt) => {
+    document.addEventListener(
+      "click",
+      (evt) => {
+        const targetEl = evt.target instanceof Element ? evt.target : evt.target.parentElement;
+        if (!targetEl) return;
+
+        if (targetEl.closest(primarySel)) {
           evt.preventDefault();
           evt.stopImmediatePropagation();
           if (window.matchMedia("(min-width: 992px)").matches) {
             htmlEl.classList.toggle("mitchell-hide-primary-sidebar");
           } else {
+            ensureSidebarHasContent(".bd-sidebar-primary, #pst-primary-sidebar", "pst-primary-sidebar-modal");
             htmlEl.classList.remove("mitchell-show-secondary-mobile");
             htmlEl.classList.toggle("mitchell-show-primary-mobile");
           }
-        },
-        true
-      );
-    });
+          return;
+        }
 
-    const secondaryToggles = document.querySelectorAll(
-      ".secondary-toggle, button[title='Toggle secondary sidebar'], label[for='__secondary']"
-    );
-    secondaryToggles.forEach((btn) => {
-      btn.addEventListener(
-        "click",
-        (evt) => {
+        if (targetEl.closest(secondarySel)) {
           evt.preventDefault();
           evt.stopImmediatePropagation();
           if (window.matchMedia("(min-width: 1200px)").matches) {
             htmlEl.classList.toggle("mitchell-hide-secondary-sidebar");
           } else {
+            ensureSidebarHasContent(".bd-sidebar-secondary, #pst-secondary-sidebar", "pst-secondary-sidebar-modal");
             htmlEl.classList.remove("mitchell-show-primary-mobile");
             htmlEl.classList.toggle("mitchell-show-secondary-mobile");
           }
-        },
-        true
-      );
-    });
+          return;
+        }
+
+        // Auto-close right-hand ToC drawer after picking an in-page section link
+        if (
+          htmlEl.classList.contains("mitchell-show-secondary-mobile") &&
+          targetEl.closest(".bd-sidebar-secondary a[href^='#'], #pst-secondary-sidebar a[href^='#']")
+        ) {
+          htmlEl.classList.remove("mitchell-show-secondary-mobile");
+          return;
+        }
+
+        // Click outside an open mobile drawer (or on backdrop) closes it
+        if (
+          htmlEl.classList.contains("mitchell-show-primary-mobile") &&
+          !targetEl.closest(".bd-sidebar-primary, #pst-primary-sidebar")
+        ) {
+          htmlEl.classList.remove("mitchell-show-primary-mobile");
+        }
+        if (
+          htmlEl.classList.contains("mitchell-show-secondary-mobile") &&
+          !targetEl.closest(".bd-sidebar-secondary, #pst-secondary-sidebar")
+        ) {
+          htmlEl.classList.remove("mitchell-show-secondary-mobile");
+        }
+      },
+      true
+    );
 
     document.addEventListener("keydown", (evt) => {
       if (evt.key === "Escape") closeMobileDrawers();
-    });
-
-    document.addEventListener("click", (evt) => {
-      if (
-        htmlEl.classList.contains("mitchell-show-primary-mobile") &&
-        !evt.target.closest(".bd-sidebar-primary, #pst-primary-sidebar, .primary-toggle")
-      ) {
-        htmlEl.classList.remove("mitchell-show-primary-mobile");
-      }
-      if (
-        htmlEl.classList.contains("mitchell-show-secondary-mobile") &&
-        !evt.target.closest(".bd-sidebar-secondary, #pst-secondary-sidebar, .secondary-toggle")
-      ) {
-        htmlEl.classList.remove("mitchell-show-secondary-mobile");
-      }
     });
   }
 
