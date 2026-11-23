@@ -1,5 +1,6 @@
 node_modules/
 _build/
+book/_build/
 publish/
 .DS_Store
 __pycache__/

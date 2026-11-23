@@ -8,10 +8,10 @@ This interactive Jupyter Book teaches you how to build, simulate, and modify ord
 
 Every tutorial page in this book contains real, editable Julia code cells backed by an isolated Julia kernel running on our lab compute server.
 
-:::{tip} Launching your live Julia session
+:::{tip} Launching your live editable Julia session
 1. Open any tutorial chapter from the sidebar on the left.
-2. Click the **⚡ Power / Compute** button near the top of the page to launch your own private, sandboxed Julia kernel (it takes just a few seconds because `DifferentialEquations.jl`, `Plots.jl`, and `CSV2Model` are already pre-installed and precompiled!).
-3. Once connected, edit any code cell and press **Shift + Enter** (or click the **Run** icon on a cell) to re-run the simulation and watch the plots update live.
+2. Click the **⚡ Activate Live Editable Julia Cells** button near the top of the page to launch your own private, sandboxed Julia kernel (it takes just a few seconds because `DifferentialEquations.jl`, `Plots.jl`, and `CSV2Model` are already pre-installed and precompiled!).
+3. Once connected, every code block turns into an **editable code editor** — click inside any cell to modify the code and press **Shift + Enter** (or click the **Run** button underneath the cell) to re-run the simulation and watch the plots update live.
 :::
 
 Each reader gets a **fresh, isolated workspace** containing all the starter model files (`reactions.csv`, `parameters.csv`, `ratelaws.csv`, and `csv2model-multiscale.py`), so you can freely modify parameters, edit CSV definitions, and experiment without affecting anyone else. Sessions automatically reset after 20 minutes of inactivity.
