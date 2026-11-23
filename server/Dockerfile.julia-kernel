@@ -59,7 +59,6 @@ RUN useradd -m -s /bin/bash -u "${NB_UID}" "${NB_USER}" && \
 
 COPY --chown=${NB_USER}:${NB_USER} server/Project.toml /opt/julia-env/Project.toml
 COPY --chown=${NB_USER}:${NB_USER} server/precompile_workload.jl /opt/julia-env/precompile_workload.jl
-COPY --chown=${NB_USER}:${NB_USER} server/write_kernelspec.py /opt/julia-env/write_kernelspec.py
 
 USER ${NB_USER}
 
@@ -88,6 +87,7 @@ RUN if [ "${BUILD_SYSIMAGE}" = "1" ]; then \
     fi
 
 # Install a deterministic kernelspec named "julia" (matching myst.yml kernelName: julia)
+COPY --chown=${NB_USER}:${NB_USER} server/write_kernelspec.py /opt/julia-env/write_kernelspec.py
 RUN python3 /opt/julia-env/write_kernelspec.py
 
 # Make Julia depot and environment read-only for runtime safety while keeping /home/jovyan/work writable

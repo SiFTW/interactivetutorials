@@ -2,35 +2,23 @@
 
 import json
 import os
-import subprocess
-import sys
 
 KERNEL_JSON_PATH = "/usr/local/share/jupyter/kernels/julia/kernel.json"
 SYSIMAGE_PATH = "/opt/julia-env/tutorial_sysimage.so"
 
 
 def main() -> None:
-    ijulia_kernel = subprocess.check_output(
-        [
-            "julia",
-            "--project=/opt/julia-env",
-            "-e",
-            'using IJulia; print(joinpath(dirname(pathof(IJulia)), "kernel.jl"))',
-        ],
-        text=True,
-    ).strip()
-
-    if not os.path.isfile(ijulia_kernel):
-        sys.exit(f"Could not locate IJulia kernel.jl at: {ijulia_kernel}")
-
     argv = ["julia", "--project=/opt/julia-env", "-i", "--color=yes"]
     if os.path.isfile(SYSIMAGE_PATH):
         argv.append(f"--sysimage={SYSIMAGE_PATH}")
-    argv.extend([ijulia_kernel, "{connection_file}"])
+    # Modern IJulia (>=1.29) launches via `import IJulia; IJulia.run_kernel()`
+    # rather than executing src/kernel.jl directly.
+    argv.extend(["-e", "import IJulia; IJulia.run_kernel()", "{connection_file}"])
 
     spec = {
         "display_name": "Julia",
         "language": "julia",
+        "interrupt_mode": "signal",
         "argv": argv,
         "env": {
             "GKSwstype": "100",
