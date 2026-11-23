@@ -26,11 +26,12 @@ Add the following `[[redirects]]` rules to the bottom of **`netlify.toml`** in `
 
 ```toml
 # Reverse-proxy the interactive Julia ODE Jupyter Book from SiFTW/interactivetutorials
-# Replace `mitchell-lab-tutorials.netlify.app` with your actual Netlify site subdomain from Step 1.
+# Replace `mitchell-lab-tutorials.netlify.app` with your actual Netlify site subdomain from Step 1
+# (both sites must be in the same Netlify team).
 [[redirects]]
   from = "/tutorials"
-  to = "/tutorials/"
-  status = 301
+  to = "https://mitchell-lab-tutorials.netlify.app/tutorials/"
+  status = 200
   force = true
 
 [[redirects]]
@@ -40,7 +41,7 @@ Add the following `[[redirects]]` rules to the bottom of **`netlify.toml`** in `
   force = true
 ```
 
-> **Why `status = 200`?** In Netlify, a `200` redirect is a **transparent reverse proxy** (rewrite): the visitor's browser stays on `https://mitchell.science/tutorials/...`, so CORS with `https://kernels.mitchell.science` sees `Origin: https://mitchell.science` and all asset paths built with `BASE_URL=/tutorials` resolve cleanly!
+> **Important:** Do **not** add a `301` redirect from `/tutorials` to `/tutorials/` — Netlify's Pretty URLs treats `/tutorials` and `/tutorials/` as the same path, so a `301` between them causes an infinite redirect loop! Using `status = 200` on both rules transparently proxies the page with zero redirects.
 
 ---
 

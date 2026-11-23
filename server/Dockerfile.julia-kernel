@@ -59,6 +59,7 @@ RUN useradd -m -s /bin/bash -u "${NB_UID}" "${NB_USER}" && \
 
 COPY --chown=${NB_USER}:${NB_USER} server/Project.toml /opt/julia-env/Project.toml
 COPY --chown=${NB_USER}:${NB_USER} server/precompile_workload.jl /opt/julia-env/precompile_workload.jl
+COPY --chown=${NB_USER}:${NB_USER} server/write_kernelspec.py /opt/julia-env/write_kernelspec.py
 
 USER ${NB_USER}
 
@@ -87,30 +88,7 @@ RUN if [ "${BUILD_SYSIMAGE}" = "1" ]; then \
     fi
 
 # Install a deterministic kernelspec named "julia" (matching myst.yml kernelName: julia)
-RUN IJULIA_KERNEL="$(julia --project=/opt/julia-env -e 'using IJulia; print(joinpath(dirname(pathof(IJulia)), "kernel.jl"))')" && \
-    python3 -c '
-import json, os, sys
-ijulia_kernel = sys.argv[1]
-sysimg = "/opt/julia-env/tutorial_sysimage.so"
-argv = ["julia", "--project=/opt/julia-env", "-i", "--color=yes"]
-if os.path.isfile(sysimg):
-    argv.append(f"--sysimage={sysimg}")
-argv.extend([ijulia_kernel, "{connection_file}"])
-spec = {
-    "display_name": "Julia",
-    "language": "julia",
-    "argv": argv,
-    "env": {
-        "GKSwstype": "100",
-        "JULIA_NUM_THREADS": "2",
-        "JULIA_DEPOT_PATH": "/opt/julia",
-        "JULIA_PROJECT": "/opt/julia-env",
-    },
-}
-with open("/usr/local/share/jupyter/kernels/julia/kernel.json", "w") as f:
-    json.dump(spec, f, indent=2)
-' "${IJULIA_KERNEL}" && \
-    cat /usr/local/share/jupyter/kernels/julia/kernel.json
+RUN python3 /opt/julia-env/write_kernelspec.py
 
 # Make Julia depot and environment read-only for runtime safety while keeping /home/jovyan/work writable
 USER root
