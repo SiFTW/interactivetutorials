@@ -1,0 +1,128 @@
+# Isolated, precompiled Julia + Jupyter Server image for per-user tutorial sessions.
+#
+# Build from the repository root:
+#   docker build -f server/Dockerfile.julia-kernel -t mitchell-lab/julia-tutorial-kernel:latest .
+#
+# Set --build-arg BUILD_SYSIMAGE=0 for a faster build (~3 min) without PackageCompiler,
+# or keep BUILD_SYSIMAGE=1 (default, ~8-12 min build) for ~1-2 second plot/solve startup!
+
+FROM python:3.12-slim
+
+ARG JULIA_VERSION=1.10.7
+ARG BUILD_SYSIMAGE=1
+ARG NB_USER=jovyan
+ARG NB_UID=1000
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    JULIA_DEPOT_PATH=/opt/julia \
+    JULIA_PROJECT=/opt/julia-env \
+    JULIA_NUM_THREADS=2 \
+    GKSwstype=100 \
+    MPLBACKEND=Agg \
+    HOME=/home/${NB_USER} \
+    PATH="/opt/julia-bin/bin:${PATH}"
+
+# Minimal OS dependencies for Julia, Plots.jl (GR headless SVG), and PackageCompiler (gcc)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    gcc \
+    g++ \
+    libfontconfig1 \
+    libfreetype6 \
+    libgfortran5 \
+    libgl1 \
+    libglib2.0-0 \
+    libxext6 \
+    libxrender1 \
+    libxt6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install official Julia binary (x86_64 Linux)
+RUN JULIA_MINOR="$(echo "${JULIA_VERSION}" | cut -d. -f1,2)" && \
+    curl -fsSL "https://julialang-s3.julialang.org/bin/linux/x64/${JULIA_MINOR}/julia-${JULIA_VERSION}-linux-x86_64.tar.gz" \
+      -o /tmp/julia.tar.gz && \
+    mkdir -p /opt/julia-bin && \
+    tar -xzf /tmp/julia.tar.gz -C /opt/julia-bin --strip-components=1 && \
+    rm -f /tmp/julia.tar.gz && \
+    julia --version
+
+# Install Jupyter Server (+ JupyterLab in case a student clicks "Launch Jupyter Server Window")
+RUN pip install --no-cache-dir \
+    "jupyter-server>=2.14,<3" \
+    "jupyterlab>=4.2,<5"
+
+# Create non-root user and directories
+RUN useradd -m -s /bin/bash -u "${NB_UID}" "${NB_USER}" && \
+    mkdir -p /opt/julia /opt/julia-env /home/${NB_USER}/work /usr/local/share/jupyter/kernels/julia && \
+    chown -R "${NB_USER}:${NB_USER}" /opt/julia /opt/julia-env /home/${NB_USER} /usr/local/share/jupyter/kernels
+
+COPY --chown=${NB_USER}:${NB_USER} server/Project.toml /opt/julia-env/Project.toml
+COPY --chown=${NB_USER}:${NB_USER} server/precompile_workload.jl /opt/julia-env/precompile_workload.jl
+
+USER ${NB_USER}
+
+# Instantiate and precompile Julia packages into /opt/julia
+RUN julia --project=/opt/julia-env -e ' \
+    using Pkg; \
+    Pkg.instantiate(); \
+    Pkg.precompile(); \
+    ' && \
+    julia --project=/opt/julia-env /opt/julia-env/precompile_workload.jl
+
+# Optionally compile a PackageCompiler.jl sysimage for near-instant startup
+RUN if [ "${BUILD_SYSIMAGE}" = "1" ]; then \
+      julia -e ' \
+        using Pkg; \
+        Pkg.activate(; temp=true); \
+        Pkg.add("PackageCompiler"); \
+        using PackageCompiler; \
+        create_sysimage( \
+          [:DifferentialEquations, :Plots, :CSV, :DataFrames, :IJulia]; \
+          project="/opt/julia-env", \
+          sysimage_path="/opt/julia-env/tutorial_sysimage.so", \
+          precompile_execution_file="/opt/julia-env/precompile_workload.jl", \
+        ); \
+      '; \
+    fi
+
+# Install a deterministic kernelspec named "julia" (matching myst.yml kernelName: julia)
+RUN IJULIA_KERNEL="$(julia --project=/opt/julia-env -e 'using IJulia; print(joinpath(dirname(pathof(IJulia)), "kernel.jl"))')" && \
+    python3 -c '
+import json, os, sys
+ijulia_kernel = sys.argv[1]
+sysimg = "/opt/julia-env/tutorial_sysimage.so"
+argv = ["julia", "--project=/opt/julia-env", "-i", "--color=yes"]
+if os.path.isfile(sysimg):
+    argv.append(f"--sysimage={sysimg}")
+argv.extend([ijulia_kernel, "{connection_file}"])
+spec = {
+    "display_name": "Julia",
+    "language": "julia",
+    "argv": argv,
+    "env": {
+        "GKSwstype": "100",
+        "JULIA_NUM_THREADS": "2",
+        "JULIA_DEPOT_PATH": "/opt/julia",
+        "JULIA_PROJECT": "/opt/julia-env",
+    },
+}
+with open("/usr/local/share/jupyter/kernels/julia/kernel.json", "w") as f:
+    json.dump(spec, f, indent=2)
+' "${IJULIA_KERNEL}" && \
+    cat /usr/local/share/jupyter/kernels/julia/kernel.json
+
+# Make Julia depot and environment read-only for runtime safety while keeping /home/jovyan/work writable
+USER root
+RUN chmod -R a+rX,go-w /opt/julia /opt/julia-env /usr/local/share/jupyter/kernels/julia
+
+# Bake the starter Tutorial 1 model files into every student's isolated workspace
+COPY --chown=${NB_USER}:${NB_USER} tutorials/toyModel/ /home/${NB_USER}/work/
+
+USER ${NB_USER}
+WORKDIR /home/${NB_USER}/work
+
+EXPOSE 8888
+
+# Default command (overridden by the spawner with per-session base_url and random token)
+CMD ["jupyter", "server", "--ServerApp.ip=0.0.0.0", "--ServerApp.port=8888", "--ServerApp.open_browser=False"]

@@ -1,0 +1,11 @@
+node_modules/
+_build/
+publish/
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+server/.env
+tutorials/toyModel/toyModel.jl
+tutorials/toyModel/variableNames.jl
+tutorials/toyModel/scanIncludes.jl

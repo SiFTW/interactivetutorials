@@ -1,0 +1,51 @@
+# Jupyter Book 2 (MyST) configuration
+# Docs: https://mystmd.org/guide/in-page-execution
+version: 1
+
+project:
+  id: mitchell-lab-interactive-tutorials
+  title: "Mitchell Lab Interactive Modelling Tutorials"
+  short_title: "ODE Modelling in Julia"
+  description: >-
+    Interactive Julia tutorials for learning ordinary differential equation
+    (ODE) modelling the Mitchell Lab way — run live Julia code right in your
+    browser with zero installation.
+  authors:
+    - name: Mitchell Lab
+      affiliation: Brighton and Sussex Medical School
+      url: https://mitchell.science
+  github: https://github.com/SiFTW/interactivetutorials
+  binder: https://kernels.mitchell.science/v2/gh/SiFTW/interactivetutorials/main
+  # In-page live execution via our isolated Docker Binder-API spawner on 139.184.169.98
+  # (exposed over HTTPS via Cloudflare Tunnel at https://kernels.mitchell.science).
+  jupyter:
+    binder:
+      repo: SiFTW/interactivetutorials
+      ref: main
+      url: https://kernels.mitchell.science
+      provider: github
+    kernelName: julia
+  toc:
+    - file: book/intro.md
+    - title: "Tutorial 1: Your First ODE Model"
+      children:
+        - file: book/tutorial-1/01-running-the-toy-model.ipynb
+        - file: book/tutorial-1/02-how-models-are-made.ipynb
+        - file: book/tutorial-1/03-editing-models-challenges.ipynb
+
+site:
+  template: book-theme
+  title: "Mitchell Lab Interactive Tutorials"
+  nav:
+    - title: "Mitchell Lab Home"
+      url: https://mitchell.science/
+    - title: "Lab Handbook"
+      url: https://docs.mitchell.science/
+  actions:
+    - title: "GitHub"
+      url: https://github.com/SiFTW/interactivetutorials
+  options:
+    internal_domains:
+      - mitchell.science
+    folders: true
+    hide_footer_links: false

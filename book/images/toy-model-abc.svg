@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 170" role="img" aria-label="Toy Model biochemical reaction network: expression of A, conversion of A to B, conversion of B to C, and degradation of C">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <!-- Clean light canvas so diagram reads crisply in both light and dark book themes -->
+  <rect x="4" y="4" width="752" height="162" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Empty source symbol (synthesis from nothing) -->
+  <g transform="translate(52, 85)" stroke="#64748b" stroke-width="2" fill="none">
+    <circle cx="0" cy="0" r="14"/>
+    <line x1="-11" y1="11" x2="11" y2="-11"/>
+  </g>
+  <text x="52" y="122" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Synthesis</text>
+
+  <!-- Arrow 1: -> A -->
+  <line x1="72" y1="85" x2="156" y2="85" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="114" y="64" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="600" fill="#0f766e">k1_Aexp = 1</text>
+  <text x="114" y="106" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Reaction 1</text>
+
+  <!-- Species A -->
+  <g filter="url(#shadow)">
+    <rect x="164" y="53" width="84" height="64" rx="12" fill="#0ea5e9" stroke="#0284c7" stroke-width="2"/>
+  </g>
+  <text x="206" y="93" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" fill="#ffffff">A</text>
+
+  <!-- Arrow 2: A -> B -->
+  <line x1="254" y1="85" x2="338" y2="85" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="296" y="64" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="600" fill="#0369a1">k1_AtoB = 2</text>
+  <text x="296" y="106" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Reaction 2</text>
+
+  <!-- Species B -->
+  <g filter="url(#shadow)">
+    <rect x="346" y="53" width="84" height="64" rx="12" fill="#8b5cf6" stroke="#7c3aed" stroke-width="2"/>
+  </g>
+  <text x="388" y="93" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" fill="#ffffff">B</text>
+
+  <!-- Arrow 3: B -> C -->
+  <line x1="436" y1="85" x2="520" y2="85" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="478" y="64" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="600" fill="#6d28d9">k1_BtoC = 3</text>
+  <text x="478" y="106" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Reaction 3</text>
+
+  <!-- Species C -->
+  <g filter="url(#shadow)">
+    <rect x="528" y="53" width="84" height="64" rx="12" fill="#f59e0b" stroke="#d97706" stroke-width="2"/>
+  </g>
+  <text x="570" y="93" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" fill="#ffffff">C</text>
+
+  <!-- Arrow 4: C -> nothing -->
+  <line x1="618" y1="85" x2="686" y2="85" stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="652" y="64" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="600" fill="#b45309">k1_Cdeg = 4</text>
+  <text x="652" y="106" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Reaction 4</text>
+
+  <!-- Empty sink symbol (degradation) -->
+  <g transform="translate(710, 85)" stroke="#64748b" stroke-width="2" fill="none">
+    <circle cx="0" cy="0" r="14"/>
+    <line x1="-11" y1="11" x2="11" y2="-11"/>
+  </g>
+  <text x="710" y="122" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Degradation</text>
+</svg>

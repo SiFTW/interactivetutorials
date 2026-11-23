@@ -1,0 +1,78 @@
+# Completely isolated Docker Compose stack for Mitchell Lab interactive Julia tutorials.
+#
+# SAFE TO RUN ON 139.184.169.98:
+# - Uses its own Compose project name ("mitchell-tutorials")
+# - Uses its own isolated Docker networks (user containers have NO internet/LAN egress!)
+# - Binds ONLY to 127.0.0.1:8787 (never touches existing JupyterHub ports 8000/8080/8081/8111)
+# - Never reads, mounts, or modifies any existing JupyterHub files or containers
+
+name: mitchell-tutorials
+
+services:
+  spawner:
+    build:
+      context: ./spawner
+      dockerfile: Dockerfile
+    container_name: mitchell-tutorial-spawner
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${SPAWNER_PORT:-8787}:8787"
+    environment:
+      SPAWNER_HOST: "0.0.0.0"
+      SPAWNER_PORT: "8787"
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-https://kernels.mitchell.science}"
+      KERNEL_IMAGE: "${KERNEL_IMAGE:-mitchell-lab/julia-tutorial-kernel:latest}"
+      USER_NETWORK: "mitchell-tutorials_user_net"
+      USER_SUBNET: "${USER_SUBNET:-172.30.240.0/24}"
+      ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-https://mitchell.science,https://www.mitchell.science,http://localhost:3000,http://127.0.0.1:3000}"
+      ALLOWED_ORIGIN_REGEX: "${ALLOWED_ORIGIN_REGEX:-}"
+      ALLOWED_REPOS: "${ALLOWED_REPOS:-SiFTW/interactivetutorials}"
+      MAX_CONCURRENT_SESSIONS: "${MAX_CONCURRENT_SESSIONS:-20}"
+      MAX_SESSIONS_PER_IP: "${MAX_SESSIONS_PER_IP:-3}"
+      CONTAINER_MEM_LIMIT: "${CONTAINER_MEM_LIMIT:-2g}"
+      CONTAINER_CPUS: "${CONTAINER_CPUS:-2.0}"
+      CONTAINER_PIDS_LIMIT: "${CONTAINER_PIDS_LIMIT:-256}"
+      IDLE_TIMEOUT_SECONDS: "${IDLE_TIMEOUT_SECONDS:-1200}"
+      MAX_SESSION_AGE_SECONDS: "${MAX_SESSION_AGE_SECONDS:-7200}"
+      SPAWN_TIMEOUT_SECONDS: "${SPAWN_TIMEOUT_SECONDS:-45}"
+      CULL_INTERVAL_SECONDS: "${CULL_INTERVAL_SECONDS:-30}"
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - front_net
+      - user_net
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8787/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Optional: dedicated standalone Cloudflare Tunnel sidecar so you don't even have
+  # to touch your existing cloudflared service on 139.184.169.98!
+  # Start with: docker compose --profile tunnel up -d
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: mitchell-tutorial-cloudflared
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - front_net
+    depends_on:
+      spawner:
+        condition: service_healthy
+
+networks:
+  # Front network connecting spawner <-> optional cloudflared sidecar
+  front_net:
+    driver: bridge
+  # Strictly internal network for per-user Julia containers:
+  # internal: true blocks ALL outbound internet and university LAN access!
+  user_net:
+    name: mitchell-tutorials_user_net
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: ${USER_SUBNET:-172.30.240.0/24}

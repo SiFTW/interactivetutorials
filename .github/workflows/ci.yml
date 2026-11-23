@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-book:
+    name: Build Jupyter Book 2 (MyST)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: npm run build:netlify
+      - name: Verify subpath output exists
+        run: test -f publish/tutorials/index.html
+
+  test-spawner-and-csv2model:
+    name: Test Spawner & CSV2Model
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install spawner & test dependencies
+        run: |
+          pip install -r server/spawner/requirements.txt pytest pytest-asyncio
+      - name: Run spawner integration tests
+        run: pytest -v server/spawner/tests/test_spawner.py
+      - name: Verify csv2model-multiscale.py produces valid Julia output with zero warnings
+        run: |
+          TMPDIR="$(mktemp -d)"
+          cp tutorials/toyModel/* "$TMPDIR/"
+          (
+            cd "$TMPDIR"
+            python3 -W error csv2model-multiscale.py reactions.csv parameters.csv ratelaws.csv toyModel.jl
+            grep -q "function toyModel(dy,y,p,t)" toyModel.jl
+            grep -q 'dy\[1\]= + 1 - A \* 2' toyModel.jl
+            grep -q 'syms=\["A","B","C",\]' variableNames.jl
+          )

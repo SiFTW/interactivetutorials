@@ -1,0 +1,27 @@
+# Netlify configuration for SiFTW/interactivetutorials.
+#
+# Built with BASE_URL=/tutorials and published under publish/tutorials/ so that
+# MitchellLabWebsite (https://mitchell.science) can cleanly reverse-proxy
+# /tutorials/* to this Netlify site without breaking asset paths.
+# See netlify-integration/mitchell-lab-website-patch.md for the matching rule.
+
+[build]
+  command = "npm install && npm run build:netlify"
+  publish = "publish"
+
+[build.environment]
+  NODE_VERSION = "22"
+  BASE_URL = "/tutorials"
+
+[[redirects]]
+  from = "/"
+  to = "/tutorials/"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/tutorials/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

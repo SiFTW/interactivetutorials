@@ -1,0 +1,14 @@
+{
+  "name": "mitchell-lab-interactive-tutorials",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive Julia ODE modelling Jupyter Book for the Mitchell Lab",
+  "scripts": {
+    "start": "myst start",
+    "build": "myst build --html",
+    "build:netlify": "BASE_URL=/tutorials myst build --html && rm -rf publish && mkdir -p publish/tutorials && cp -R _build/html/. publish/tutorials/"
+  },
+  "dependencies": {
+    "mystmd": "^1.13.0"
+  }
+}
