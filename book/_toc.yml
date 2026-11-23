@@ -1,0 +1,12 @@
+format: jb-book
+root: intro
+parts:
+  - caption: "Tutorial 1: Your First ODE Model"
+    chapters:
+      - file: tutorial-1/01-running-the-toy-model
+      - file: tutorial-1/02-how-models-are-made
+      - file: tutorial-1/03-editing-models-challenges
+  - caption: "Tutorial 2: Modifiers & Feedback"
+    chapters:
+      - file: tutorial-2/01-modifiers-and-induction
+      - file: tutorial-2/02-modifier-challenges

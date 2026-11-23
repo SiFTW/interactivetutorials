@@ -1,0 +1,171 @@
+/* Mitchell Lab Interactive Tutorials — Live Editable Julia Cells Styling */
+
+.mitchell-live-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 1rem 0 1.5rem 0;
+  padding: 0.85rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+html[data-theme="dark"] .mitchell-live-toolbar {
+  border-color: #334155;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.mitchell-live-left,
+.mitchell-live-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mitchell-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  border: 1px solid transparent;
+}
+
+.mitchell-btn-primary {
+  background-color: #0284c7;
+  color: #ffffff !important;
+}
+
+.mitchell-btn-primary:hover:not(:disabled) {
+  background-color: #0369a1;
+}
+
+.mitchell-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.mitchell-btn-secondary {
+  background-color: #ffffff;
+  color: #1e293b !important;
+  border-color: #cbd5e1;
+}
+
+.mitchell-btn-secondary:hover {
+  background-color: #f1f5f9;
+}
+
+html[data-theme="dark"] .mitchell-btn-secondary {
+  background-color: #1e293b;
+  color: #f1f5f9 !important;
+  border-color: #475569;
+}
+
+.mitchell-status-pill {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mitchell-status-idle {
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+.mitchell-status-loading {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.mitchell-status-ready {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.mitchell-status-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.mitchell-status-msg {
+  font-size: 0.88rem;
+  color: #475569;
+}
+
+html[data-theme="dark"] .mitchell-status-msg {
+  color: #cbd5e1;
+}
+
+/* Editable Thebe CodeMirror cells */
+.thebe-cell {
+  border: 1.5px solid #93c5fd !important;
+  border-radius: 8px !important;
+  margin: 0.75rem 0 !important;
+  padding: 0.35rem 0.5rem 0.5rem 0.5rem !important;
+  background-color: #ffffff;
+}
+
+.thebe-cell .CodeMirror {
+  height: auto !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  border-radius: 6px;
+}
+
+.thebe-cell .CodeMirror-scroll {
+  min-height: 2.4rem;
+}
+
+.thebe-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.thebe-button {
+  padding: 0.25rem 0.65rem !important;
+  border-radius: 5px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+
+.thebe-button:hover {
+  background: #e2e8f0 !important;
+}
+
+.thebe-run-button {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+.thebe-run-button:hover {
+  background: #0369a1 !important;
+}
+
+/* Keep SVG plots crisp and responsive */
+.cell_output svg,
+.jp-OutputArea-output svg {
+  max-width: 100%;
+  height: auto;
+}

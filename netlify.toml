@@ -1,17 +1,16 @@
 # Netlify configuration for SiFTW/interactivetutorials.
 #
-# Built with BASE_URL=/tutorials and published under publish/tutorials/ so that
-# MitchellLabWebsite (https://mitchell.science) can cleanly reverse-proxy
-# /tutorials/* to this Netlify site without breaking asset paths.
+# Builds Jupyter Book 1 (Sphinx + Thebe 0.9 editable CodeMirror cells) into
+# publish/tutorials/ so MitchellLabWebsite (https://mitchell.science) can
+# cleanly reverse-proxy /tutorials/* to this Netlify site.
 # See netlify-integration/mitchell-lab-website-patch.md for the matching rule.
 
 [build]
-  command = "npm install && npm run build:netlify"
+  command = "pip install -r book/requirements.txt && jupyter-book build book/ && rm -rf publish && mkdir -p publish/tutorials && cp -R book/_build/html/. publish/tutorials/"
   publish = "publish"
 
 [build.environment]
-  NODE_VERSION = "22"
-  BASE_URL = "/tutorials"
+  PYTHON_VERSION = "3.12"
 
 [[redirects]]
   from = "/"
