@@ -31,6 +31,7 @@ from typing import Any, Protocol
 from aiohttp import ClientSession, ClientTimeout, WSMsgType, web
 import docker
 from docker.errors import APIError, NotFound
+from multidict import CIMultiDict
 
 LOG = logging.getLogger("mitchell.spawner")
 
@@ -193,6 +194,7 @@ class DockerBackend:
             "--ServerApp.allow_origin=*",
             "--ServerApp.allow_remote_access=True",
             "--ServerApp.open_browser=False",
+            "--ServerApp.default_url=/lab",
             "--ServerApp.root_dir=/home/jovyan/work",
             f"--MappingKernelManager.cull_idle_timeout={config.idle_timeout_seconds}",
             "--MappingKernelManager.cull_interval=60",
@@ -612,8 +614,8 @@ class TutorialSpawnerApp:
       logEl.textContent += `[${{msg.phase}}] ${{msg.message}}\\n`;
       if (msg.phase === 'ready') {{
         es.close();
-        statusEl.textContent = 'Ready! Redirecting to Jupyter…';
-        window.location.href = `${{msg.url}}?token=${{encodeURIComponent(msg.token)}}`;
+        statusEl.textContent = 'Ready! Redirecting to JupyterLab…';
+        window.location.href = `${{msg.url}}lab?token=${{encodeURIComponent(msg.token)}}`;
       }} else if (msg.phase === 'failed') {{
         es.close();
         statusEl.textContent = 'Launch failed: ' + msg.message;
@@ -674,14 +676,15 @@ class TutorialSpawnerApp:
                 headers=forward_headers,
                 data=body if body else None,
                 allow_redirects=False,
+                auto_decompress=False,
                 timeout=ClientTimeout(total=120),
             ) as upstream:
-                resp_headers = {
-                    k: v
+                resp_headers = CIMultiDict(
+                    (k, v)
                     for k, v in upstream.headers.items()
                     if k.lower() not in HOP_BY_HOP_HEADERS
                     and not k.lower().startswith("access-control-")
-                }
+                )
                 resp = web.StreamResponse(status=upstream.status, headers=resp_headers)
                 self._apply_cors(request, resp)
                 await resp.prepare(request)

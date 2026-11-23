@@ -394,9 +394,49 @@
         "Click inside any code cell to edit, then press Shift + Enter (or click Run)."
       );
 
-      if (result && result.server && result.server.userServerUrl) {
-        ui.labLink.href = result.server.userServerUrl;
+      const creds = extractServerCredentials(result);
+      if (creds) {
+        let currentLabUrl = buildLabUrl(creds.baseUrl, creds.token, null);
+        ui.labLink.href = currentLabUrl;
         ui.labLink.style.display = "inline-flex";
+
+        // Pre-sync the current tutorial notebook into /home/jovyan/work in the background
+        // so even middle-click / right-click opens JupyterLab directly on this task.
+        syncCurrentNotebookToServer(creds).then((nbName) => {
+          if (nbName) {
+            currentLabUrl = buildLabUrl(creds.baseUrl, creds.token, nbName);
+            ui.labLink.href = currentLabUrl;
+          }
+        });
+
+        // On normal click, open a tab synchronously (avoids popup blockers), sync any
+        // latest live edits from the CodeMirror cells, and navigate into JupyterLab.
+        ui.labLink.addEventListener("click", async (evt) => {
+          if (evt.metaKey || evt.ctrlKey || evt.shiftKey || evt.altKey || evt.button !== 0) {
+            return;
+          }
+          evt.preventDefault();
+          const labWin = window.open("about:blank", "_blank");
+          if (labWin) {
+            try {
+              labWin.document.title = "Opening JupyterLab…";
+              labWin.document.body.innerHTML =
+                '<p style="font-family:system-ui,sans-serif;padding:2rem;color:#334155;">Syncing your current tutorial notebook and opening JupyterLab…</p>';
+            } catch (_e) {
+              // Ignore cross-origin/document errors
+            }
+          }
+          const nbName = await syncCurrentNotebookToServer(creds);
+          const targetUrl = buildLabUrl(creds.baseUrl, creds.token, nbName);
+          currentLabUrl = targetUrl;
+          ui.labLink.href = targetUrl;
+          if (labWin) {
+            labWin.opener = null;
+            labWin.location.href = targetUrl;
+          } else {
+            window.open(targetUrl, "_blank", "noopener");
+          }
+        });
       }
     } catch (err) {
       console.error("[mitchell-thebe] Activation failed:", err);
@@ -414,6 +454,125 @@
         "Connection Failed",
         err && err.message ? err.message : "Could not reach kernels.mitchell.science."
       );
+    }
+  }
+
+  /**
+   * Extract normalized { baseUrl, token } for the active Jupyter Server session.
+   */
+  function extractServerCredentials(result) {
+    const server = result && result.server ? result.server : null;
+    if (!server) return null;
+
+    const rawUrl =
+      server.userServerUrl ||
+      (server.settings && server.settings.baseUrl) ||
+      (server.config && server.config.baseUrl) ||
+      "";
+    if (!rawUrl) return null;
+
+    try {
+      const parsed = new URL(rawUrl, window.location.href);
+      const basePath = parsed.pathname.replace(/\/+$/, "") + "/";
+      const baseUrl = `${parsed.origin}${basePath}`;
+      let token =
+        parsed.searchParams.get("token") ||
+        (server.settings && server.settings.token) ||
+        (server.config && server.config.token) ||
+        "";
+
+      if (!token) {
+        // Fallback: check Thebe's saved session record in localStorage
+        for (let i = 0; i < window.localStorage.length; i++) {
+          const k = window.localStorage.key(i);
+          if (k && k.startsWith(STORAGE_PREFIX)) {
+            const saved = JSON.parse(window.localStorage.getItem(k) || "{}");
+            if (saved && saved.token) {
+              token = saved.token;
+              break;
+            }
+          }
+        }
+      }
+
+      return { baseUrl, token };
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  function buildLabUrl(baseUrl, token, notebookName) {
+    const path = notebookName ? `lab/tree/${encodeURIComponent(notebookName)}` : "lab";
+    const query = token ? `?token=${encodeURIComponent(token)}` : "";
+    return `${baseUrl}${path}${query}`;
+  }
+
+  /**
+   * Locate the current page's source .ipynb URL (published by Jupyter Book under _sources/).
+   */
+  function findCurrentNotebookSource() {
+    const dlLink = document.querySelector('a[href$=".ipynb"]');
+    if (!dlLink) return null;
+    try {
+      const url = new URL(dlLink.getAttribute("href"), window.location.href);
+      const filename = decodeURIComponent(url.pathname.split("/").pop() || "");
+      if (!filename.endsWith(".ipynb")) return null;
+      return { url: url.href, filename };
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  /**
+   * Upload the current tutorial page's .ipynb (with any live CodeMirror edits merged in)
+   * into the user's running JupyterLab workspace (/home/jovyan/work/<filename>).
+   */
+  async function syncCurrentNotebookToServer(creds) {
+    const sourceInfo = findCurrentNotebookSource();
+    if (!sourceInfo || !creds || !creds.baseUrl) return null;
+
+    try {
+      const resp = await fetch(sourceInfo.url);
+      if (!resp.ok) return null;
+      const nb = await resp.json();
+
+      // Merge any live edits the student has already made in the in-page CodeMirror cells
+      if (Array.isArray(nb.cells)) {
+        const liveEditors = Array.from(document.querySelectorAll(".thebelab-cell .CodeMirror"))
+          .map((el) => (el.CodeMirror ? el.CodeMirror.getValue() : null))
+          .filter((val) => val !== null);
+        const codeCells = nb.cells.filter((c) => c && c.cell_type === "code");
+        if (liveEditors.length > 0 && liveEditors.length === codeCells.length) {
+          codeCells.forEach((cell, idx) => {
+            cell.source = liveEditors[idx];
+          });
+        }
+      }
+
+      // Ensure JupyterLab opens the notebook directly on our precompiled Julia kernel
+      nb.metadata = nb.metadata || {};
+      nb.metadata.kernelspec = {
+        display_name: "Julia",
+        language: "julia",
+        name: "julia",
+      };
+
+      const putUrl = `${creds.baseUrl}api/contents/${encodeURIComponent(sourceInfo.filename)}${
+        creds.token ? `?token=${encodeURIComponent(creds.token)}` : ""
+      }`;
+      const putResp = await fetch(putUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "notebook",
+          format: "json",
+          content: nb,
+        }),
+      });
+      return putResp.ok ? sourceInfo.filename : null;
+    } catch (err) {
+      console.warn("[mitchell-thebe] Could not sync notebook to JupyterLab:", err);
+      return null;
     }
   }
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gzip
 import json
 import sys
 import time
@@ -48,6 +49,22 @@ class MockJupyterBackend:
                 {"default": "julia", "kernelspecs": {"julia": {"name": "julia"}}}
             )
 
+        async def lab_redirect(request: web.Request) -> web.Response:
+            resp = web.Response(status=302, headers={"Location": f"{prefix}/lab"})
+            resp.set_cookie("_xsrf", "xsrf-val", path=f"{prefix}/")
+            resp.set_cookie("username-test", "auth-val", path=f"{prefix}/")
+            return resp
+
+        async def lab_gzip_bundle(request: web.Request) -> web.Response:
+            payload = gzip.compress(b"console.log('jupyterlab-ok');")
+            return web.Response(
+                body=payload,
+                headers={
+                    "Content-Type": "application/javascript",
+                    "Content-Encoding": "gzip",
+                },
+            )
+
         async def ws_channels(request: web.Request) -> web.WebSocketResponse:
             ws = web.WebSocketResponse(
                 protocols=("v1.kernel.websocket.jupyter.org",)
@@ -62,6 +79,8 @@ class MockJupyterBackend:
 
         mock_app.router.add_get(f"{prefix}/api/status", status)
         mock_app.router.add_get(f"{prefix}/api/kernelspecs", kernelspecs)
+        mock_app.router.add_get(f"{prefix}/lab", lab_redirect)
+        mock_app.router.add_get(f"{prefix}/static/lab/bundle.js", lab_gzip_bundle)
         mock_app.router.add_get(f"{prefix}/api/kernels/k1/channels", ws_channels)
 
         server = TestServer(mock_app)
@@ -150,6 +169,23 @@ async def test_binder_sse_spawn_http_and_websocket_proxy():
         ]
         ks_data = await ks_resp.json()
         assert ks_data["default"] == "julia"
+
+        # 4b. JupyterLab auth redirect preserves ALL Set-Cookie headers
+        lab_resp = await client.get(
+            f"/user/{sid}/lab?token={token}",
+            allow_redirects=False,
+        )
+        assert lab_resp.status == 302
+        set_cookies = lab_resp.headers.getall("Set-Cookie")
+        assert len(set_cookies) == 2
+        assert any(c.startswith("_xsrf=xsrf-val") for c in set_cookies)
+        assert any(c.startswith("username-test=auth-val") for c in set_cookies)
+
+        # 4c. Gzipped JupyterLab JS assets stream verbatim without decompression mismatch
+        bundle_resp = await client.get(f"/user/{sid}/static/lab/bundle.js")
+        assert bundle_resp.status == 200
+        assert bundle_resp.headers.get("Content-Encoding") == "gzip"
+        assert (await bundle_resp.text()) == "console.log('jupyterlab-ok');"
 
         # 5. WebSocket reverse proxy (Jupyter kernel channel protocol)
         async with client.ws_connect(
