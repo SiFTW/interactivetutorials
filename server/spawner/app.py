@@ -358,12 +358,14 @@ class TutorialSpawnerApp:
         peer = request.remote
         if not peer:
             return False
-        if self._blocked_network is not None:
-            try:
-                if ipaddress.ip_address(peer) in self._blocked_network:
-                    return True
-            except ValueError:
-                pass
+        try:
+            peer_ip = ipaddress.ip_address(peer)
+            if peer_ip.is_loopback:
+                return False
+            if self._blocked_network is not None and peer_ip in self._blocked_network:
+                return True
+        except ValueError:
+            pass
         return any(s.upstream_host == peer for s in self.sessions.values())
 
     def _client_ip_hash(self, request: web.Request) -> str:
