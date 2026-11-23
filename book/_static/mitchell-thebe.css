@@ -1,17 +1,36 @@
-/* Mitchell Lab Interactive Tutorials — Live Editable Julia Cells Styling */
+/* Mitchell Lab Interactive Tutorials — Live Editable Julia Cells & Sidebar Fixes */
 
+/* Reliable desktop sidebar collapse toggles */
+@media (min-width: 992px) {
+  html.mitchell-hide-primary-sidebar .bd-sidebar-primary,
+  html.mitchell-hide-primary-sidebar #pst-primary-sidebar {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  html.mitchell-hide-secondary-sidebar .bd-sidebar-secondary,
+  html.mitchell-hide-secondary-sidebar #pst-secondary-sidebar {
+    display: none !important;
+  }
+}
+
+/* Sticky top live-Julia toolbar */
 .mitchell-live-toolbar {
+  position: sticky;
+  top: 3.4rem;
+  z-index: 25;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  margin: 1rem 0 1.5rem 0;
-  padding: 0.85rem 1.1rem;
+  gap: 0.65rem;
+  margin: 0 0 1.25rem 0;
+  padding: 0.7rem 1rem;
   border-radius: 10px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #93c5fd;
   background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
 html[data-theme="dark"] .mitchell-live-toolbar {
@@ -24,20 +43,20 @@ html[data-theme="dark"] .mitchell-live-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
 }
 
 .mitchell-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.45rem 0.9rem;
+  padding: 0.42rem 0.85rem;
   border-radius: 7px;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none !important;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  transition: background-color 0.15s ease;
   border: 1px solid transparent;
 }
 
@@ -71,6 +90,46 @@ html[data-theme="dark"] .mitchell-btn-secondary {
   border-color: #475569;
 }
 
+.mitchell-header-live-btn {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  margin-right: 0.35rem;
+}
+
+.mitchell-header-live-btn:hover:not(:disabled) {
+  background-color: #0369a1 !important;
+}
+
+.mitchell-header-live-btn.is-ready {
+  background-color: #15803d !important;
+}
+
+.mitchell-cell-activate-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.35rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 5px;
+  border: 1px solid #bae6fd;
+  background-color: #f0f9ff;
+  color: #0369a1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mitchell-cell-activate-pill:hover {
+  background-color: #e0f2fe;
+}
+
+html[data-theme="dark"] .mitchell-cell-activate-pill {
+  background-color: #0c4a6e;
+  border-color: #0284c7;
+  color: #e0f2fe;
+}
+
 .mitchell-status-pill {
   display: inline-block;
   padding: 0.2rem 0.6rem;
@@ -101,7 +160,7 @@ html[data-theme="dark"] .mitchell-btn-secondary {
 }
 
 .mitchell-status-msg {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   color: #475569;
 }
 
