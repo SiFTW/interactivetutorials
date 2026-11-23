@@ -42,11 +42,10 @@
   </g>
   <text x="336" y="206" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">mRNA decay</text>
 
-  <!-- IkB_mRNA promotes IkB protein translation -->
-  <path d="M 390 146 L 486 146 L 486 128" fill="none" stroke="#15803d" stroke-width="2.5"/>
-  <line x1="486" y1="128" x2="486" y2="180" stroke="#15803d" stroke-width="2.5"/>
+  <!-- IkB_mRNA promotes IkB protein translation (single clean right-angled line) -->
+  <path d="M 390 146 L 486 146 L 486 178" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linejoin="round"/>
   <circle cx="486" cy="184" r="6" fill="#ffffff" stroke="#15803d" stroke-width="2.5"/>
-  <text x="498" y="156" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#15803d">promotes translation</text>
+  <text x="498" y="160" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#15803d">promotes translation</text>
 
   <!-- Source -> IkB protein -->
   <g transform="translate(422, 198)" stroke="#64748b" stroke-width="2" fill="none">
