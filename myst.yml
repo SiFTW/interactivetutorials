@@ -32,6 +32,10 @@ project:
         - file: book/tutorial-1/01-running-the-toy-model.ipynb
         - file: book/tutorial-1/02-how-models-are-made.ipynb
         - file: book/tutorial-1/03-editing-models-challenges.ipynb
+    - title: "Tutorial 2: Modifiers & Feedback"
+      children:
+        - file: book/tutorial-2/01-modifiers-and-induction.ipynb
+        - file: book/tutorial-2/02-modifier-challenges.ipynb
 
 site:
   template: book-theme
