@@ -22,6 +22,11 @@ Each reader gets a **fresh, isolated workspace** containing all the starter mode
 2. **[How Models Are Made](./tutorial-1/02-how-models-are-made.ipynb)** — Discover how biological reaction diagrams translate into systems of ODEs, and explore the three CSV tables (`reactions.csv`, `parameters.csv`, `ratelaws.csv`) that `CSV2Model` combines into runnable Julia code.
 3. **[Editing & Extending Models](./tutorial-1/03-editing-models-challenges.ipynb)** — Modify expression and degradation rates live, inspect how the generated ODEs change, and extend the pathway by adding a brand-new biomolecular species **D** ($\emptyset \to A \to B \to C \to D \to \emptyset$).
 
+## What you will learn in Tutorial 2
+
+1. **[Modifiers & Induced Expression](./tutorial-2/01-modifiers-and-induction.ipynb)** — Learn how **modifiers** (like transcription factors or enzymes) control reaction rates without being consumed, build an **NF-κB → IκB** induced expression model, and practice reading Julia error messages.
+2. **[Modifier Challenges (NF-κB / IκB Pathway)](./tutorial-2/02-modifier-challenges.ipynb)** — Stabilise `IkB` with basal expression and degradation, add reversible **`NFkB` + `IkB` binding/unbinding**, and expand the pathway with **`IkB` mRNA** transcription and translation.
+
 :::{note} Want to follow along on your own machine or the lab JupyterHub?
 Every notebook page can also be downloaded as a `.ipynb` file (or opened from the [GitHub repository](https://github.com/SiFTW/interactivetutorials)). When you transition from these tutorials to full-scale lab research, see the [Mitchell Lab Handbook](https://docs.mitchell.science/) for connecting to our research compute servers.
 :::
