@@ -88,43 +88,76 @@
   }
 
   /**
-   * Reliable desktop sidebar toggle for both primary (left) and secondary (right)
-   * sidebars, working around pydata-sphinx-theme / sphinx-book-theme toggle issues.
+   * Reliable sidebar toggle for both primary (left) and secondary (right)
+   * sidebars across all viewport widths (desktop collapse + narrow drawer).
+   * Uses querySelectorAll because sphinx-book-theme renders duplicate toggle
+   * buttons in .bd-header and .bd-header-article.
    */
   function wireSidebarToggles() {
-    const primaryToggle = document.querySelector(".primary-toggle, label[for='__primary']");
-    const primarySidebar = document.querySelector(".bd-sidebar-primary, #pst-primary-sidebar");
+    const htmlEl = document.documentElement;
 
-    if (primaryToggle && primarySidebar) {
-      primaryToggle.addEventListener(
+    function closeMobileDrawers() {
+      htmlEl.classList.remove("mitchell-show-primary-mobile", "mitchell-show-secondary-mobile");
+    }
+
+    const primaryToggles = document.querySelectorAll(
+      ".primary-toggle, button[title='Toggle primary sidebar'], label[for='__primary']"
+    );
+    primaryToggles.forEach((btn) => {
+      btn.addEventListener(
         "click",
         (evt) => {
+          evt.preventDefault();
+          evt.stopImmediatePropagation();
           if (window.matchMedia("(min-width: 992px)").matches) {
-            evt.preventDefault();
-            evt.stopImmediatePropagation();
-            document.documentElement.classList.toggle("mitchell-hide-primary-sidebar");
+            htmlEl.classList.toggle("mitchell-hide-primary-sidebar");
+          } else {
+            htmlEl.classList.remove("mitchell-show-secondary-mobile");
+            htmlEl.classList.toggle("mitchell-show-primary-mobile");
           }
         },
         true
       );
-    }
+    });
 
-    const secondaryToggle = document.querySelector(".secondary-toggle, label[for='__secondary']");
-    const secondarySidebar = document.querySelector(".bd-sidebar-secondary, #pst-secondary-sidebar");
-
-    if (secondaryToggle && secondarySidebar) {
-      secondaryToggle.addEventListener(
+    const secondaryToggles = document.querySelectorAll(
+      ".secondary-toggle, button[title='Toggle secondary sidebar'], label[for='__secondary']"
+    );
+    secondaryToggles.forEach((btn) => {
+      btn.addEventListener(
         "click",
         (evt) => {
+          evt.preventDefault();
+          evt.stopImmediatePropagation();
           if (window.matchMedia("(min-width: 1200px)").matches) {
-            evt.preventDefault();
-            evt.stopImmediatePropagation();
-            document.documentElement.classList.toggle("mitchell-hide-secondary-sidebar");
+            htmlEl.classList.toggle("mitchell-hide-secondary-sidebar");
+          } else {
+            htmlEl.classList.remove("mitchell-show-primary-mobile");
+            htmlEl.classList.toggle("mitchell-show-secondary-mobile");
           }
         },
         true
       );
-    }
+    });
+
+    document.addEventListener("keydown", (evt) => {
+      if (evt.key === "Escape") closeMobileDrawers();
+    });
+
+    document.addEventListener("click", (evt) => {
+      if (
+        htmlEl.classList.contains("mitchell-show-primary-mobile") &&
+        !evt.target.closest(".bd-sidebar-primary, #pst-primary-sidebar, .primary-toggle")
+      ) {
+        htmlEl.classList.remove("mitchell-show-primary-mobile");
+      }
+      if (
+        htmlEl.classList.contains("mitchell-show-secondary-mobile") &&
+        !evt.target.closest(".bd-sidebar-secondary, #pst-secondary-sidebar, .secondary-toggle")
+      ) {
+        htmlEl.classList.remove("mitchell-show-secondary-mobile");
+      }
+    });
   }
 
   /**
