@@ -28,7 +28,11 @@ function plotAllSpecies(speciesToPlot,conditionsToPlot,colorArray,first_cell,las
                 allNoneFloats=findall(eltype.(eachcol(thisCellData)).!=Float64)
                 if length(allNoneFloats)>1
                     for index in allNoneFloats[2:end]
-                        thisCellData[!,index]=parse.(Float64,thisCellData[:,index])
+                        if eltype(thisCellData[:,index]) <: AbstractString
+                            thisCellData[!,index]=parse.(Float64,thisCellData[:,index])
+                        else
+                            thisCellData[!,index]=Float64.(thisCellData[:,index])
+                        end
                     end
                 end
                 thisTC=zeros(1,size(thisCellData,2)-1)

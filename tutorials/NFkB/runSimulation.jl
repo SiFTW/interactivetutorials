@@ -95,11 +95,19 @@ function runSimulation(first_cell, last_cell, conditions,folder,BCRSSArray,BCRTC
     #     CSV.write(generatedCSVLocation*"/parameters_"*string(conditions[condIndex])*".csv", thisCondParamFile)
             prob=ODEProblem(f,y0,(0.0,maxTimeSS),thisCellsParamVals)
 
-            solss=solve(prob,saveat=100.0,Rodas4(autodiff=false))
+            stiff_alg = if isdefined(Main, :AutoFiniteDiff)
+                Rodas5P(autodiff=AutoFiniteDiff())
+            elseif isdefined(DifferentialEquations, :AutoFiniteDiff)
+                Rodas5P(autodiff=DifferentialEquations.AutoFiniteDiff())
+            else
+                Rodas5P()
+            end
+
+            solss=solve(prob, stiff_alg; saveat=100.0)
             println("Steady state found for cell: "*string(i))
 
             #dynamic phase, use SS solution as initial conditions
-            y0=collect(Float64, solss[:,end])
+            y0=collect(Float64, solss.u[end])
             y0[y0.<0].=0
 
             #CSV.write(generatedCSVLocation*"/parameters_"*string(conditions[condIndex])*"_cell_"*string(i)*".csv", DataFrame(thisCellsParamVals,:auto))
@@ -110,9 +118,9 @@ function runSimulation(first_cell, last_cell, conditions,folder,BCRSSArray,BCRTC
                 f=ODEFunction(myFun)
                 prob=ODEProblem(f,y0,(0.0,maxTimeTC),thisCellsParamVals)
                 println("Solving equations for dynamic time course for cell:"*string(i))
-                sol=solve(prob,reltol=1e-6, saveat=1,Rodas4(autodiff=false))
+                sol=solve(prob, stiff_alg; reltol=1e-6, saveat=1.0)
                 #save("outputs/sol_"*thisCondition*"_cell_"*string(i)*".jld2", "solution", sol)
-                df = DataFrame(Float64.(Array(sol)),:auto)
+                df = DataFrame(Float64.(reduce(hcat, sol.u)),:auto)
                 #add the variable names and save to a file
                 insertcols!(df, 1, :names=>syms)
                 CSV.write(folder*"/sol_"*thisCondition*"_cell_"*string(i)*".csv",df);
