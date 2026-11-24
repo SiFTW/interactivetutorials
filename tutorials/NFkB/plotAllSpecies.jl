@@ -1,110 +1,164 @@
+using Statistics
+
 function plotAllSpecies(speciesToPlot,conditionsToPlot,colorArray,first_cell,last_cell,folder,hoursToPlot,maxValOfYAxis,qualityScaling,preStimTime)
     allConditionsArray=[]
-    p1=plot();
-    for species in speciesToPlot
-        #thisPlot=plot(title=species)
-#         thisPlotStd=plot(title=species*" avg\n")
-#         boxPlotAll=plot(title=species*" ss\n")
-#         BoxPlotAvg=plot(title=species*"avg ss\n")
-                thisPlotStd=plot(title="")
-        boxPlotAll=plot(title="")
-        BoxPlotAvg=plot(title="")
-        conditionIndex=1
-        meansOfAllConditions=zeros(1,length(conditionsToPlot)+preStimTime)
-        stdOfAllConditions=zeros(1,length(conditionsToPlot)+preStimTime)
-        lengthOfTC=0
-        maxValueOfAllConditions=0
-        for condition in conditionsToPlot
-            lengthOfTC=size(DataFrame(CSV.File(folder*"/sol_"*condition*"_cell_1.csv")),2)-1
+    n_cells = last_cell - first_cell + 1
 
-            conditionArray=zeros(last_cell,lengthOfTC)
-            lineColor=colorArray[conditionIndex]
-            virtExpFlag=false
-            for i in first_cell:1:last_cell
-                thisCellData=DataFrame(CSV.File(folder*"/sol_"*condition*"_cell_"*string(i)*".csv"))
+    for species in speciesToPlot
+        thisPlotStd = plot(title="Time Course", grid=false, framestyle=:axes)
+        boxPlotAll  = plot(title="Steady State", grid=false, framestyle=:axes)
+
+        meansOfAllConditions = zeros(length(conditionsToPlot))
+        stdOfAllConditions   = zeros(length(conditionsToPlot))
+        maxValueOfAllConditions = 0.0
+        maxSteadyState = 0.0
+
+        for (conditionIndex, condition) in enumerate(conditionsToPlot)
+            firstFile = DataFrame(CSV.File(folder*"/sol_"*condition*"_cell_"*string(first_cell)*".csv"))
+            n_tc = size(firstFile, 2) - 1
+            totalCols = preStimTime + n_tc
+            conditionArray = zeros(n_cells, totalCols)
+            lineColor = colorArray[mod1(conditionIndex, length(colorArray))]
+
+            for (rowIdx, i) in enumerate(first_cell:last_cell)
+                thisCellData = DataFrame(CSV.File(folder*"/sol_"*condition*"_cell_"*string(i)*".csv"))
                 if !("names" in names(thisCellData))
                     insertcols!(thisCellData, 1, :names=>syms)
                 end
-                allNoneFloats=findall(eltype.(eachcol(thisCellData)).!=Float64)
-                if length(allNoneFloats)>1
+                allNoneFloats = findall(eltype.(eachcol(thisCellData)) .!= Float64)
+                if length(allNoneFloats) > 1
                     for index in allNoneFloats[2:end]
-                        if eltype(thisCellData[:,index]) <: AbstractString
-                            thisCellData[!,index]=parse.(Float64,thisCellData[:,index])
+                        if eltype(thisCellData[:, index]) <: AbstractString
+                            thisCellData[!, index] = parse.(Float64, thisCellData[:, index])
                         else
-                            thisCellData[!,index]=Float64.(thisCellData[:,index])
+                            thisCellData[!, index] = Float64.(thisCellData[:, index])
                         end
                     end
                 end
-                thisTC=zeros(1,size(thisCellData,2)-1)
-                if endswith(species,"*")
-#                     println("* star detected")
-                    virtExpFlag=true
-                    speciesShort=species[1:end-1]
-                    speciesIDs=intersect(findall( x ->occursin(speciesShort,x),syms),findall(x->!startswith(x,"t"),syms))
-                    speciesNames=String.(syms[speciesIDs])
-#                     println("For species: "*species*" printing: ")
-#                     println(speciesNames)
+
+                if endswith(species, "*")
+                    speciesShort = species[1:end-1]
+                    speciesIDs = intersect(
+                        findall(x -> occursin(speciesShort, x), syms),
+                        findall(x -> !startswith(x, "t"), syms),
+                    )
+                    speciesNames = String.(syms[speciesIDs])
+                    thisTC = zeros(size(thisCellData, 2) - 1)
                     for thisName in speciesNames
-                        thisSpeciesTC=Matrix(thisCellData[thisCellData[!,:names].==thisName,:])[2:end]
-                        
-                        thisTC=thisTC.+thisSpeciesTC'
+                        thisSpeciesTC = vec(Float64.(Matrix(thisCellData[thisCellData[!, :names] .== thisName, 2:end])))
+                        thisTC .+= thisSpeciesTC
                     end
                 else
-                    thisTC=Matrix(thisCellData[thisCellData[!,:names].==species,:])[2:end]
-
+                    thisTC = vec(Float64.(Matrix(thisCellData[thisCellData[!, :names] .== species, 2:end])))
                 end
-                entriesToSave=minimum([length(thisTC),size(conditionArray,2)-preStimTime])
-                conditionArray[i,:].=thisTC[1]
-                conditionArray[i,preStimTime:entriesToSave+preStimTime-1]=thisTC[1:entriesToSave]
-                
-                
 
-
-            end
-            
-            conditionArray=conditionArray[first_cell:last_cell,1:end-1]
-            push!(allConditionsArray,conditionArray)
-            df = DataFrame(Float64.(conditionArray),:auto)
-            #add the variable names and save to a file
-            #CSV.write("outputs/sol_"*thisCondition*"_cell_"*string(i)*".csv",Tables.columntable(df));
-            #CSV.write("outputs/allTCs_"*species*"_cell.csv",df);
-
-            
-            meanOfCondition=conditionArray
-            stdOfCondition=zeros(size(conditionArray))
-            largestValForGraph=maximum(meanOfCondition)+maximum(stdOfCondition)
-            if largestValForGraph>maxValueOfAllConditions
-                maxValueOfAllConditions=largestValForGraph
+                entriesToSave = min(length(thisTC), n_tc)
+                # Pre-stimulation steady-state baseline followed by dynamic time course
+                conditionArray[rowIdx, 1:preStimTime] .= thisTC[1]
+                conditionArray[rowIdx, preStimTime+1:preStimTime+entriesToSave] = thisTC[1:entriesToSave]
             end
 
-#             println(meanOfCondition)
-#             println(stdOfCondition)
-            plot!(thisPlotStd,meanOfCondition',grid=false,color=lineColor,ribbon=stdOfCondition',fillalpha=.25,label=condition,linewidth=5)
+            push!(allConditionsArray, conditionArray)
 
-            meansOfAllConditions[conditionIndex]=meanOfCondition[preStimTime]
-            stdOfAllConditions[conditionIndex]=stdOfCondition[preStimTime]
+            # Compute mean and standard deviation across simulated cells
+            if n_cells > 1
+                meanOfCondition = vec(mean(conditionArray, dims=1))
+                stdOfCondition  = vec(std(conditionArray, dims=1))
+            else
+                meanOfCondition = vec(conditionArray)
+                stdOfCondition  = zeros(length(meanOfCondition))
+            end
 
-            conditionIndex+=1
+            # Clamp lower ribbon visually at 0 so concentrations never shade below zero
+            lowerRibbon = min.(stdOfCondition, meanOfCondition)
+            upperRibbon = stdOfCondition
+
+            largestValForGraph = maximum(meanOfCondition .+ upperRibbon)
+            if largestValForGraph > maxValueOfAllConditions
+                maxValueOfAllConditions = largestValForGraph
+            end
+
+            timeHours = ((1:totalCols) .- preStimTime) ./ 60.0
+            plot!(
+                thisPlotStd,
+                timeHours,
+                meanOfCondition;
+                ribbon=(lowerRibbon, upperRibbon),
+                fillalpha=0.22,
+                color=lineColor,
+                label=condition,
+                linewidth=3,
+            )
+
+            ssMean = meanOfCondition[preStimTime]
+            ssStd  = stdOfCondition[preStimTime]
+            meansOfAllConditions[conditionIndex] = ssMean
+            stdOfAllConditions[conditionIndex]   = ssStd
+            if ssMean + ssStd > maxSteadyState
+                maxSteadyState = ssMean + ssStd
+            end
         end
-        conditionIndex=1
-        #plot!(boxPlotAll,conditionsToPlot, meansOfAllConditions;, c=colorArray, yerr = stdOfAllConditions', label = "",xrotation = 90,seriestype = :scatter,fillcolor=:match)
-        for condition in conditionsToPlot
-            plot!(boxPlotAll,[conditionIndex], [meansOfAllConditions[conditionIndex]], c=colorArray[conditionIndex], yerr = stdOfAllConditions[conditionIndex], label = false,xrotation = 70,seriestype = :scatter,fillcolor=:match,markersize=round(Int,10*qualityScaling),markerstrokewidth=round(Int,4*qualityScaling))            
-            conditionIndex+=1
+
+        # Left panel: Steady-state mean markers with crisp black +/- SD error bars
+        for (conditionIndex, condition) in enumerate(conditionsToPlot)
+            lineColor = colorArray[mod1(conditionIndex, length(colorArray))]
+            scatter!(
+                boxPlotAll,
+                [conditionIndex],
+                [meansOfAllConditions[conditionIndex]];
+                yerror=[stdOfAllConditions[conditionIndex]],
+                markercolor=lineColor,
+                markerstrokecolor=:black,
+                markerstrokewidth=1.8,
+                linecolor=:black,
+                linewidth=2,
+                markersize=max(5, round(Int, 12 * qualityScaling)),
+                label=false,
+            )
         end
 
-            
-        plot!(boxPlotAll,xticks = (1:length(conditionsToPlot), conditionsToPlot),xlim=(0,length(conditionsToPlot)+1),dpi=300,size=(round(Int,800*qualityScaling),round(Int,1000*qualityScaling)),xtickfontsize=15,ytickfontsize=18,titlefontsize=8)        
-        plot!(thisPlotStd,xticks=(collect(preStimTime:round(hoursToPlot/4)*60:preStimTime.+(hoursToPlot*60)),collect(0:round(hoursToPlot/4):hoursToPlot)),xlim=(-preStimTime,hoursToPlot*60),dpi=300,size=(round(Int,1500*qualityScaling),round(Int,1000*qualityScaling)),xtickfontsize=18,ytickfontsize=18,xlabel="hours",titlefontsize=8)
-        if maxValOfYAxis>0
-            plot!(thisPlotStd,ylim=(0,maxValOfYAxis))
-            plot!(boxPlotAll,ylim=(0,maximum([maximum(meansOfAllConditions)+maximum(stdOfAllConditions),maxValOfYAxis])))
+        plot!(
+            boxPlotAll;
+            xticks=(1:length(conditionsToPlot), conditionsToPlot),
+            xrotation=60,
+            xlim=(0.3, length(conditionsToPlot) + 0.7),
+            ylabel=species,
+            xtickfontsize=10,
+            ytickfontsize=11,
+            yguidefontsize=12,
+            titlefontsize=12,
+        )
+
+        xTickStep = max(1, round(Int, hoursToPlot / 4))
+        plot!(
+            thisPlotStd;
+            xticks=collect(0:xTickStep:hoursToPlot),
+            xlim=(-preStimTime / 60.0, hoursToPlot),
+            xlabel="Time (h)",
+            xtickfontsize=11,
+            ytickfontsize=11,
+            xguidefontsize=12,
+            titlefontsize=12,
+            legendfontsize=10,
+        )
+
+        if maxValOfYAxis > 0
+            plot!(thisPlotStd, ylim=(0, maxValOfYAxis))
+            plot!(boxPlotAll, ylim=(0, max(maxSteadyState * 1.12, maxValOfYAxis)))
         else
-            plot!(thisPlotStd,ylim=(0,maxValueOfAllConditions))
-            plot!(boxPlotAll,ylim=(0,maximum(meansOfAllConditions)+maximum(stdOfAllConditions)+0.1))
+            plot!(thisPlotStd, ylim=(0, max(maxValueOfAllConditions * 1.08, 1e-6)))
+            plot!(boxPlotAll, ylim=(0, max(maxSteadyState * 1.15, 0.1)))
         end
-        #display(plot(boxPlotAll,thisPlot))
-        p1=plot(boxPlotAll,thisPlotStd,layout = grid(1, 2, widths=[0.30 ,0.7]),title=species)
+
+        p1 = plot(
+            boxPlotAll,
+            thisPlotStd;
+            layout=grid(1, 2, widths=[0.32, 0.68]),
+            size=(round(Int, 1600 * qualityScaling), round(Int, 900 * qualityScaling)),
+            dpi=200,
+            plot_title=species,
+            plot_titlefontsize=13,
+        )
         display(p1)
     end
 end
