@@ -1,12 +1,12 @@
 # Netlify configuration for SiFTW/interactivetutorials.
 #
-# Builds Jupyter Book 1 (Sphinx + Thebe 0.9 editable CodeMirror cells) into
-# publish/tutorials/ so MitchellLabWebsite (https://mitchell.science) can
-# cleanly reverse-proxy /tutorials/* to this Netlify site.
-# See netlify-integration/mitchell-lab-website-patch.md for the matching rule.
+# Builds BOTH Jupyter Book 1 sites (Sphinx + Thebe 0.9 editable CodeMirror cells):
+#   - book/ -> publish/tutorials/   (proxied at https://mitchell.science/tutorials/)
+#   - ssc/  -> publish/ssc/         (proxied at https://mitchell.science/ssc/)
+# See netlify-integration/mitchell-lab-website-patch.md for the matching Netlify proxy rules.
 
 [build]
-  command = "pip install -r book/requirements.txt && jupyter-book build book/ && rm -rf publish && mkdir -p publish/tutorials && cp -R book/_build/html/. publish/tutorials/"
+  command = "pip install -r book/requirements.txt && jupyter-book build book/ && jupyter-book build ssc/ && rm -rf publish && mkdir -p publish/tutorials publish/ssc && cp -R book/_build/html/. publish/tutorials/ && cp -R ssc/_build/html/. publish/ssc/"
   publish = "publish"
 
 [build.environment]
@@ -20,6 +20,13 @@
 
 [[headers]]
   for = "/tutorials/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/ssc/*"
   [headers.values]
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"

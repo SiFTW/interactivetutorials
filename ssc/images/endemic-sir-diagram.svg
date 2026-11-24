@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 270" width="820" height="270" role="img" aria-label="Endemic SIR compartmental model with births and deaths">
+  <defs>
+    <marker id="arrowDark3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e293b"/>
+    </marker>
+    <marker id="arrowBirth" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0f766e"/>
+    </marker>
+    <marker id="arrowDeath" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="820" height="270" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Susceptible Box -->
+  <rect x="40" y="48" width="180" height="90" rx="14" fill="#65a30d" stroke="#4d7c0f" stroke-width="2.5"/>
+  <text x="130" y="86" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="21" font-weight="700" fill="#ffffff">Susceptible</text>
+  <text x="130" y="116" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#ecfccb">S</text>
+
+  <!-- Infectious Box -->
+  <rect x="320" y="48" width="180" height="90" rx="14" fill="#ea580c" stroke="#c2410c" stroke-width="2.5"/>
+  <text x="410" y="86" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="21" font-weight="700" fill="#ffffff">Infectious</text>
+  <text x="410" y="116" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#ffedd5">I</text>
+
+  <!-- Recovered Box -->
+  <rect x="600" y="48" width="180" height="90" rx="14" fill="#2563eb" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="690" y="86" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="21" font-weight="700" fill="#ffffff">Recovered</text>
+  <text x="690" y="116" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#dbeafe">R</text>
+
+  <!-- S -> I arrow -->
+  <line x1="223" y1="93" x2="311" y2="93" stroke="#1e293b" stroke-width="3" marker-end="url(#arrowDark3)"/>
+  <text x="270" y="80" text-anchor="middle" font-family="Georgia, serif" font-size="23" font-style="italic" font-weight="700" fill="#0f172a">r · β</text>
+  <text x="270" y="118" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#475569">Infection</text>
+
+  <!-- I -> R arrow -->
+  <line x1="503" y1="93" x2="591" y2="93" stroke="#1e293b" stroke-width="3" marker-end="url(#arrowDark3)"/>
+  <text x="550" y="80" text-anchor="middle" font-family="Georgia, serif" font-size="23" font-style="italic" font-weight="700" fill="#0f172a">γ</text>
+  <text x="550" y="118" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#475569">Recovery</text>
+
+  <!-- Births / immigration into S -->
+  <line x1="100" y1="224" x2="100" y2="146" stroke="#0f766e" stroke-width="3" marker-end="url(#arrowBirth)"/>
+  <text x="86" y="185" text-anchor="end" font-family="Georgia, serif" font-size="20" font-style="italic" font-weight="700" fill="#0f766e">λ</text>
+  <text x="86" y="206" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#0f766e">Births /</text>
+  <text x="86" y="221" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#0f766e">immigration</text>
+
+  <!-- Deaths / emigration out of S, I, R -->
+  <line x1="160" y1="140" x2="160" y2="218" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrowDeath)"/>
+  <text x="172" y="186" text-anchor="start" font-family="Georgia, serif" font-size="18" font-style="italic" font-weight="700" fill="#475569">μ · S</text>
+  <text x="172" y="205" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#64748b">Natural exit</text>
+
+  <line x1="410" y1="140" x2="410" y2="218" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrowDeath)"/>
+  <text x="422" y="186" text-anchor="start" font-family="Georgia, serif" font-size="18" font-style="italic" font-weight="700" fill="#475569">μ · I</text>
+  <text x="422" y="205" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#64748b">Natural exit</text>
+
+  <line x1="690" y1="140" x2="690" y2="218" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrowDeath)"/>
+  <text x="702" y="186" text-anchor="start" font-family="Georgia, serif" font-size="18" font-style="italic" font-weight="700" fill="#475569">μ · R</text>
+  <text x="702" y="205" text-anchor="start" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#64748b">Natural exit</text>
+</svg>

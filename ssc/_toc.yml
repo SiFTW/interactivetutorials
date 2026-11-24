@@ -1,0 +1,10 @@
+format: jb-book
+root: intro
+parts:
+  - caption: "Week 1: Intro & Population-Scale Modelling"
+    chapters:
+      - file: week-1/01-intro-to-modelling
+      - file: week-1/02-si-sis-model
+      - file: week-1/03-sir-sirs-model
+      - file: week-1/04-endemic-sir-model
+      - file: week-1/05-seir-model

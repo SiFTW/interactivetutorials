@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-book:
-    name: Build Interactive Jupyter Book (Editable Thebe Cells)
+    name: Build Interactive Jupyter Books (/tutorials & /ssc)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,14 +15,17 @@ jobs:
           python-version: "3.12"
       - name: Install Jupyter Book
         run: pip install -r book/requirements.txt
-      - name: Build book for Netlify subpath (/tutorials)
+      - name: Build both books for Netlify subpaths (/tutorials and /ssc)
         run: |
           jupyter-book build book/
+          jupyter-book build ssc/
           rm -rf publish
-          mkdir -p publish/tutorials
+          mkdir -p publish/tutorials publish/ssc
           cp -R book/_build/html/. publish/tutorials/
+          cp -R ssc/_build/html/. publish/ssc/
       - name: Verify generated chapters and editable Thebe assets
         run: |
+          # ODE Modelling Tutorials (/tutorials)
           test -f publish/tutorials/index.html
           test -f publish/tutorials/tutorial-1/01-running-the-toy-model.html
           test -f publish/tutorials/tutorial-1/03-editing-models-challenges.html
@@ -31,6 +34,18 @@ jobs:
           test -f publish/tutorials/_static/mitchell-thebe.js
           test -f publish/tutorials/_static/mitchell-thebe.css
           grep -q "mitchell-thebe.js" publish/tutorials/tutorial-1/01-running-the-toy-model.html
+
+          # BSMS SSC Interactive Book (/ssc)
+          test -f publish/ssc/index.html
+          test -f publish/ssc/week-1/01-intro-to-modelling.html
+          test -f publish/ssc/week-1/02-si-sis-model.html
+          test -f publish/ssc/week-1/03-sir-sirs-model.html
+          test -f publish/ssc/week-1/04-endemic-sir-model.html
+          test -f publish/ssc/week-1/05-seir-model.html
+          test -f publish/ssc/_static/ssc-thebe.js
+          test -f publish/ssc/_static/ssc-thebe.css
+          grep -q "ssc-thebe.js" publish/ssc/week-1/01-intro-to-modelling.html
+          grep -q "ssc-thebe.js" publish/ssc/week-1/02-si-sis-model.html
 
   test-spawner-and-csv2model:
     name: Test Spawner & CSV2Model
