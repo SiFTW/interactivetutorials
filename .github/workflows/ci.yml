@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build-book:
@@ -127,14 +128,16 @@ jobs:
           OUT1="$(REPO_DIR="$TEST_ROOT/server_clone" LOCK_FILE="$TEST_ROOT/lock" bash server/auto-update/update-tutorial-server.sh --dry-run)"
           grep -q "no Docker rebuild needed" <<<"$OUT1"
           git -C "$TEST_ROOT/server_clone" pull --ff-only >/dev/null 2>&1
-          # 2. tutorials/ commit should trigger ONLY kernel build
+          # 2. tutorials/ commit should build candidate, run notebook tests, and promote ONLY kernel image
           (
             cd "$TEST_ROOT/work"
             echo "v2" > tutorials/toyModel/reactions.csv
             git commit -am "model edit" >/dev/null && git push >/dev/null 2>&1
           )
           OUT2="$(REPO_DIR="$TEST_ROOT/server_clone" LOCK_FILE="$TEST_ROOT/lock" bash server/auto-update/update-tutorial-server.sh --dry-run)"
-          grep -q "docker build -f server/Dockerfile.julia-kernel" <<<"$OUT2"
+          grep -q "docker build -f server/Dockerfile.julia-kernel -t mitchell-lab/julia-tutorial-kernel:candidate" <<<"$OUT2"
+          grep -q "scripts/test_notebooks.py" <<<"$OUT2"
+          grep -q "Would promote mitchell-lab/julia-tutorial-kernel:candidate -> mitchell-lab/julia-tutorial-kernel:latest" <<<"$OUT2"
           ! grep -q "docker compose" <<<"$OUT2"
           git -C "$TEST_ROOT/server_clone" pull --ff-only >/dev/null 2>&1
           # 3. server/spawner/ commit should trigger ONLY spawner rebuild
@@ -146,3 +149,31 @@ jobs:
           OUT3="$(REPO_DIR="$TEST_ROOT/server_clone" LOCK_FILE="$TEST_ROOT/lock" bash server/auto-update/update-tutorial-server.sh --dry-run)"
           grep -q "docker compose up -d --build spawner" <<<"$OUT3"
           ! grep -q "docker build -f server/Dockerfile.julia-kernel" <<<"$OUT3"
+
+  test-notebooks-julia:
+    name: Execute All Julia Notebooks (book/ & ssc/)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: "1.10.14"
+      - name: Cache Julia depot
+        uses: actions/cache@v4
+        with:
+          path: ~/.julia
+          key: ${{ runner.os }}-julia-1.10.14-${{ hashFiles('server/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-julia-1.10.14-
+      - name: Instantiate & precompile tutorial Julia packages
+        run: |
+          julia --project=server -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+      - name: Execute every code cell in all book/ and ssc/ notebooks
+        env:
+          GKSwstype: "100"
+        run: |
+          python3 scripts/test_notebooks.py --repo . --julia-args "--project=server" --timeout 360
