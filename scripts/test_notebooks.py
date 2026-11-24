@@ -44,11 +44,18 @@ BANNED_NON_SYSIMAGE_IMPORTS = (
 )
 
 JULIA_RUNNER = r'''
+function _render_if_plot(x)
+    if x !== nothing && isdefined(Main, :Plots) && x isa Main.Plots.Plot
+        show(IOBuffer(), MIME("image/svg+xml"), x)
+        return true
+    end
+    return false
+end
+
 struct HeadlessPlotDisplay <: AbstractDisplay end
 
 function Base.display(::HeadlessPlotDisplay, x)
-    if isdefined(Main, :Plots) && x isa Main.Plots.Plot
-        show(IOBuffer(), MIME("image/svg+xml"), x)
+    if Base.invokelatest(_render_if_plot, x)
         return nothing
     end
     throw(MethodError(display, (HeadlessPlotDisplay(), x)))
@@ -78,23 +85,35 @@ if syntax_only
     exit(0)
 end
 
+# Match IJulia/Jupyter semantics: relative include("...") resolves against pwd(), not runner.jl's temp dir
+delete!(task_local_storage(), :SOURCE_PATH)
+
 # Pass 2: Execute each code cell sequentially in Main top-level scope
 for (idx, path) in enumerate(cell_files)
     src = read(path, String)
+    expect_err = endswith(path, ".expect_err.jl")
     t0 = time()
     try
         val = Base.include_string(Main, src, "$(nb_label)::cell_$(idx)")
-        if val !== nothing && isdefined(Main, :Plots) && val isa Main.Plots.Plot
-            show(IOBuffer(), MIME("image/svg+xml"), val)
-        end
+        Base.invokelatest(_render_if_plot, val)
         dt = round(time() - t0; digits=2)
+        if expect_err
+            println(stderr, "EXPECTED ERROR DID NOT OCCUR in $(nb_label) code cell #$(idx) (tagged raises-exception)")
+            exit(4)
+        end
         println("  [OK] cell $(idx)/$(length(cell_files)) ($(dt)s)")
         flush(stdout)
     catch err
-        println(stderr, "RUNTIME ERROR in $(nb_label) code cell #$(idx):")
-        showerror(stderr, err, catch_backtrace())
-        println(stderr)
-        exit(3)
+        dt = round(time() - t0; digits=2)
+        if expect_err
+            println("  [OK] cell $(idx)/$(length(cell_files)) ($(dt)s, expected error verified)")
+            flush(stdout)
+        else
+            println(stderr, "RUNTIME ERROR in $(nb_label) code cell #$(idx):")
+            showerror(stderr, err, catch_backtrace())
+            println(stderr)
+            exit(3)
+        end
     end
 end
 '''
@@ -114,9 +133,10 @@ parsed = []
 for idx, path in enumerate(cell_files, 1):
     with open(path, "r", encoding="utf-8") as fp:
         src = fp.read()
+    expect_err = path.endswith(".expect_err.py")
     try:
         tree = ast.parse(src, filename=f"{nb_label}::cell_{idx}")
-        parsed.append((idx, src, tree))
+        parsed.append((idx, src, tree, expect_err))
     except SyntaxError:
         print(f"SYNTAX ERROR in {nb_label} code cell #{idx}:", file=sys.stderr)
         traceback.print_exc()
@@ -128,17 +148,24 @@ if syntax_only:
 
 # Pass 2: Execute each code cell sequentially in a shared global namespace
 ns = {"__name__": "__main__"}
-for idx, src, _tree in parsed:
+for idx, src, _tree, expect_err in parsed:
     t0 = time.monotonic()
     try:
         code = compile(src, f"{nb_label}::cell_{idx}", "exec")
         exec(code, ns)
         dt = round(time.monotonic() - t0, 2)
+        if expect_err:
+            print(f"EXPECTED ERROR DID NOT OCCUR in {nb_label} code cell #{idx} (tagged raises-exception)", file=sys.stderr)
+            sys.exit(4)
         print(f"  [OK] cell {idx}/{len(cell_files)} ({dt}s)", flush=True)
     except Exception:
-        print(f"RUNTIME ERROR in {nb_label} code cell #{idx}:", file=sys.stderr)
-        traceback.print_exc()
-        sys.exit(3)
+        dt = round(time.monotonic() - t0, 2)
+        if expect_err:
+            print(f"  [OK] cell {idx}/{len(cell_files)} ({dt}s, expected error verified)", flush=True)
+        else:
+            print(f"RUNTIME ERROR in {nb_label} code cell #{idx}:", file=sys.stderr)
+            traceback.print_exc()
+            sys.exit(3)
 '''
 
 
@@ -213,14 +240,19 @@ def run_notebook(
 ) -> tuple[bool, float, str]:
     rel = str(nb_path.relative_to(repo_dir))
     nb = json.loads(nb_path.read_text(encoding="utf-8"))
-    code_cells = [
-        "".join(cell.get("source", []))
-        for cell in nb.get("cells", [])
-        if cell.get("cell_type") == "code" and "".join(cell.get("source", [])).strip()
-    ]
+    code_cell_entries: list[tuple[str, bool]] = []
+    for cell in nb.get("cells", []):
+        if cell.get("cell_type") != "code":
+            continue
+        src = "".join(cell.get("source", []))
+        if not src.strip():
+            continue
+        tags = (cell.get("metadata", {}) or {}).get("tags", []) or []
+        expect_err = "raises-exception" in tags
+        code_cell_entries.append((src, expect_err))
 
     if nb_lang == "julia":
-        banned = check_banned_imports(rel, code_cells)
+        banned = check_banned_imports(rel, [src for src, _ in code_cell_entries])
         if banned:
             return False, 0.0, "\n".join(banned)
 
@@ -235,8 +267,9 @@ def run_notebook(
         )
 
         cell_paths: list[str] = []
-        for idx, src in enumerate(code_cells, 1):
-            cp = td_path / f"cell_{idx:02d}.{ext}"
+        for idx, (src, expect_err) in enumerate(code_cell_entries, 1):
+            suffix = f".expect_err.{ext}" if expect_err else f".{ext}"
+            cp = td_path / f"cell_{idx:02d}{suffix}"
             cp.write_text(src, encoding="utf-8")
             cell_paths.append(str(cp))
 
@@ -282,7 +315,35 @@ def run_notebook(
         return proc.returncode == 0, dt, combined
 
 
-def main() -> int:
+def _normalize_argv(argv: list[str]) -> list[str]:
+    """Rewrite `--julia-args <val>` to `--julia-args=<val>` so argparse accepts values starting with `-`."""
+    out: list[str] = []
+    i = 0
+    while i < len(argv):
+        if argv[i] == "--julia-args" and i + 1 < len(argv):
+            out.append(f"--julia-args={argv[i + 1]}")
+            i += 2
+        else:
+            out.append(argv[i])
+            i += 1
+    return out
+
+
+def _resolve_julia_args(raw_args: str) -> list[str]:
+    """Split --julia-args and resolve relative --project= / --sysimage= paths against cwd."""
+    resolved: list[str] = []
+    for tok in shlex.split(raw_args):
+        for prefix in ("--project=", "--sysimage=", "-J"):
+            if tok.startswith(prefix) and len(tok) > len(prefix):
+                val = tok[len(prefix) :]
+                if val not in ("@.", "@") and not val.startswith("@"):
+                    tok = f"{prefix}{Path(val).resolve()}"
+                break
+        resolved.append(tok)
+    return resolved
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Execute all interactive Julia & Python notebooks and fail on any cell error."
     )
@@ -308,10 +369,10 @@ def main() -> int:
     parser.add_argument("--syntax-only", action="store_true", help="Only syntax-check cells without running")
     parser.add_argument("--filter", default=None, help="Only test notebooks whose relative path contains this substring")
     parser.add_argument("--timeout", type=int, default=300, help="Per-notebook timeout in seconds (default: 300)")
-    args = parser.parse_args()
+    args = parser.parse_args(_normalize_argv(sys.argv[1:] if argv is None else argv))
 
     repo_dir = Path(args.repo).resolve()
-    julia_cmd = [args.julia, *shlex.split(args.julia_args)]
+    julia_cmd = [args.julia, *_resolve_julia_args(args.julia_args)]
     python_cmd = [args.python]
     in_container_work = Path(args.in_container_work) if args.in_container_work else None
 
