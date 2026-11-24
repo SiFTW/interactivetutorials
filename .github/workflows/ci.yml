@@ -45,11 +45,16 @@ jobs:
           test -f publish/ssc/signalling/01-nfkb-and-systems-biology.html
           test -f publish/ssc/signalling/02-cll-tri-model-simulation.html
           test -f publish/ssc/signalling/03-waldenstrom-drug-discovery.html
+          test -f publish/ssc/cell-fate/01-apoptosis-and-cell-cycle-intro.html
+          test -f publish/ssc/cell-fate/02-apoptosis-bcl2-model.html
+          test -f publish/ssc/cell-fate/03-cell-cycle-myc-model.html
           test -f publish/ssc/_static/ssc-thebe.js
           test -f publish/ssc/_static/ssc-thebe.css
           grep -q "ssc-thebe.js" publish/ssc/week-1/01-intro-to-modelling.html
           grep -q "ssc-thebe.js" publish/ssc/week-1/02-si-sis-model.html
           grep -q "ssc-thebe.js" publish/ssc/signalling/02-cll-tri-model-simulation.html
+          grep -q "ssc-thebe.js" publish/ssc/cell-fate/02-apoptosis-bcl2-model.html
+          grep -q "ssc-thebe.js" publish/ssc/cell-fate/03-cell-cycle-myc-model.html
 
   test-spawner-and-csv2model:
     name: Test Spawner & CSV2Model
@@ -67,6 +72,8 @@ jobs:
       - name: Verify csv2model-multiscale.py produces valid Julia output with zero warnings
         run: |
           python3 -W error -m py_compile tutorials/NFkB/csv2Julia/csv2model-multiscale.py
+          python3 -W error -m py_compile tutorials/apoptosis/csv2model-multiscale.py
+          python3 -W error -m py_compile tutorials/cellCycle/csv2model-multiscale.py
           TMPDIR="$(mktemp -d)"
           cp tutorials/toyModel/* "$TMPDIR/"
           (
@@ -75,4 +82,20 @@ jobs:
             grep -q "function toyModel(dy,y,p,t)" toyModel.jl
             grep -q 'dy\[1\]= + 1 - A \* 2' toyModel.jl
             grep -q 'syms=\["A","B","C",\]' variableNames.jl
+          )
+          APOP_DIR="$(mktemp -d)"
+          cp tutorials/apoptosis/* "$APOP_DIR/"
+          (
+            cd "$APOP_DIR"
+            python3 -W error csv2model-multiscale.py reactions_apoptosis.csv parameters_apoptosis.csv rateLaws_apoptosis.csv odeApoptosis.jl scan
+            grep -q "function odeApoptosis(dy,y,p,t)" odeApoptosis.jl
+            grep -q '"k1_88"=>1.0' scanIncludes.jl
+          )
+          CC_DIR="$(mktemp -d)"
+          cp tutorials/cellCycle/* "$CC_DIR/"
+          (
+            cd "$CC_DIR"
+            python3 -W error csv2model-multiscale.py reactions_cellCycle.csv parameters_cellCycle.csv rateLaws_cellCycle.csv odeCellCycle.jl scan
+            grep -q "function odeCellCycle(dy,y,p,t)" odeCellCycle.jl
+            grep -q '"k1_myc"=>1.0' scanIncludes.jl
           )

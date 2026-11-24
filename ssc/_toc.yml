@@ -13,3 +13,8 @@ parts:
       - file: signalling/01-nfkb-and-systems-biology
       - file: signalling/02-cll-tri-model-simulation
       - file: signalling/03-waldenstrom-drug-discovery
+  - caption: "Cell Fate Modelling: Apoptosis & Cell Cycle"
+    chapters:
+      - file: cell-fate/01-apoptosis-and-cell-cycle-intro
+      - file: cell-fate/02-apoptosis-bcl2-model
+      - file: cell-fate/03-cell-cycle-myc-model

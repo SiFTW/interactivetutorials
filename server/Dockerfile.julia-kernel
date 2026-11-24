@@ -94,9 +94,11 @@ RUN python3 /opt/julia-env/write_kernelspec.py
 USER root
 RUN chmod -R a+rX,go-w /opt/julia /opt/julia-env /usr/local/share/jupyter/kernels/julia
 
-# Bake the starter Tutorial 1 model files and SSC NF-kB tri-model files into every student's isolated workspace
+# Bake the starter Tutorial 1, SSC NF-kB, Apoptosis, and Cell Cycle model files into every student's isolated workspace
 COPY --chown=${NB_USER}:${NB_USER} tutorials/toyModel/ /home/${NB_USER}/work/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/NFkB/ /home/${NB_USER}/work/NFkB/
+COPY --chown=${NB_USER}:${NB_USER} tutorials/apoptosis/ /home/${NB_USER}/work/apoptosis/
+COPY --chown=${NB_USER}:${NB_USER} tutorials/cellCycle/ /home/${NB_USER}/work/cellCycle/
 
 USER ${NB_USER}
 WORKDIR /home/${NB_USER}/work
