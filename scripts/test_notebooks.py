@@ -44,11 +44,18 @@ BANNED_NON_SYSIMAGE_IMPORTS = (
 )
 
 JULIA_RUNNER = r'''
+function _render_if_plot(x)
+    if x !== nothing && isdefined(Main, :Plots) && x isa Main.Plots.Plot
+        show(IOBuffer(), MIME("image/svg+xml"), x)
+        return true
+    end
+    return false
+end
+
 struct HeadlessPlotDisplay <: AbstractDisplay end
 
 function Base.display(::HeadlessPlotDisplay, x)
-    if isdefined(Main, :Plots) && x isa Main.Plots.Plot
-        show(IOBuffer(), MIME("image/svg+xml"), x)
+    if Base.invokelatest(_render_if_plot, x)
         return nothing
     end
     throw(MethodError(display, (HeadlessPlotDisplay(), x)))
@@ -78,15 +85,16 @@ if syntax_only
     exit(0)
 end
 
+# Match IJulia/Jupyter semantics: relative include("...") resolves against pwd(), not runner.jl's temp dir
+delete!(task_local_storage(), :SOURCE_PATH)
+
 # Pass 2: Execute each code cell sequentially in Main top-level scope
 for (idx, path) in enumerate(cell_files)
     src = read(path, String)
     t0 = time()
     try
         val = Base.include_string(Main, src, "$(nb_label)::cell_$(idx)")
-        if val !== nothing && isdefined(Main, :Plots) && val isa Main.Plots.Plot
-            show(IOBuffer(), MIME("image/svg+xml"), val)
-        end
+        Base.invokelatest(_render_if_plot, val)
         dt = round(time() - t0; digits=2)
         println("  [OK] cell $(idx)/$(length(cell_files)) ($(dt)s)")
         flush(stdout)
