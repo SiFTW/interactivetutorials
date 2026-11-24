@@ -6,7 +6,9 @@ in an isolated Julia process (matching how a student runs all cells in order via
 or JupyterLab), verifying:
   1. Zero banned non-sysimage heavy package imports (prevents 2 GB container OOM crashes).
   2. Every code cell parses cleanly with Julia's `Meta.parseall`.
-  3. Every code cell executes with zero uncaught exceptions in `Main` top-level scope.
+  3. Every code cell executes with zero uncaught exceptions in `Main` top-level scope
+     (cells explicitly tagged `"raises-exception"` in Jupyter metadata are verified to
+     raise an exception, matching standard Jupyter/nbval semantics).
   4. Every `Plots.Plot` returned or passed to `display(...)` renders cleanly to SVG
      under headless GR (`GKSwstype=100`).
 
@@ -40,9 +42,20 @@ BANNED_NON_SYSIMAGE_IMPORTS = (
 JULIA_RUNNER = r'''
 struct HeadlessPlotDisplay <: AbstractDisplay end
 
+function _render_if_plot(x)
+    if x !== nothing && isdefined(Main, :Plots)
+        PlotsMod = getfield(Main, :Plots)
+        if x isa PlotsMod.Plot
+            buf = IOBuffer()
+            Base.invokelatest(show, buf, MIME("image/svg+xml"), x)
+            return true
+        end
+    end
+    return false
+end
+
 function Base.display(::HeadlessPlotDisplay, x)
-    if isdefined(Main, :Plots) && x isa Main.Plots.Plot
-        show(IOBuffer(), MIME("image/svg+xml"), x)
+    if _render_if_plot(x)
         return nothing
     end
     throw(MethodError(display, (HeadlessPlotDisplay(), x)))
@@ -50,12 +63,17 @@ end
 
 pushdisplay(HeadlessPlotDisplay())
 
+# Match IJulia semantics: relative `include("...")` must resolve against `pwd()`,
+# NOT the temporary directory containing this runner script!
+empty!(Base.SOURCE_PATH)
+
 const nb_label = ARGS[1]
 const syntax_only = ARGS[2] == "1"
-const cell_files = ARGS[3:end]
+const cell_specs = ARGS[3:end]   # format: "<0|1>:<path>" where 1 = expects exception
 
 # Pass 1: Syntax check all cells up front
-for (idx, path) in enumerate(cell_files)
+for (idx, spec) in enumerate(cell_specs)
+    _, path = split(spec, ":"; limit=2)
     src = read(path, String)
     try
         Meta.parseall(src; filename="$(nb_label)::cell_$(idx)")
@@ -68,27 +86,37 @@ for (idx, path) in enumerate(cell_files)
 end
 
 if syntax_only
-    println("SYNTAX OK: $(nb_label) ($(length(cell_files)) code cells)")
+    println("SYNTAX OK: $(nb_label) ($(length(cell_specs)) code cells)")
     exit(0)
 end
 
 # Pass 2: Execute each code cell sequentially in Main top-level scope
-for (idx, path) in enumerate(cell_files)
+for (idx, spec) in enumerate(cell_specs)
+    expect_err_str, path = split(spec, ":"; limit=2)
+    expect_err = expect_err_str == "1"
     src = read(path, String)
     t0 = time()
     try
         val = Base.include_string(Main, src, "$(nb_label)::cell_$(idx)")
-        if val !== nothing && isdefined(Main, :Plots) && val isa Main.Plots.Plot
-            show(IOBuffer(), MIME("image/svg+xml"), val)
-        end
+        Base.invokelatest(_render_if_plot, val)
         dt = round(time() - t0; digits=2)
-        println("  [OK] cell $(idx)/$(length(cell_files)) ($(dt)s)")
+        if expect_err
+            println(stderr, "EXPECTED ERROR BUT SUCCEEDED in $(nb_label) code cell #$(idx) (tagged raises-exception)")
+            exit(4)
+        end
+        println("  [OK] cell $(idx)/$(length(cell_specs)) ($(dt)s)")
         flush(stdout)
     catch err
-        println(stderr, "RUNTIME ERROR in $(nb_label) code cell #$(idx):")
-        showerror(stderr, err, catch_backtrace())
-        println(stderr)
-        exit(3)
+        dt = round(time() - t0; digits=2)
+        if expect_err
+            println("  [OK] cell $(idx)/$(length(cell_specs)) raised expected exception ($(dt)s)")
+            flush(stdout)
+        else
+            println(stderr, "RUNTIME ERROR in $(nb_label) code cell #$(idx):")
+            showerror(stderr, err, catch_backtrace())
+            println(stderr)
+            exit(3)
+        end
     end
 end
 '''
@@ -97,7 +125,6 @@ end
 def emit_gha_error(rel_path: str, message: str) -> None:
     if os.environ.get("GITHUB_ACTIONS") != "true":
         return
-    # Keep annotation concise and properly escaped for GitHub Actions workflow commands
     compact = " | ".join(line.strip() for line in message.splitlines() if line.strip())[:800]
     escaped = compact.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
     print(f"::error file={rel_path},title=Notebook execution failed ({rel_path})::{escaped}", flush=True)
@@ -115,9 +142,9 @@ def discover_notebooks(repo_dir: Path, filt: str | None) -> list[Path]:
     return nbs
 
 
-def check_banned_imports(rel_path: str, code_cells: list[str]) -> list[str]:
+def check_banned_imports(rel_path: str, code_cells: list[tuple[str, bool]]) -> list[str]:
     errors: list[str] = []
-    for idx, src in enumerate(code_cells, 1):
+    for idx, (src, _) in enumerate(code_cells, 1):
         for lineno, raw_line in enumerate(src.splitlines(), 1):
             stripped = raw_line.strip()
             if not stripped or stripped.startswith("#"):
@@ -161,11 +188,16 @@ def run_notebook(
 ) -> tuple[bool, float, str]:
     rel = str(nb_path.relative_to(repo_dir))
     nb = json.loads(nb_path.read_text(encoding="utf-8"))
-    code_cells = [
-        "".join(cell.get("source", []))
-        for cell in nb.get("cells", [])
-        if cell.get("cell_type") == "code" and "".join(cell.get("source", [])).strip()
-    ]
+    code_cells: list[tuple[str, bool]] = []
+    for cell in nb.get("cells", []):
+        if cell.get("cell_type") != "code":
+            continue
+        src = "".join(cell.get("source", []))
+        if not src.strip():
+            continue
+        tags = cell.get("metadata", {}).get("tags", [])
+        expect_err = "raises-exception" in tags
+        code_cells.append((src, expect_err))
 
     banned = check_banned_imports(rel, code_cells)
     if banned:
@@ -177,11 +209,11 @@ def run_notebook(
         runner_path = td_path / "runner.jl"
         runner_path.write_text(JULIA_RUNNER, encoding="utf-8")
 
-        cell_paths: list[str] = []
-        for idx, src in enumerate(code_cells, 1):
+        cell_specs: list[str] = []
+        for idx, (src, expect_err) in enumerate(code_cells, 1):
             cp = td_path / f"cell_{idx:02d}.jl"
             cp.write_text(src, encoding="utf-8")
-            cell_paths.append(str(cp))
+            cell_specs.append(f"{'1' if expect_err else '0'}:{cp}")
 
         if in_container_work is not None:
             cwd = in_container_work
@@ -200,7 +232,7 @@ def run_notebook(
             str(runner_path),
             rel,
             "1" if syntax_only else "0",
-            *cell_paths,
+            *cell_specs,
         ]
         try:
             proc = subprocess.run(
