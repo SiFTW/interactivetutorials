@@ -63,10 +63,6 @@ end
 
 pushdisplay(HeadlessPlotDisplay())
 
-# Match IJulia semantics: relative `include("...")` must resolve against `pwd()`,
-# NOT the temporary directory containing this runner script!
-empty!(Base.SOURCE_PATH)
-
 const nb_label = ARGS[1]
 const syntax_only = ARGS[2] == "1"
 const cell_specs = ARGS[3:end]   # format: "<0|1>:<path>" where 1 = expects exception
@@ -206,9 +202,6 @@ def run_notebook(
     t0 = time.monotonic()
     with tempfile.TemporaryDirectory(prefix="nbtest_") as td:
         td_path = Path(td)
-        runner_path = td_path / "runner.jl"
-        runner_path.write_text(JULIA_RUNNER, encoding="utf-8")
-
         cell_specs: list[str] = []
         for idx, (src, expect_err) in enumerate(code_cells, 1):
             cp = td_path / f"cell_{idx:02d}.jl"
@@ -227,9 +220,13 @@ def run_notebook(
         env.setdefault("GKSwstype", "100")
         env.setdefault("PLOTS_DEFAULT_BACKEND", "GR")
 
+        # Run via `-e` (not a script file) so `Base.source_dir() === nothing` and
+        # relative `include("...")` calls resolve against `pwd()`, matching IJulia.
         cmd = [
             *julia_cmd,
-            str(runner_path),
+            "-e",
+            JULIA_RUNNER,
+            "--",
             rel,
             "1" if syntax_only else "0",
             *cell_specs,
