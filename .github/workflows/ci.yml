@@ -71,31 +71,31 @@ jobs:
         run: pytest -v server/spawner/tests/test_spawner.py
       - name: Verify csv2model-multiscale.py produces valid Julia output with zero warnings
         run: |
-          python3 -W error -m py_compile tutorials/NFkB/csv2Julia/csv2model-multiscale.py
-          python3 -W error -m py_compile tutorials/apoptosis/csv2model-multiscale.py
-          python3 -W error -m py_compile tutorials/cellCycle/csv2model-multiscale.py
+          python3 -B -W error -m py_compile tutorials/NFkB/csv2Julia/csv2model-multiscale.py
+          python3 -B -W error -m py_compile tutorials/apoptosis/csv2model-multiscale.py
+          python3 -B -W error -m py_compile tutorials/cellCycle/csv2model-multiscale.py
           TMPDIR="$(mktemp -d)"
-          cp tutorials/toyModel/* "$TMPDIR/"
+          cp -R tutorials/toyModel/. "$TMPDIR/"
           (
             cd "$TMPDIR"
-            python3 -W error csv2model-multiscale.py reactions.csv parameters.csv ratelaws.csv toyModel.jl
+            python3 -B -W error csv2model-multiscale.py reactions.csv parameters.csv ratelaws.csv toyModel.jl
             grep -q "function toyModel(dy,y,p,t)" toyModel.jl
             grep -q 'dy\[1\]= + 1 - A \* 2' toyModel.jl
             grep -q 'syms=\["A","B","C",\]' variableNames.jl
           )
           APOP_DIR="$(mktemp -d)"
-          cp tutorials/apoptosis/* "$APOP_DIR/"
+          cp -R tutorials/apoptosis/. "$APOP_DIR/"
           (
             cd "$APOP_DIR"
-            python3 -W error csv2model-multiscale.py reactions_apoptosis.csv parameters_apoptosis.csv rateLaws_apoptosis.csv odeApoptosis.jl scan
+            python3 -B -W error csv2model-multiscale.py reactions_apoptosis.csv parameters_apoptosis.csv rateLaws_apoptosis.csv odeApoptosis.jl scan
             grep -q "function odeApoptosis(dy,y,p,t)" odeApoptosis.jl
             grep -q '"k1_88"=>1.0' scanIncludes.jl
           )
           CC_DIR="$(mktemp -d)"
-          cp tutorials/cellCycle/* "$CC_DIR/"
+          cp -R tutorials/cellCycle/. "$CC_DIR/"
           (
             cd "$CC_DIR"
-            python3 -W error csv2model-multiscale.py reactions_cellCycle.csv parameters_cellCycle.csv rateLaws_cellCycle.csv odeCellCycle.jl scan
+            python3 -B -W error csv2model-multiscale.py reactions_cellCycle.csv parameters_cellCycle.csv rateLaws_cellCycle.csv odeCellCycle.jl scan
             grep -q "function odeCellCycle(dy,y,p,t)" odeCellCycle.jl
             grep -q '"k1_myc"=>1.0' scanIncludes.jl
           )
