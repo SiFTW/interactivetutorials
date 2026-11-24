@@ -135,3 +135,41 @@ docker compose up -d --build
   ```bash
   cd server && docker compose --profile tunnel down
   ```
+
+---
+
+## Optional: Automatic Pull-Only Rebuilds (`systemd` Timer)
+
+Instead of manually SSHing in to run `git pull && docker build` after merging PRs, you can install a lightweight pull-only `systemd` timer on `139.184.169.98`:
+
+- Polls `origin/main` every **2 minutes** (read-only HTTPS fetch — zero SSH keys or tokens leave the server).
+- Uses an exclusive file lock (`flock`) and low CPU/IO priority (`Nice=10`) so builds never overlap or impact research jobs.
+- **Selectively rebuilds only what changed:**
+  - `tutorials/` or kernel files (`Dockerfile.julia-kernel`, `Project.toml`, `precompile_workload.jl`, `write_kernelspec.py`) → rebuilds `mitchell-lab/julia-tutorial-kernel:latest` (~5 s cached).
+  - `server/spawner/` or `server/docker-compose.yml` → rebuilds & restarts only `mitchell-tutorial-spawner`.
+  - Book/slide/doc changes (`ssc/`, `book/`) → pulls fast-forward and skips Docker completely.
+- Never touches `jeanlucpacard.mitchell.science` or any local uncommitted files.
+
+### Install once (on `139.184.169.98`)
+
+```bash
+cd /home/interactivetutorials && git pull && sudo bash server/auto-update/install-systemd-timer.sh
+```
+
+### Check status, view logs, or uninstall
+
+```bash
+# Check timer schedule
+systemctl list-timers mitchell-tutorials-updater.timer
+
+# View updater logs
+journalctl -u mitchell-tutorials-updater.service -n 50 --no-pager
+
+# Trigger a manual check (or dry-run) immediately
+sudo bash /home/interactivetutorials/server/auto-update/update-tutorial-server.sh --dry-run
+sudo systemctl start mitchell-tutorials-updater.service
+
+# Turn off & remove the timer cleanly
+sudo bash /home/interactivetutorials/server/auto-update/uninstall-systemd-timer.sh
+```
+
