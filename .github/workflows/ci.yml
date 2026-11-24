@@ -99,3 +99,50 @@ jobs:
             grep -q "function odeCellCycle(dy,y,p,t)" odeCellCycle.jl
             grep -q '"k1_myc"=>1.0' scanIncludes.jl
           )
+      - name: Verify server auto-update scripts (syntax & selective rebuild logic)
+        run: |
+          bash -n server/auto-update/update-tutorial-server.sh
+          bash -n server/auto-update/install-systemd-timer.sh
+          bash -n server/auto-update/uninstall-systemd-timer.sh
+          TEST_ROOT="$(mktemp -d)"
+          git init --bare --initial-branch=main "$TEST_ROOT/origin.git" >/dev/null
+          git clone "$TEST_ROOT/origin.git" "$TEST_ROOT/work" >/dev/null 2>&1
+          (
+            cd "$TEST_ROOT/work"
+            git config user.email "ci@mitchell.science"
+            git config user.name "CI"
+            mkdir -p ssc tutorials/toyModel server/spawner
+            echo "v1" > ssc/intro.md
+            echo "v1" > tutorials/toyModel/reactions.csv
+            echo "v1" > server/spawner/app.py
+            git add . && git commit -m "init" >/dev/null && git push -u origin main >/dev/null 2>&1
+          )
+          git clone "$TEST_ROOT/origin.git" "$TEST_ROOT/server_clone" >/dev/null 2>&1
+          # 1. Book-only commit should skip Docker
+          (
+            cd "$TEST_ROOT/work"
+            echo "v2" > ssc/intro.md
+            git commit -am "book edit" >/dev/null && git push >/dev/null 2>&1
+          )
+          OUT1="$(REPO_DIR="$TEST_ROOT/server_clone" LOCK_FILE="$TEST_ROOT/lock" bash server/auto-update/update-tutorial-server.sh --dry-run)"
+          grep -q "no Docker rebuild needed" <<<"$OUT1"
+          git -C "$TEST_ROOT/server_clone" pull --ff-only >/dev/null 2>&1
+          # 2. tutorials/ commit should trigger ONLY kernel build
+          (
+            cd "$TEST_ROOT/work"
+            echo "v2" > tutorials/toyModel/reactions.csv
+            git commit -am "model edit" >/dev/null && git push >/dev/null 2>&1
+          )
+          OUT2="$(REPO_DIR="$TEST_ROOT/server_clone" LOCK_FILE="$TEST_ROOT/lock" bash server/auto-update/update-tutorial-server.sh --dry-run)"
+          grep -q "docker build -f server/Dockerfile.julia-kernel" <<<"$OUT2"
+          ! grep -q "docker compose" <<<"$OUT2"
+          git -C "$TEST_ROOT/server_clone" pull --ff-only >/dev/null 2>&1
+          # 3. server/spawner/ commit should trigger ONLY spawner rebuild
+          (
+            cd "$TEST_ROOT/work"
+            echo "v2" > server/spawner/app.py
+            git commit -am "spawner edit" >/dev/null && git push >/dev/null 2>&1
+          )
+          OUT3="$(REPO_DIR="$TEST_ROOT/server_clone" LOCK_FILE="$TEST_ROOT/lock" bash server/auto-update/update-tutorial-server.sh --dry-run)"
+          grep -q "docker compose up -d --build spawner" <<<"$OUT3"
+          ! grep -q "docker build -f server/Dockerfile.julia-kernel" <<<"$OUT3"
