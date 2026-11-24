@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 380" width="920" height="380" role="img" aria-label="Anatomy of a Molecular Dynamics force field: bonded interactions (bonds, angles, dihedrals) and non-bonded interactions (electrostatics and van der Waals)">
+  <rect width="920" height="380" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="460" y="32" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="17" font-weight="700" fill="#0f172a">Anatomy of a Force Field: V(r) = V_bonded + V_non-bonded</text>
+
+  <!-- Left container: Bonded Interactions -->
+  <rect x="24" y="52" width="520" height="288" rx="12" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
+  <rect x="24" y="52" width="520" height="36" rx="12" fill="#e0f2fe"/>
+  <text x="284" y="75" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14.5" font-weight="700" fill="#0c4a6e">Bonded Interactions (V_bonded) — Covalent "Springs"</text>
+
+  <!-- 1. Bond Stretching -->
+  <rect x="40" y="102" width="152" height="222" rx="10" fill="#ffffff" stroke="#bae6fd" stroke-width="1.5"/>
+  <text x="116" y="126" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#0369a1">Bond Stretching</text>
+  <!-- Spring zigzag between 2 atoms -->
+  <polyline points="68,178 80,178 86,166 96,190 106,166 116,190 126,166 136,190 142,178 154,178" fill="none" stroke="#475569" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="66" cy="178" r="14" fill="#0284c7" stroke="#0c4a6e" stroke-width="2"/>
+  <circle cx="166" cy="178" r="14" fill="#0284c7" stroke="#0c4a6e" stroke-width="2"/>
+  <text x="116" y="216" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#0f172a">distance b</text>
+  <text x="116" y="246" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">Harmonic spring</text>
+  <text x="116" y="266" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">around equilibrium b₀</text>
+  <rect x="52" y="282" width="128" height="28" rx="6" fill="#eff6ff"/>
+  <text x="116" y="300" text-anchor="middle" font-family="monospace" font-size="11.5" font-weight="700" fill="#1d4ed8">½ K_b (b − b₀)²</text>
+
+  <!-- 2. Angle Bending -->
+  <rect x="208" y="102" width="152" height="222" rx="10" fill="#ffffff" stroke="#bae6fd" stroke-width="1.5"/>
+  <text x="284" y="126" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#0369a1">Angle Bending</text>
+  <line x1="242" y1="198" x2="284" y2="156" stroke="#475569" stroke-width="3.5"/>
+  <line x1="284" y1="156" x2="326" y2="198" stroke="#475569" stroke-width="3.5"/>
+  <path d="M 264 176 A 28 28 0 0 0 304 176" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-dasharray="4,2"/>
+  <circle cx="242" cy="198" r="12" fill="#0284c7" stroke="#0c4a6e" stroke-width="2"/>
+  <circle cx="284" cy="156" r="13" fill="#0ea5e9" stroke="#0c4a6e" stroke-width="2"/>
+  <circle cx="326" cy="198" r="12" fill="#0284c7" stroke="#0c4a6e" stroke-width="2"/>
+  <text x="284" y="216" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#ea580c">angle θ</text>
+  <text x="284" y="246" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">Bending penalty</text>
+  <text x="284" y="266" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">around equilibrium θ₀</text>
+  <rect x="220" y="282" width="128" height="28" rx="6" fill="#eff6ff"/>
+  <text x="284" y="300" text-anchor="middle" font-family="monospace" font-size="11.5" font-weight="700" fill="#1d4ed8">½ K_θ (θ − θ₀)²</text>
+
+  <!-- 3. Dihedral / Torsion Rotation -->
+  <rect x="376" y="102" width="152" height="222" rx="10" fill="#ffffff" stroke="#bae6fd" stroke-width="1.5"/>
+  <text x="452" y="126" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#0369a1">Torsion / Dihedral</text>
+  <line x1="406" y1="196" x2="432" y2="168" stroke="#475569" stroke-width="3.5"/>
+  <line x1="432" y1="168" x2="474" y2="168" stroke="#475569" stroke-width="4"/>
+  <line x1="474" y1="168" x2="498" y2="196" stroke="#475569" stroke-width="3.5"/>
+  <!-- Rotation arc around central bond -->
+  <path d="M 446 150 A 18 18 0 1 1 460 185" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
+  <polygon points="463,187 453,189 459,179" fill="#7c3aed"/>
+  <circle cx="406" cy="196" r="10" fill="#0284c7" stroke="#0c4a6e" stroke-width="2"/>
+  <circle cx="432" cy="168" r="11" fill="#0ea5e9" stroke="#0c4a6e" stroke-width="2"/>
+  <circle cx="474" cy="168" r="11" fill="#0ea5e9" stroke="#0c4a6e" stroke-width="2"/>
+  <circle cx="498" cy="196" r="10" fill="#0284c7" stroke="#0c4a6e" stroke-width="2"/>
+  <text x="452" y="216" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#7c3aed">dihedral φ</text>
+  <text x="452" y="246" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">Rotation around</text>
+  <text x="452" y="266" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">backbone bonds</text>
+  <rect x="386" y="282" width="132" height="28" rx="6" fill="#f5f3ff"/>
+  <text x="452" y="300" text-anchor="middle" font-family="monospace" font-size="10.8" font-weight="700" fill="#6d28d9">K_φ [1+cos(nφ−δ)]</text>
+
+  <!-- Right container: Non-bonded Interactions -->
+  <rect x="562" y="52" width="334" height="288" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <rect x="562" y="52" width="334" height="36" rx="12" fill="#ffedd5"/>
+  <text x="729" y="75" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14.5" font-weight="700" fill="#9a3412">Non-Bonded (V_non-bonded) — Through Space</text>
+
+  <!-- 4. Electrostatics -->
+  <rect x="578" y="102" width="302" height="104" rx="10" fill="#ffffff" stroke="#fed7aa" stroke-width="1.5"/>
+  <text x="729" y="124" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#c2410c">Electrostatic (Coulomb) Forces</text>
+  <circle cx="622" cy="162" r="16" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>
+  <text x="622" y="168" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#ffffff">+</text>
+  <line x1="642" y1="162" x2="704" y2="162" stroke="#ea580c" stroke-width="2" stroke-dasharray="5,4"/>
+  <text x="673" y="154" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" font-weight="700" fill="#9a3412">r_ij</text>
+  <circle cx="724" cy="162" r="16" fill="#2563eb" stroke="#1e40af" stroke-width="2"/>
+  <text x="724" y="168" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="800" fill="#ffffff">−</text>
+  <text x="810" y="154" text-anchor="middle" font-family="monospace" font-size="11.5" font-weight="700" fill="#9a3412">q_i q_j / (4πε₀ r_ij)</text>
+  <text x="810" y="174" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" fill="#475569">Partial charges &amp;</text>
+  <text x="810" y="190" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" fill="#475569">hydrogen bonds</text>
+
+  <!-- 5. Van der Waals -->
+  <rect x="578" y="218" width="302" height="106" rx="10" fill="#ffffff" stroke="#fed7aa" stroke-width="1.5"/>
+  <text x="729" y="240" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#c2410c">van der Waals (Lennard-Jones 12–6)</text>
+  <!-- Soft halo circles -->
+  <circle cx="626" cy="280" r="24" fill="#fde68a" fill-opacity="0.45" stroke="#d97706" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <circle cx="626" cy="280" r="10" fill="#475569"/>
+  <circle cx="684" cy="280" r="24" fill="#fde68a" fill-opacity="0.45" stroke="#d97706" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <circle cx="684" cy="280" r="10" fill="#475569"/>
+  <text x="794" y="268" text-anchor="middle" font-family="monospace" font-size="11" font-weight="700" fill="#9a3412">ε [(σ/r)¹² − 2(σ/r)⁶]</text>
+  <text x="794" y="288" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" fill="#475569">Steric clash repulsion</text>
+  <text x="794" y="304" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" fill="#475569">+ weak dispersion attraction</text>
+
+  <!-- Footer -->
+  <text x="460" y="362" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12.5" fill="#475569">Each force field (e.g. AMBER, CHARMM, GROMOS) defines specific parameters for every atom type — ignoring explicit electrons so we can simulate millions of atoms.</text>
+</svg>

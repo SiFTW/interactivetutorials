@@ -517,7 +517,7 @@ class TutorialSpawnerApp:
 
         container_id: str | None = None
         try:
-            await sse_send("built", "Using precompiled Mitchell Lab Julia image.")
+            await sse_send("built", "Using precompiled Mitchell Lab Julia & Python image.")
             await sse_send("launching", "Allocating isolated container...")
 
             container_id, host, port = await self.backend.spawn(
@@ -542,7 +542,7 @@ class TutorialSpawnerApp:
                 await self._destroy_session(session_id, "startup timeout")
                 await sse_send(
                     "failed",
-                    "Timed out waiting for the Julia kernel container to start.",
+                    "Timed out waiting for the tutorial kernel container to start.",
                 )
                 await response.write_eof()
                 return response
@@ -556,7 +556,7 @@ class TutorialSpawnerApp:
             )
             await sse_send(
                 "ready",
-                "Julia kernel ready!",
+                "Tutorial kernel ready!",
                 url=public_url,
                 token=token,
             )

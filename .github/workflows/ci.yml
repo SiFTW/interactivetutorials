@@ -43,6 +43,10 @@ jobs:
           test -f publish/ssc/week-1/03-sir-sirs-model.html
           test -f publish/ssc/week-1/04-endemic-sir-model.html
           test -f publish/ssc/week-1/05-seir-model.html
+          test -f publish/ssc/molecular-dynamics/01-md-intro-and-force-fields.html
+          test -f publish/ssc/molecular-dynamics/02-exploring-pdb-structures.html
+          test -f publish/ssc/molecular-dynamics/03-energy-landscapes-and-analysis.html
+          test -f publish/ssc/molecular-dynamics/04-protein-folding-simulation.html
           test -f publish/ssc/signalling/01-nfkb-and-systems-biology.html
           test -f publish/ssc/signalling/02-cll-tri-model-simulation.html
           test -f publish/ssc/signalling/03-waldenstrom-drug-discovery.html
@@ -53,6 +57,9 @@ jobs:
           test -f publish/ssc/_static/ssc-thebe.css
           grep -q "ssc-thebe.js" publish/ssc/week-1/01-intro-to-modelling.html
           grep -q "ssc-thebe.js" publish/ssc/week-1/02-si-sis-model.html
+          grep -q "ssc-thebe.js" publish/ssc/molecular-dynamics/02-exploring-pdb-structures.html
+          grep -q "ssc-thebe.js" publish/ssc/molecular-dynamics/04-protein-folding-simulation.html
+          grep -q "highlight-ipython3" publish/ssc/molecular-dynamics/04-protein-folding-simulation.html
           grep -q "ssc-thebe.js" publish/ssc/signalling/02-cll-tri-model-simulation.html
           grep -q "ssc-thebe.js" publish/ssc/cell-fate/02-apoptosis-bcl2-model.html
           grep -q "ssc-thebe.js" publish/ssc/cell-fate/03-cell-cycle-myc-model.html
@@ -70,8 +77,9 @@ jobs:
           pip install -r server/spawner/requirements.txt pytest pytest-asyncio
       - name: Run spawner integration tests
         run: pytest -v server/spawner/tests/test_spawner.py
-      - name: Verify csv2model-multiscale.py produces valid Julia output with zero warnings
+      - name: Verify csv2model-multiscale.py and MD helpers compile with zero warnings
         run: |
+          python3 -B -W error -m py_compile tutorials/MD/md_helpers.py
           python3 -B -W error -m py_compile tutorials/NFkB/csv2Julia/csv2model-multiscale.py
           python3 -B -W error -m py_compile tutorials/apoptosis/csv2model-multiscale.py
           python3 -B -W error -m py_compile tutorials/cellCycle/csv2model-multiscale.py
@@ -172,8 +180,28 @@ jobs:
       - name: Instantiate & precompile tutorial Julia packages
         run: |
           julia --project=server -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-      - name: Execute every code cell in all book/ and ssc/ notebooks
+      - name: Execute every code cell in all Julia notebooks
         env:
           GKSwstype: "100"
         run: |
-          python3 scripts/test_notebooks.py --repo . --julia-args "--project=server" --timeout 360
+          python3 scripts/test_notebooks.py --repo . --language julia --julia-args "--project=server" --timeout 360
+
+  test-notebooks-python:
+    name: Execute All Python MD Notebooks (ssc/)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python MD simulation & analysis stack
+        run: |
+          pip install "numpy>=1.26,<3" "matplotlib>=3.8,<4" "openmm>=8.2,<9" "MDAnalysis>=2.8,<3" "PeptideBuilder>=1.1,<2"
+      - name: Execute every code cell in all Python notebooks
+        env:
+          MPLBACKEND: "Agg"
+          OPENMM_CPU_THREADS: "1"
+          OMP_NUM_THREADS: "1"
+        run: |
+          python3 scripts/test_notebooks.py --repo . --language python --timeout 300

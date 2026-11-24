@@ -1,4 +1,4 @@
-# 3.1 Apoptosis, Cell Cycle & Double-Hit Lymphoma
+# 5.1 Apoptosis, Cell Cycle & Double-Hit Lymphoma
 
 **Modelling Cell Fate — Computational Modelling SSC (Week 5)**
 *Mitchell Lab, Brighton and Sussex Medical School*
@@ -58,5 +58,5 @@ For a B-cell to divide into two daughter cells, it must progress in strict order
 
 ## Ready for Today's Practicals!
 
-1. **First half — Apoptosis & BCL2:** Open [**3.2 Apoptosis Modelling: BCL2 Delays Cell Death (Figure 1B)**](02-apoptosis-bcl2-model.ipynb) to recreate Figure 1B and test which gene over- or under-expressions can **rescue BCL2-mediated resistance to cell death**.
-2. **Second half — Cell Cycle & c-MYC:** Open [**3.3 Cell Cycle Modelling: c-MYC Shortens G1 (Figure 1E)**](03-cell-cycle-myc-model.ipynb) to recreate Figure 1E, confirm that **G1** is the specific phase shortened by c-MYC, and test which gene targets can **rescue MYC-driven hyper-proliferation**.
+1. **First half — Apoptosis & BCL2:** Open [**5.2 Apoptosis Modelling: BCL2 Delays Cell Death (Figure 1B)**](02-apoptosis-bcl2-model.ipynb) to recreate Figure 1B and test which gene over- or under-expressions can **rescue BCL2-mediated resistance to cell death**.
+2. **Second half — Cell Cycle & c-MYC:** Open [**5.3 Cell Cycle Modelling: c-MYC Shortens G1 (Figure 1E)**](03-cell-cycle-myc-model.ipynb) to recreate Figure 1E, confirm that **G1** is the specific phase shortened by c-MYC, and test which gene targets can **rescue MYC-driven hyper-proliferation**.

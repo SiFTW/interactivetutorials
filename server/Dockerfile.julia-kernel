@@ -17,6 +17,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     JULIA_DEPOT_PATH=/opt/julia \
     JULIA_PROJECT=/opt/julia-env \
     JULIA_NUM_THREADS=2 \
+    OPENMM_CPU_THREADS=1 \
+    OMP_NUM_THREADS=1 \
     GKSwstype=100 \
     MPLBACKEND=Agg \
     HOME=/home/${NB_USER} \
@@ -47,10 +49,17 @@ RUN JULIA_MINOR="$(echo "${JULIA_VERSION}" | cut -d. -f1,2)" && \
     rm -f /tmp/julia.tar.gz && \
     julia --version
 
-# Install Jupyter Server (+ JupyterLab in case a student clicks "Launch Jupyter Server Window")
+# Install Jupyter Server, JupyterLab, and the Python 3 Molecular Dynamics stack (OpenMM + MDAnalysis)
 RUN pip install --no-cache-dir \
     "jupyter-server>=2.14,<3" \
-    "jupyterlab>=4.2,<5"
+    "jupyterlab>=4.2,<5" \
+    "ipykernel>=6.29,<8" \
+    "numpy>=1.26,<3" \
+    "matplotlib>=3.8,<4" \
+    "openmm>=8.2,<9" \
+    "MDAnalysis>=2.8,<3" \
+    "PeptideBuilder>=1.1,<2" && \
+    python3 -m ipykernel install --prefix=/usr/local --name python3 --display-name "Python 3"
 
 # Create non-root user and directories
 RUN useradd -m -s /bin/bash -u "${NB_UID}" "${NB_USER}" && \
@@ -90,12 +99,13 @@ RUN if [ "${BUILD_SYSIMAGE}" = "1" ]; then \
 COPY --chown=${NB_USER}:${NB_USER} server/write_kernelspec.py /opt/julia-env/write_kernelspec.py
 RUN python3 /opt/julia-env/write_kernelspec.py
 
-# Make Julia depot and environment read-only for runtime safety while keeping /home/jovyan/work writable
+# Make Julia depot, environment, and kernelspecs read-only for runtime safety while keeping /home/jovyan/work writable
 USER root
-RUN chmod -R a+rX,go-w /opt/julia /opt/julia-env /usr/local/share/jupyter/kernels/julia
+RUN chmod -R a+rX,go-w /opt/julia /opt/julia-env /usr/local/share/jupyter/kernels
 
-# Bake the starter Tutorial 1, SSC NF-kB, Apoptosis, and Cell Cycle model files into every student's isolated workspace
+# Bake the starter Tutorial 1, SSC Molecular Dynamics (Python), NF-kB, Apoptosis, and Cell Cycle files into every student's isolated workspace
 COPY --chown=${NB_USER}:${NB_USER} tutorials/toyModel/ /home/${NB_USER}/work/
+COPY --chown=${NB_USER}:${NB_USER} tutorials/MD/ /home/${NB_USER}/work/MD/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/NFkB/ /home/${NB_USER}/work/NFkB/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/apoptosis/ /home/${NB_USER}/work/apoptosis/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/cellCycle/ /home/${NB_USER}/work/cellCycle/
