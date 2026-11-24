@@ -296,6 +296,20 @@ def _normalize_argv(argv: list[str]) -> list[str]:
     return out
 
 
+def _resolve_julia_args(raw_args: str) -> list[str]:
+    """Split --julia-args and resolve relative --project= / --sysimage= paths against cwd."""
+    resolved: list[str] = []
+    for tok in shlex.split(raw_args):
+        for prefix in ("--project=", "--sysimage=", "-J"):
+            if tok.startswith(prefix) and len(tok) > len(prefix):
+                val = tok[len(prefix) :]
+                if val not in ("@.", "@") and not val.startswith("@"):
+                    tok = f"{prefix}{Path(val).resolve()}"
+                break
+        resolved.append(tok)
+    return resolved
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Execute all interactive Julia & Python notebooks and fail on any cell error."
@@ -325,7 +339,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(_normalize_argv(sys.argv[1:] if argv is None else argv))
 
     repo_dir = Path(args.repo).resolve()
-    julia_cmd = [args.julia, *shlex.split(args.julia_args)]
+    julia_cmd = [args.julia, *_resolve_julia_args(args.julia_args)]
     python_cmd = [args.python]
     in_container_work = Path(args.in_container_work) if args.in_container_work else None
 
