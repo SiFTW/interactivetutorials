@@ -8,12 +8,20 @@ parts:
       - file: week-1/03-sir-sirs-model
       - file: week-1/04-endemic-sir-model
       - file: week-1/05-seir-model
-  - caption: "Cell Signalling Modelling: NF-κB in Blood Cancer"
+  - caption: "Week 2: Molecular Dynamics I — Force Fields & Structures"
+    chapters:
+      - file: molecular-dynamics/01-md-intro-and-force-fields
+      - file: molecular-dynamics/02-exploring-pdb-structures
+  - caption: "Week 3: Molecular Dynamics II — Simulating Protein Folding"
+    chapters:
+      - file: molecular-dynamics/03-energy-landscapes-and-analysis
+      - file: molecular-dynamics/04-protein-folding-simulation
+  - caption: "Week 4: Cell Signalling Modelling — NF-κB in Blood Cancer"
     chapters:
       - file: signalling/01-nfkb-and-systems-biology
       - file: signalling/02-cll-tri-model-simulation
       - file: signalling/03-waldenstrom-drug-discovery
-  - caption: "Cell Fate Modelling: Apoptosis & Cell Cycle"
+  - caption: "Week 5: Cell Fate Modelling — Apoptosis & Cell Cycle"
     chapters:
       - file: cell-fate/01-apoptosis-and-cell-cycle-intro
       - file: cell-fate/02-apoptosis-bcl2-model

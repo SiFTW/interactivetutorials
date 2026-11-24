@@ -1,6 +1,6 @@
-# 2.1 NF-κB Signalling in Blood Cancer & Systems Biology
+# 4.1 NF-κB Signalling in Blood Cancer & Systems Biology
 
-**Modelling Signalling — Computational Modelling SSC**
+**Modelling Signalling — Computational Modelling SSC (Week 4)**
 *Mitchell Lab, Brighton and Sussex Medical School*
 
 Click **📽️ Present Slides** above to step through this session slide-by-slide in class, or scroll down to read at your own pace before launching the live NF-κB simulations.
@@ -28,7 +28,7 @@ Click **📽️ Present Slides** above to step through this session slide-by-sli
 
 :::{admonition} Look Ahead to Your Practical Challenge
 :class: tip
-In [**2.3 Drug Discovery for Waldenström Macroglobulinemia**](03-waldenstrom-drug-discovery.ipynb), you will switch on the **MYD88 L265P** mutation (`k1_MYD88SELFACTIVATION-TLR = 1.0`) in our virtual B-cell and screen candidate drugs to try to restore healthy signalling!
+In [**4.3 Drug Discovery for Waldenström Macroglobulinemia**](03-waldenstrom-drug-discovery.ipynb), you will switch on the **MYD88 L265P** mutation (`k1_MYD88SELFACTIVATION-TLR = 1.0`) in our virtual B-cell and screen candidate drugs to try to restore healthy signalling!
 :::
 
 ---
@@ -122,5 +122,5 @@ Every simulation runs in **two phases**:
 
 ## Ready for the Practical Task!
 
-1. **First half (together):** In [**2.2 Guided Practical: Simulating CLL & Drug Responses**](02-cll-tri-model-simulation.ipynb), we will assemble the full NF-κB Tri-Model live in Julia, simulate **M-CLL**, **U-CLL**, and **U-CLL + IKK inhibitor**, and interpret the resulting nuclear NF-κB plots.
-2. **Second half (your challenge):** In [**2.3 Drug Discovery for Waldenström Macroglobulinemia**](03-waldenstrom-drug-discovery.ipynb), you will turn on the **MYD88 L265P** mutation and test candidate targeted drugs to find effective therapies for Waldenström Macroglobulinemia!
+1. **First half (together):** In [**4.2 Guided Practical: Simulating CLL & Drug Responses**](02-cll-tri-model-simulation.ipynb), we will assemble the full NF-κB Tri-Model live in Julia, simulate **M-CLL**, **U-CLL**, and **U-CLL + IKK inhibitor**, and interpret the resulting nuclear NF-κB plots.
+2. **Second half (your challenge):** In [**4.3 Drug Discovery for Waldenström Macroglobulinemia**](03-waldenstrom-drug-discovery.ipynb), you will turn on the **MYD88 L265P** mutation and test candidate targeted drugs to find effective therapies for Waldenström Macroglobulinemia!

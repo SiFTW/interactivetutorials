@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 350" width="920" height="350" role="img" aria-label="Peptide backbone phi and psi dihedral angles and schematic Ramachandran plot showing beta-sheet and alpha-helix regions">
+  <rect width="920" height="350" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="460" y="30" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16.5" font-weight="700" fill="#0f172a">Backbone Dihedral Angles (φ, ψ) &amp; the Ramachandran Plot</text>
+
+  <!-- Left panel: Peptide backbone phi & psi -->
+  <rect x="24" y="48" width="466" height="278" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="257" y="72" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#0f172a">Two Rotatable Angles per Amino Acid</text>
+
+  <!-- Peptide planes (rigid) -->
+  <polygon points="48,142 152,142 162,216 58,216" fill="#e2e8f0" fill-opacity="0.65" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="105" y="234" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#475569">Rigid peptide plane</text>
+
+  <polygon points="354,142 458,142 468,216 364,216" fill="#e2e8f0" fill-opacity="0.65" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="411" y="234" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#475569">Rigid peptide plane</text>
+
+  <!-- Backbone bonds -->
+  <line x1="76" y1="178" x2="144" y2="178" stroke="#334155" stroke-width="4"/>
+  <line x1="144" y1="178" x2="257" y2="178" stroke="#7c3aed" stroke-width="5"/>
+  <line x1="257" y1="178" x2="370" y2="178" stroke="#ea580c" stroke-width="5"/>
+  <line x1="370" y1="178" x2="438" y2="178" stroke="#334155" stroke-width="4"/>
+  <!-- Sidechain R group -->
+  <line x1="257" y1="178" x2="257" y2="112" stroke="#334155" stroke-width="3.5"/>
+  <circle cx="257" cy="108" r="18" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="257" y="114" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#14532d">R</text>
+
+  <!-- Phi & Psi rotation arcs -->
+  <path d="M 192 152 A 22 22 0 1 1 206 202" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
+  <polygon points="210,204 199,205 205,196" fill="#7c3aed"/>
+  <text x="200" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#7c3aed">φ (phi)</text>
+
+  <path d="M 306 152 A 22 22 0 1 1 320 202" fill="none" stroke="#ea580c" stroke-width="2.5"/>
+  <polygon points="324,204 313,205 319,196" fill="#ea580c"/>
+  <text x="314" y="138" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#ea580c">ψ (psi)</text>
+
+  <!-- Atoms -->
+  <circle cx="76" cy="178" r="16" fill="#475569"/>
+  <text x="76" y="183" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#ffffff">C</text>
+
+  <circle cx="144" cy="178" r="17" fill="#2563eb"/>
+  <text x="144" y="183" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#ffffff">N</text>
+
+  <circle cx="257" cy="178" r="20" fill="#0f172a"/>
+  <text x="257" y="183" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#ffffff">Cα</text>
+
+  <circle cx="370" cy="178" r="17" fill="#475569"/>
+  <text x="370" y="183" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#ffffff">C</text>
+
+  <circle cx="438" cy="178" r="16" fill="#2563eb"/>
+  <text x="438" y="183" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#ffffff">N</text>
+
+  <text x="257" y="276" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">φ rotates around N–Cα  ·  ψ rotates around Cα–C</text>
+  <text x="257" y="296" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" fill="#64748b">Steric clashes forbid most (φ, ψ) combinations — leaving signature islands!</text>
+
+  <!-- Right panel: Schematic Ramachandran Plot -->
+  <rect x="510" y="48" width="386" height="278" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="703" y="70" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#0f172a">Ramachandran Map (φ vs ψ)</text>
+
+  <!-- Plot square: x from 585 to 825 (240px), y from 82 to 282 (200px) -->
+  <rect x="585" y="82" width="240" height="200" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+  <!-- Zero crosshairs -->
+  <line x1="705" y1="82" x2="705" y2="282" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="585" y1="182" x2="825" y2="182" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Beta-sheet region (top-left: phi ~ -140 to -60, psi ~ +90 to +170) -->
+  <ellipse cx="634" cy="112" rx="34" ry="22" fill="#e2e8f0" stroke="#334155" stroke-width="2"/>
+  <text x="634" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" font-weight="700" fill="#0f172a">β-sheet /</text>
+  <text x="634" y="124" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#334155">extended</text>
+
+  <!-- Right-handed alpha-helix (bottom-left: phi ~ -60, psi ~ -45) -->
+  <ellipse cx="662" cy="208" rx="28" ry="18" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="662" y="212" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#1d4ed8">α-helix</text>
+
+  <!-- Left-handed alpha-helix (top-right: phi ~ +60, psi ~ +45) -->
+  <ellipse cx="746" cy="158" rx="18" ry="14" fill="#f3e8ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="746" y="162" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="700" fill="#6d28d9">L-α</text>
+
+  <!-- Folding transition arrow from extended beta to alpha -->
+  <path d="M 636 138 Q 642 164 654 186" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-dasharray="3,2"/>
+  <polygon points="656,190 647,183 657,179" fill="#1d4ed8"/>
+
+  <!-- Axis tick labels -->
+  <text x="585" y="298" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569">−180°</text>
+  <text x="705" y="298" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569">0°</text>
+  <text x="825" y="298" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569">+180°</text>
+  <text x="705" y="316" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#7c3aed">φ (degrees)</text>
+
+  <text x="577" y="88" text-anchor="end" font-family="system-ui, sans-serif" font-size="10" fill="#475569">+180°</text>
+  <text x="577" y="186" text-anchor="end" font-family="system-ui, sans-serif" font-size="10" fill="#475569">0°</text>
+  <text x="577" y="284" text-anchor="end" font-family="system-ui, sans-serif" font-size="10" fill="#475569">−180°</text>
+  <text x="532" y="182" text-anchor="middle" transform="rotate(-90 532 182)" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#ea580c">ψ (degrees)</text>
+</svg>

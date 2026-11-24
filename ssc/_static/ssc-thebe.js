@@ -460,9 +460,32 @@
   }
 
   /* =========================================================================
-     3. Live Editable Julia Cells (Thebe 0.9) & JupyterLab Sync
+     3. Live Editable Cells (Julia & Python via Thebe 0.9) & JupyterLab Sync
      ========================================================================= */
-  function prepareCellsForThebe() {
+  function detectPageKernel() {
+    const pyEl = document.querySelector(
+      "div.cell div.cell_input .highlight-ipython3, div.cell div.cell_input .highlight-python, div.cell div.cell_input .highlight-python3"
+    );
+    const jlEl = document.querySelector("div.cell div.cell_input .highlight-julia");
+    if (pyEl && !jlEl) {
+      return {
+        kernelName: "python3",
+        language: "python",
+        displayName: "Python 3",
+        shortLabel: "Python",
+        codeMirrorMode: "python",
+      };
+    }
+    return {
+      kernelName: "julia",
+      language: "julia",
+      displayName: "Julia",
+      shortLabel: "Julia",
+      codeMirrorMode: "python",
+    };
+  }
+
+  function prepareCellsForThebe(kernel) {
     document.querySelectorAll(".mitchell-cell-activate-pill").forEach((el) => el.remove());
 
     document.querySelectorAll("div.cell").forEach((cell) => {
@@ -472,7 +495,7 @@
 
       const rawCode = pre.textContent || "";
       pre.setAttribute("data-executable", "true");
-      pre.setAttribute("data-language", "julia");
+      pre.setAttribute("data-language", kernel.language);
       pre.textContent = rawCode;
 
       let outputDiv = cell.querySelector("div.cell_output");
@@ -487,22 +510,23 @@
     });
   }
 
-  function createToolbar(hasCodeCells, presentApi) {
+  function createToolbar(hasCodeCells, presentApi, kernel) {
     const bar = document.createElement("div");
     bar.id = "mitchell-live-toolbar";
     bar.className = "mitchell-live-toolbar";
+    const lang = kernel.shortLabel;
 
     if (hasCodeCells) {
       bar.innerHTML = `
         <div class="mitchell-live-left">
           <button id="mitchell-launch-btn" type="button" class="mitchell-btn mitchell-btn-primary">
-            ⚡ Activate Live Editable Julia Cells
+            ⚡ Activate Live Editable ${lang} Cells
           </button>
           <span id="mitchell-status-pill" class="mitchell-status-pill mitchell-status-idle">
             Reading mode
           </span>
           <span id="mitchell-status-msg" class="mitchell-status-msg">
-            Read at your own pace, or click to run &amp; edit live Julia simulations.
+            Read at your own pace, or click to run &amp; edit live ${lang} simulations.
           </span>
         </div>
         <div class="mitchell-live-right">
@@ -512,7 +536,7 @@
           <a id="mitchell-lab-link" class="mitchell-btn mitchell-btn-secondary" href="#" target="_blank" rel="noopener" style="display:none;">
             Open JupyterLab ↗
           </a>
-          <button id="mitchell-reset-btn" type="button" class="mitchell-btn mitchell-btn-secondary" style="display:none;" title="Discard current container and start a fresh Julia workspace">
+          <button id="mitchell-reset-btn" type="button" class="mitchell-btn mitchell-btn-secondary" style="display:none;" title="Discard current container and start a fresh workspace">
             🔄 Reset Session
           </button>
         </div>
@@ -555,14 +579,15 @@
         headerBtn.type = "button";
         headerBtn.id = "mitchell-header-launch-btn";
         headerBtn.className = "btn btn-sm mitchell-header-live-btn";
-        headerBtn.title = "Activate live editable Julia code cells";
-        headerBtn.textContent = "⚡ Live Julia";
+        headerBtn.title = `Activate live editable ${lang} code cells`;
+        headerBtn.textContent = `⚡ Live ${lang}`;
         headerRight.prepend(headerBtn);
       }
     }
 
     return {
       bar,
+      kernel,
       launchBtn: bar.querySelector("#mitchell-launch-btn"),
       headerBtn,
       statusPill: bar.querySelector("#mitchell-status-pill"),
@@ -572,14 +597,14 @@
     };
   }
 
-  function addPreActivationCellPills(onActivate) {
+  function addPreActivationCellPills(onActivate, kernel) {
     document.querySelectorAll("div.cell").forEach((cell) => {
       const inputDiv = cell.querySelector("div.cell_input");
       if (!inputDiv) return;
       const pill = document.createElement("button");
       pill.type = "button";
       pill.className = "mitchell-cell-activate-pill";
-      pill.textContent = "⚡ Click to edit & run live in Julia";
+      pill.textContent = `⚡ Click to edit & run live in ${kernel.shortLabel}`;
       pill.addEventListener("click", onActivate);
       inputDiv.appendChild(pill);
     });
@@ -651,7 +676,7 @@
     }
   }
 
-  async function syncCurrentNotebookToServer(creds) {
+  async function syncCurrentNotebookToServer(creds, kernel) {
     const sourceInfo = findCurrentNotebookSource();
     if (!sourceInfo || !creds || !creds.baseUrl) return null;
 
@@ -674,9 +699,9 @@
 
       nb.metadata = nb.metadata || {};
       nb.metadata.kernelspec = {
-        display_name: "Julia",
-        language: "julia",
-        name: "julia",
+        display_name: kernel.displayName,
+        language: kernel.language,
+        name: kernel.kernelName,
       };
 
       const putUrl = `${creds.baseUrl}api/contents/${encodeURIComponent(sourceInfo.filename)}${
@@ -700,9 +725,11 @@
 
   async function activateThebe(ui) {
     if (activating || activated) return;
+    const kernel = ui.kernel;
+    const lang = kernel.shortLabel;
     activating = true;
     ui.launchBtn.disabled = true;
-    ui.launchBtn.textContent = "⏳ Connecting to Julia…";
+    ui.launchBtn.textContent = `⏳ Connecting to ${lang}…`;
     if (ui.headerBtn) {
       ui.headerBtn.disabled = true;
       ui.headerBtn.textContent = "⏳ Connecting…";
@@ -711,14 +738,14 @@
       ui,
       "loading",
       "Connecting…",
-      "Loading interactive editor and connecting to kernels.mitchell.science…"
+      `Loading interactive editor and connecting to ${lang} kernel on kernels.mitchell.science…`
     );
 
     try {
       loadStylesheet(THEBE_CSS_URL);
       await loadScript(THEBE_JS_URL);
 
-      prepareCellsForThebe();
+      prepareCellsForThebe(kernel);
 
       if (window.thebe && window.thebe.events) {
         window.thebe.events.on("status", (_evt, data) => {
@@ -728,8 +755,8 @@
             setStatus(
               ui,
               "ready",
-              "Julia Ready",
-              "Edit any parameter or equation below, then press Shift + Enter (or click Run)."
+              `${lang} Ready`,
+              "Edit any parameter or code below, then press Shift + Enter (or click Run)."
             );
           } else {
             setStatus(ui, "loading", "Launching…", msg || `Status: ${status}`);
@@ -737,13 +764,13 @@
         });
 
         window.thebe.events.on("error", (_evt, data) => {
-          const msg = (data && data.message) || "Failed to connect to Julia kernel server.";
+          const msg = (data && data.message) || `Failed to connect to ${lang} kernel server.`;
           setStatus(ui, "error", "Error", msg);
           ui.launchBtn.disabled = false;
           ui.launchBtn.textContent = "⚡ Retry Connection";
           if (ui.headerBtn) {
             ui.headerBtn.disabled = false;
-            ui.headerBtn.textContent = "⚡ Retry Julia";
+            ui.headerBtn.textContent = `⚡ Retry ${lang}`;
           }
           ui.resetBtn.style.display = "inline-flex";
           activating = false;
@@ -764,7 +791,7 @@
         outputSelector: "[data-output]",
         binderOptions: BINDER_CONFIG,
         kernelOptions: {
-          kernelName: "julia",
+          kernelName: kernel.kernelName,
           path: "/",
         },
         savedSessionOptions: {
@@ -774,7 +801,7 @@
         },
         codeMirrorConfig: {
           theme: "default",
-          mode: "python",
+          mode: kernel.codeMirrorMode,
           readOnly: false,
           lineNumbers: true,
           autoRefresh: true,
@@ -786,15 +813,15 @@
       activating = false;
       ui.launchBtn.style.display = "none";
       if (ui.headerBtn) {
-        ui.headerBtn.textContent = "✅ Julia Live";
+        ui.headerBtn.textContent = `✅ ${lang} Live`;
         ui.headerBtn.classList.add("is-ready");
       }
       ui.resetBtn.style.display = "inline-flex";
       setStatus(
         ui,
         "ready",
-        "Julia Ready",
-        "Edit any parameter or equation below, then press Shift + Enter (or click Run)."
+        `${lang} Ready`,
+        "Edit any parameter or code below, then press Shift + Enter (or click Run)."
       );
 
       const creds = extractServerCredentials(result);
@@ -803,7 +830,7 @@
         ui.labLink.href = currentLabUrl;
         ui.labLink.style.display = "inline-flex";
 
-        syncCurrentNotebookToServer(creds).then((nbName) => {
+        syncCurrentNotebookToServer(creds, kernel).then((nbName) => {
           if (nbName) {
             currentLabUrl = buildLabUrl(creds.baseUrl, creds.token, nbName);
             ui.labLink.href = currentLabUrl;
@@ -825,7 +852,7 @@
               // Ignore document write errors
             }
           }
-          const nbName = await syncCurrentNotebookToServer(creds);
+          const nbName = await syncCurrentNotebookToServer(creds, kernel);
           const targetUrl = buildLabUrl(creds.baseUrl, creds.token, nbName);
           currentLabUrl = targetUrl;
           ui.labLink.href = targetUrl;
@@ -844,7 +871,7 @@
       ui.launchBtn.textContent = "⚡ Retry Connection";
       if (ui.headerBtn) {
         ui.headerBtn.disabled = false;
-        ui.headerBtn.textContent = "⚡ Retry Julia";
+        ui.headerBtn.textContent = `⚡ Retry ${lang}`;
       }
       ui.resetBtn.style.display = "inline-flex";
       setStatus(
@@ -862,7 +889,8 @@
 
     const cells = document.querySelectorAll("div.cell");
     const hasCodeCells = cells.length > 0;
-    const ui = createToolbar(hasCodeCells, presentApi);
+    const kernel = detectPageKernel();
+    const ui = createToolbar(hasCodeCells, presentApi, kernel);
 
     if (!hasCodeCells) return;
 
@@ -876,7 +904,7 @@
       window.location.reload();
     });
 
-    addPreActivationCellPills(triggerActivate);
+    addPreActivationCellPills(triggerActivate, kernel);
 
     if (hasSavedSession()) {
       activateThebe(ui);
