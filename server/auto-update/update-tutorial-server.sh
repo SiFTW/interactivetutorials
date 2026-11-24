@@ -81,7 +81,7 @@ run_notebook_suite() {
     "$image" \
     python3 /repo/scripts/test_notebooks.py \
       --repo /repo \
-      --julia-args "$julia_args" \
+      --julia-args="$julia_args" \
       --in-container-work /home/jovyan/work
 }
 
@@ -150,7 +150,7 @@ else
     NEED_SPAWNER_BUILD=1
   fi
 
-  if grep -qE '^(book/|ssc/).*\.ipynb$' <<<"$CHANGED_FILES"; then
+  if grep -qE '^((book|ssc)/.*\.ipynb|scripts/test_notebooks\.py)$' <<<"$CHANGED_FILES"; then
     NEED_NOTEBOOK_VERIFY=1
   fi
 

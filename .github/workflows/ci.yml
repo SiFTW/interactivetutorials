@@ -158,6 +158,12 @@ jobs:
           grep -q "docker compose up -d --build spawner" <<<"$OUT3"
           ! grep -q "docker build -f server/Dockerfile.julia-kernel" <<<"$OUT3"
 
+      - name: Verify test_notebooks.py CLI parsing with dash-prefixed --julia-args
+        run: |
+          python3 scripts/test_notebooks.py --repo . --language python --julia-args "--project=server" --syntax-only
+          python3 scripts/test_notebooks.py --repo . --language python --julia-args="--sysimage=/opt/julia-env/tutorial_sysimage.so --project=/opt/julia-env" --syntax-only
+          python3 scripts/test_notebooks.py --repo . --language python --julia-args "--sysimage=/opt/julia-env/tutorial_sysimage.so --project=/opt/julia-env" --syntax-only
+
   test-notebooks-julia:
     name: Execute All Julia Notebooks (book/ & ssc/)
     runs-on: ubuntu-latest
@@ -184,7 +190,7 @@ jobs:
         env:
           GKSwstype: "100"
         run: |
-          python3 scripts/test_notebooks.py --repo . --language julia --julia-args "--project=server" --timeout 360
+          python3 scripts/test_notebooks.py --repo . --language julia --julia-args="--project=server" --timeout 360
 
   test-notebooks-python:
     name: Execute All Python MD Notebooks (ssc/)

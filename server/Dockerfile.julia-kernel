@@ -113,6 +113,10 @@ COPY --chown=${NB_USER}:${NB_USER} tutorials/cellCycle/ /home/${NB_USER}/work/ce
 USER ${NB_USER}
 WORKDIR /home/${NB_USER}/work
 
+# Build-time smoke check confirming both kernelspecs and Python MD packages are available
+RUN python3 -c "import openmm, MDAnalysis, PeptideBuilder, matplotlib, numpy, sys; sys.path.insert(0, '/home/${NB_USER}/work/MD'); import md_helpers; print('Python MD stack verified!')" && \
+    jupyter kernelspec list
+
 EXPOSE 8888
 
 # Default command (overridden by the spawner with per-session base_url and random token)

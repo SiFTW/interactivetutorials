@@ -282,7 +282,21 @@ def run_notebook(
         return proc.returncode == 0, dt, combined
 
 
-def main() -> int:
+def _normalize_argv(argv: list[str]) -> list[str]:
+    """Rewrite `--julia-args <val>` to `--julia-args=<val>` so argparse accepts values starting with `-`."""
+    out: list[str] = []
+    i = 0
+    while i < len(argv):
+        if argv[i] == "--julia-args" and i + 1 < len(argv):
+            out.append(f"--julia-args={argv[i + 1]}")
+            i += 2
+        else:
+            out.append(argv[i])
+            i += 1
+    return out
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Execute all interactive Julia & Python notebooks and fail on any cell error."
     )
@@ -308,7 +322,7 @@ def main() -> int:
     parser.add_argument("--syntax-only", action="store_true", help="Only syntax-check cells without running")
     parser.add_argument("--filter", default=None, help="Only test notebooks whose relative path contains this substring")
     parser.add_argument("--timeout", type=int, default=300, help="Per-notebook timeout in seconds (default: 300)")
-    args = parser.parse_args()
+    args = parser.parse_args(_normalize_argv(sys.argv[1:] if argv is None else argv))
 
     repo_dir = Path(args.repo).resolve()
     julia_cmd = [args.julia, *shlex.split(args.julia_args)]

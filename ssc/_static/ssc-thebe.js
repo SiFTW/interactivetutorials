@@ -826,13 +826,12 @@
 
       const creds = extractServerCredentials(result);
       if (creds) {
-        // Verify the connected container actually provides the requested kernel (catches stale cached containers)
-        const ksUrl = `${creds.baseUrl}api/kernelspecs${
-          creds.token ? `?token=${encodeURIComponent(creds.token)}` : ""
-        }`;
+        // Verify the connected container actually provides the requested kernel & MD workspace
+        const tokenQs = creds.token ? `?token=${encodeURIComponent(creds.token)}` : "";
+        const ksUrl = `${creds.baseUrl}api/kernelspecs${tokenQs}`;
         fetch(ksUrl)
           .then((r) => (r.ok ? r.json() : null))
-          .then((data) => {
+          .then(async (data) => {
             const specs = data && data.kernelspecs ? data.kernelspecs : null;
             if (specs && !Object.prototype.hasOwnProperty.call(specs, kernel.kernelName)) {
               const avail = Object.keys(specs).join(", ") || "none";
@@ -844,8 +843,27 @@
                 ui,
                 "error",
                 "Kernel Mismatch",
-                `Connected container only has [${avail}] (missing '${kernel.kernelName}'). Click 🔄 Reset Session to launch a fresh ${lang} container (or wait a few minutes if the server is still rebuilding).`
+                `Connected container only has [${avail}] (missing '${kernel.kernelName}'). Click 🔄 Reset Session to launch a fresh ${lang} container.`
               );
+              return;
+            }
+            if (kernel.kernelName === "python3") {
+              const mdUrl = `${creds.baseUrl}api/contents/MD?content=0${
+                creds.token ? `&token=${encodeURIComponent(creds.token)}` : ""
+              }`;
+              const mdResp = await fetch(mdUrl);
+              if (!mdResp.ok) {
+                if (ui.headerBtn) {
+                  ui.headerBtn.textContent = "⚠️ Reset Needed";
+                  ui.headerBtn.classList.remove("is-ready");
+                }
+                setStatus(
+                  ui,
+                  "error",
+                  "Update Pending",
+                  "This container was built before the Python MD stack (OpenMM / MDAnalysis) was installed. Click 🔄 Reset Session once the server update completes."
+                );
+              }
             }
           })
           .catch(() => {});
