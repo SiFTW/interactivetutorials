@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import shlex
 import shutil
 import subprocess
 import sys
@@ -93,6 +92,15 @@ for (idx, path) in enumerate(cell_files)
     end
 end
 '''
+
+
+def emit_gha_error(rel_path: str, message: str) -> None:
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        return
+    # Keep annotation concise and properly escaped for GitHub Actions workflow commands
+    compact = " | ".join(line.strip() for line in message.splitlines() if line.strip())[:800]
+    escaped = compact.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    print(f"::error file={rel_path},title=Notebook execution failed ({rel_path})::{escaped}", flush=True)
 
 
 def discover_notebooks(repo_dir: Path, filt: str | None) -> list[Path]:
@@ -217,11 +225,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Execute all interactive Julia notebooks and fail on any cell error.")
     parser.add_argument("--repo", default=str(Path(__file__).resolve().parent.parent), help="Path to repo root")
     parser.add_argument("--julia", default="julia", help="Path to julia binary")
-    parser.add_argument(
-        "--julia-args",
-        default="",
-        help="Extra flags passed to julia (e.g. '--sysimage=/opt/julia-env/tutorial_sysimage.so --project=/opt/julia-env')",
-    )
+    parser.add_argument("--julia-project", default=None, help="Path to Julia project directory (resolved to absolute path)")
+    parser.add_argument("--julia-sysimage", default=None, help="Optional path to precompiled Julia sysimage (.so)")
     parser.add_argument(
         "--in-container-work",
         default=None,
@@ -233,8 +238,13 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_dir = Path(args.repo).resolve()
-    julia_cmd = [args.julia, *shlex.split(args.julia_args)]
-    in_container_work = Path(args.in_container_work) if args.in_container_work else None
+    julia_cmd = [args.julia]
+    if args.julia_sysimage:
+        julia_cmd.append(f"--sysimage={Path(args.julia_sysimage).resolve()}")
+    if args.julia_project:
+        julia_cmd.append(f"--project={Path(args.julia_project).resolve()}")
+
+    in_container_work = Path(args.in_container_work).resolve() if args.in_container_work else None
 
     notebooks = discover_notebooks(repo_dir, args.filter)
     if not notebooks:
@@ -267,6 +277,7 @@ def main() -> int:
         else:
             print(f"FAIL {rel} ({dt:.1f}s)", flush=True)
             print(output, file=sys.stderr, flush=True)
+            emit_gha_error(rel, output)
             failures.append((rel, output))
 
     total_dt = time.monotonic() - t_total

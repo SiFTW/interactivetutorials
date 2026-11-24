@@ -62,13 +62,13 @@ run_notebook_suite() {
   local image="$1"
   log "Running end-to-end Julia notebook test suite inside ${image} (2g RAM, --network=none)..."
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    log "[dry-run] Would run: docker run --rm --memory=2g --cpus=2 --pids-limit=256 --network=none -e GKSwstype=100 -v ${REPO_DIR}:/repo:ro ${image} python3 /repo/scripts/test_notebooks.py --repo /repo --julia-args \"--sysimage=/opt/julia-env/tutorial_sysimage.so --project=/opt/julia-env\" --in-container-work /home/jovyan/work"
+    log "[dry-run] Would run: docker run --rm --memory=2g --cpus=2 --pids-limit=256 --network=none -e GKSwstype=100 -v ${REPO_DIR}:/repo:ro ${image} python3 /repo/scripts/test_notebooks.py --repo /repo --julia-project /opt/julia-env --julia-sysimage /opt/julia-env/tutorial_sysimage.so --in-container-work /home/jovyan/work"
     return 0
   fi
 
-  local julia_args="--project=/opt/julia-env"
+  local extra_flags=(--julia-project /opt/julia-env)
   if docker run --rm --network=none "$image" test -f /opt/julia-env/tutorial_sysimage.so 2>/dev/null; then
-    julia_args="--sysimage=/opt/julia-env/tutorial_sysimage.so --project=/opt/julia-env"
+    extra_flags+=(--julia-sysimage /opt/julia-env/tutorial_sysimage.so)
   fi
 
   docker run --rm \
@@ -79,7 +79,7 @@ run_notebook_suite() {
     "$image" \
     python3 /repo/scripts/test_notebooks.py \
       --repo /repo \
-      --julia-args "$julia_args" \
+      "${extra_flags[@]}" \
       --in-container-work /home/jovyan/work
 }
 

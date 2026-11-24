@@ -162,18 +162,35 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: "1.10.14"
-      - name: Cache Julia depot
-        uses: actions/cache@v4
+      - name: Create minimal sysimage-only Julia project for CI
+        run: |
+          mkdir -p /tmp/ci-julia-env
+          cat >/tmp/ci-julia-env/Project.toml <<'EOF'
+          [deps]
+          CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+          DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+          DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+          Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+          EOF
+      - name: Restore Julia depot cache
+        id: julia-cache
+        uses: actions/cache/restore@v4
         with:
           path: ~/.julia
-          key: ${{ runner.os }}-julia-1.10.14-${{ hashFiles('server/Project.toml') }}
+          key: ${{ runner.os }}-julia-1.10.14-sys4-${{ hashFiles('server/Project.toml') }}
           restore-keys: |
-            ${{ runner.os }}-julia-1.10.14-
-      - name: Instantiate & precompile tutorial Julia packages
+            ${{ runner.os }}-julia-1.10.14-sys4-
+      - name: Instantiate & precompile 4 sysimage tutorial packages
         run: |
-          julia --project=server -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+          julia --project=/tmp/ci-julia-env -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+      - name: Save Julia depot cache before executing tests
+        if: steps.julia-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.julia
+          key: ${{ runner.os }}-julia-1.10.14-sys4-${{ hashFiles('server/Project.toml') }}
       - name: Execute every code cell in all book/ and ssc/ notebooks
         env:
           GKSwstype: "100"
         run: |
-          python3 scripts/test_notebooks.py --repo . --julia-args "--project=server" --timeout 360
+          python3 scripts/test_notebooks.py --repo . --julia-project /tmp/ci-julia-env --timeout 360
