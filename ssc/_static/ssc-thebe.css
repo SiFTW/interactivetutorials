@@ -1,0 +1,526 @@
+/* Mitchell Lab BSMS SSC Book — Live Editable Julia Cells, Reliable Sidebars & Classroom Present Mode */
+
+/* ==========================================================================
+   1. Reliable sidebar toggles (desktop collapse + narrow slide-over drawer)
+   ========================================================================== */
+@media (min-width: 992px) {
+  html.mitchell-hide-primary-sidebar .bd-sidebar-primary,
+  html.mitchell-hide-primary-sidebar #pst-primary-sidebar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  html.mitchell-show-primary-mobile .bd-sidebar-primary,
+  html.mitchell-show-primary-mobile #pst-primary-sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    translate: 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    width: 290px !important;
+    min-width: 260px !important;
+    max-width: 85vw !important;
+    z-index: 1060 !important;
+    overflow-y: auto !important;
+    pointer-events: auto !important;
+    background: var(--pst-color-background, #ffffff) !important;
+    box-shadow: 4px 0 24px rgba(15, 23, 42, 0.28) !important;
+    padding: 1rem !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  html.mitchell-hide-secondary-sidebar .bd-sidebar-secondary,
+  html.mitchell-hide-secondary-sidebar #pst-secondary-sidebar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1199.98px) {
+  html.mitchell-show-secondary-mobile .bd-sidebar-secondary,
+  html.mitchell-show-secondary-mobile #pst-secondary-sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    translate: 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    width: 290px !important;
+    min-width: 260px !important;
+    max-width: 85vw !important;
+    z-index: 1060 !important;
+    overflow-y: auto !important;
+    pointer-events: auto !important;
+    background: var(--pst-color-background, #ffffff) !important;
+    box-shadow: -4px 0 24px rgba(15, 23, 42, 0.28) !important;
+    padding: 1rem !important;
+  }
+}
+
+.mitchell-drawer-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  z-index: 1055;
+}
+
+html.mitchell-show-primary-mobile .mitchell-drawer-backdrop,
+html.mitchell-show-secondary-mobile .mitchell-drawer-backdrop {
+  display: block;
+}
+
+/* ==========================================================================
+   2. Sticky top toolbar & live Julia controls
+   ========================================================================== */
+.mitchell-live-toolbar {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0 1.4rem 0;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.mitchell-live-left,
+.mitchell-live-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mitchell-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.85rem;
+  border-radius: 7px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.mitchell-btn-primary {
+  background: #1d4ed8;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(29, 78, 216, 0.28);
+}
+
+.mitchell-btn-primary:hover:not(:disabled) {
+  background: #1e40af;
+  transform: translateY(-1px);
+}
+
+.mitchell-btn-primary:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.mitchell-btn-present {
+  background: #0f766e;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.28);
+}
+
+.mitchell-btn-present:hover {
+  background: #115e59;
+  transform: translateY(-1px);
+}
+
+.mitchell-btn-secondary {
+  background: #ffffff;
+  color: #1e293b !important;
+  border-color: #cbd5e1;
+}
+
+.mitchell-btn-secondary:hover {
+  background: #f1f5f9;
+}
+
+.mitchell-header-live-btn,
+.mitchell-header-present-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.7rem !important;
+  margin-right: 0.35rem;
+  border-radius: 6px !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  border: none !important;
+  cursor: pointer;
+}
+
+.mitchell-header-live-btn {
+  background: #1d4ed8 !important;
+}
+
+.mitchell-header-live-btn:hover:not(:disabled) {
+  background: #1e40af !important;
+}
+
+.mitchell-header-live-btn.is-ready {
+  background: #15803d !important;
+}
+
+.mitchell-header-present-btn {
+  background: #0f766e !important;
+}
+
+.mitchell-header-present-btn:hover {
+  background: #115e59 !important;
+}
+
+.mitchell-cell-activate-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0.2rem 0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mitchell-cell-activate-pill:hover {
+  background: #dbeafe;
+}
+
+.mitchell-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.mitchell-status-idle {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.mitchell-status-loading {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.mitchell-status-ready {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.mitchell-status-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.mitchell-status-msg {
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+/* Editable Thebe CodeMirror cells */
+.thebelab-cell {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  margin: 0.85rem 0 !important;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.thebelab-cell .CodeMirror {
+  height: auto !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.48;
+  padding: 0.35rem 0;
+}
+
+.thebelab-cell .thebelab-button {
+  margin: 0.4rem 0.25rem 0.4rem 0.4rem;
+  padding: 0.28rem 0.72rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.thebelab-cell .thebelab-run-button {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.thebelab-cell .thebelab-run-button:hover {
+  background: #1e40af;
+}
+
+.thebelab-cell .thebelab-button:hover:not(.thebelab-run-button) {
+  background: #e2e8f0;
+}
+
+.thebelab-cell .jp-OutputArea {
+  padding: 0.5rem 0.8rem;
+  border-top: 1px solid #e2e8f0;
+  background: #fcfcfd;
+}
+
+.thebelab-cell .jp-OutputArea img,
+.thebelab-cell .jp-OutputArea svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Crisp spreadsheet-like styling for DataFrames.jl HTML outputs */
+.jp-OutputArea-output table.data-frame,
+.cell_output table.data-frame {
+  border-collapse: collapse;
+  margin: 0.5rem 0 0.85rem 0;
+  font-size: 0.86rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.jp-OutputArea-output table.data-frame th,
+.cell_output table.data-frame th {
+  background: #f1f5f9;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #cbd5e1;
+  text-align: left;
+}
+
+.jp-OutputArea-output table.data-frame td,
+.cell_output table.data-frame td {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* ==========================================================================
+   3. Classroom Presentation Mode (Slide View with Live Interactive Cells!)
+   ========================================================================== */
+html.mitchell-present-mode,
+html.mitchell-present-mode body {
+  background: #f1f5f9 !important;
+  overflow-x: hidden;
+}
+
+html.mitchell-present-mode .bd-sidebar-primary,
+html.mitchell-present-mode #pst-primary-sidebar,
+html.mitchell-present-mode .bd-sidebar-secondary,
+html.mitchell-present-mode #pst-secondary-sidebar,
+html.mitchell-present-mode .bd-header,
+html.mitchell-present-mode .bd-header-article,
+html.mitchell-present-mode .bd-footer-article,
+html.mitchell-present-mode .bd-footer-content,
+html.mitchell-present-mode .prev-next-area,
+html.mitchell-present-mode #pst-back-to-top {
+  display: none !important;
+}
+
+html.mitchell-present-mode .bd-container,
+html.mitchell-present-mode .bd-container__inner,
+html.mitchell-present-mode .bd-main,
+html.mitchell-present-mode .bd-content,
+html.mitchell-present-mode .bd-article-container {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html.mitchell-present-mode article.bd-article {
+  max-width: 1140px !important;
+  width: min(94vw, 1140px) !important;
+  min-height: calc(100vh - 7.5rem);
+  margin: 1.1rem auto 5.2rem auto !important;
+  padding: 2rem 2.75rem 2.5rem 2.75rem !important;
+  background: #fffdf7 !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.1);
+  font-size: 1.18rem !important;
+  line-height: 1.6 !important;
+}
+
+html.mitchell-present-mode article.bd-article h1 {
+  font-size: 2.45rem !important;
+  color: #0f172a;
+  margin-bottom: 1.2rem;
+  border-bottom: 3px solid #0f766e;
+  padding-bottom: 0.5rem;
+}
+
+html.mitchell-present-mode article.bd-article h2 {
+  font-size: 2rem !important;
+  color: #0f172a;
+  margin-top: 0 !important;
+  margin-bottom: 1.1rem;
+  border-bottom: 2px solid #cbd5e1;
+  padding-bottom: 0.45rem;
+}
+
+html.mitchell-present-mode article.bd-article h3 {
+  font-size: 1.4rem !important;
+  color: #1e293b;
+}
+
+html.mitchell-present-mode article.bd-article li {
+  margin-bottom: 0.45rem;
+}
+
+html.mitchell-present-mode article.bd-article img,
+html.mitchell-present-mode article.bd-article svg {
+  max-height: 52vh;
+  max-width: 100%;
+  width: auto;
+  display: block;
+  margin: 0.75rem auto;
+}
+
+html.mitchell-present-mode .mitchell-live-toolbar {
+  position: static;
+  margin: 0 0 1.25rem 0;
+  padding: 0.5rem 0.85rem;
+  background: #f8fafc;
+}
+
+html.mitchell-present-mode .mitchell-live-toolbar.mitchell-toolbar-nocode,
+html.mitchell-present-mode #mitchell-present-btn {
+  display: none !important;
+}
+
+html.mitchell-present-mode .mitchell-slide-hidden {
+  display: none !important;
+}
+
+html.mitchell-present-mode .thebelab-cell .CodeMirror {
+  font-size: 1rem;
+}
+
+/* Floating bottom Presenter Control Bar */
+#mitchell-present-bar {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 1100;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.93);
+  color: #f8fafc;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(8px);
+  max-width: 96vw;
+  flex-wrap: nowrap;
+}
+
+html.mitchell-present-mode #mitchell-present-bar {
+  display: flex;
+}
+
+#mitchell-present-bar button {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 0.36rem 0.82rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+#mitchell-present-bar button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+#mitchell-present-bar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#mitchell-present-bar .mitchell-present-exit {
+  background: #dc2626;
+  border-color: #ef4444;
+}
+
+#mitchell-present-bar .mitchell-present-exit:hover {
+  background: #b91c1c;
+}
+
+#mitchell-present-select {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  max-width: 280px;
+  cursor: pointer;
+}
+
+#mitchell-present-select option {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+@media (max-width: 768px) {
+  html.mitchell-present-mode article.bd-article {
+    padding: 1.25rem 1.25rem 2rem 1.25rem !important;
+    font-size: 1rem !important;
+  }
+  #mitchell-present-select {
+    max-width: 140px;
+  }
+}

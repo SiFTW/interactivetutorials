@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 230" width="680" height="230" role="img" aria-label="SI and SIS compartmental model diagram">
+  <defs>
+    <marker id="arrowDark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e293b"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="230" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Susceptible Box -->
+  <rect x="65" y="102" width="190" height="92" rx="14" fill="#65a30d" stroke="#4d7c0f" stroke-width="2.5"/>
+  <text x="160" y="142" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" fill="#ffffff">Susceptible</text>
+  <text x="160" y="172" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#ecfccb">S</text>
+
+  <!-- Infectious Box -->
+  <rect x="425" y="102" width="190" height="92" rx="14" fill="#ea580c" stroke="#c2410c" stroke-width="2.5"/>
+  <text x="520" y="142" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" fill="#ffffff">Infectious</text>
+  <text x="520" y="172" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#ffedd5">I</text>
+
+  <!-- Infection arrow S -> I -->
+  <line x1="258" y1="148" x2="416" y2="148" stroke="#1e293b" stroke-width="3" marker-end="url(#arrowDark)"/>
+  <text x="340" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-style="italic" font-weight="700" fill="#0f172a">r · β</text>
+  <text x="340" y="175" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#475569">Infection rate</text>
+  <text x="340" y="194" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#64748b">(contacts × transmission prob.)</text>
+
+  <!-- Dashed recovery arrow I -> S (SIS) -->
+  <path d="M 520 100 C 520 32, 160 32, 160 94" fill="none" stroke="#1e293b" stroke-width="2.8" stroke-dasharray="10,7" marker-end="url(#arrowDark)"/>
+  <text x="340" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-style="italic" font-weight="700" fill="#0f172a">γ</text>
+  <text x="340" y="64" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#475569">Recovery rate (γ = 0 for SI; γ &gt; 0 for SIS)</text>
+</svg>

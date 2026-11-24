@@ -1,0 +1,63 @@
+# Jupyter Book 1 configuration for the BSMS SSC: Modelling Across Scales
+title: "Modelling Across Scales — BSMS SSC"
+author: "Mitchell Lab — Brighton and Sussex Medical School"
+copyright: "2026"
+
+only_build_toc_files: true
+
+# Notebooks ship with exact pre-rendered plots for reading offline/without launching;
+# live editable Julia execution happens via https://kernels.mitchell.science.
+execute:
+  execute_notebooks: "off"
+
+parse:
+  myst_enable_extensions:
+    - colon_fence
+    - dollarmath
+    - amsmath
+    - deflist
+    - substitution
+
+repository:
+  url: https://github.com/SiFTW/interactivetutorials
+  path_to_book: ssc
+  branch: main
+
+html:
+  use_issues_button: true
+  use_repository_button: true
+  use_edit_page_button: false
+  home_page_in_navbar: true
+  extra_navbar: >-
+    <a href="https://mitchell.science/">Mitchell Lab Home</a> &middot;
+    <a href="https://mitchell.science/tutorials/">ODE Tutorials</a> &middot;
+    <a href="https://mitchell.science/post/teaching/">SSC Overview</a>
+
+sphinx:
+  extra_extensions:
+    - sphinx_togglebutton
+  config:
+    html_static_path: ["_static"]
+    html_js_files:
+      - ssc-thebe.js
+    html_css_files:
+      - ssc-thebe.css
+    html_theme_options:
+      repository_url: https://github.com/SiFTW/interactivetutorials
+      use_repository_button: true
+      use_download_button: true
+      use_fullscreen_button: true
+      show_navbar_depth: 2
+      navbar_end:
+        - theme-switcher
+        - navbar-icon-links
+      icon_links:
+        - name: Mitchell Lab Website
+          url: https://mitchell.science/
+          icon: fa-solid fa-house
+        - name: ODE Tutorials
+          url: https://mitchell.science/tutorials/
+          icon: fa-solid fa-flask
+        - name: GitHub
+          url: https://github.com/SiFTW/interactivetutorials
+          icon: fa-brands fa-github

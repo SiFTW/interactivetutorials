@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" role="img" aria-label="SEIR compartmental model with exposed incubation stage, waning immunity, births, and deaths">
+  <defs>
+    <marker id="arrowDark4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e293b"/>
+    </marker>
+    <marker id="arrowBirth4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0f766e"/>
+    </marker>
+    <marker id="arrowDeath4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="300" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Susceptible -->
+  <rect x="36" y="96" width="166" height="86" rx="14" fill="#65a30d" stroke="#4d7c0f" stroke-width="2.5"/>
+  <text x="119" y="132" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Susceptible</text>
+  <text x="119" y="162" text-anchor="middle" font-family="Georgia, serif" font-size="21" font-style="italic" font-weight="700" fill="#ecfccb">S</text>
+
+  <!-- Exposed -->
+  <rect x="276" y="96" width="166" height="86" rx="14" fill="#eab308" stroke="#ca8a04" stroke-width="2.5"/>
+  <text x="359" y="132" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Exposed</text>
+  <text x="359" y="162" text-anchor="middle" font-family="Georgia, serif" font-size="21" font-style="italic" font-weight="700" fill="#fef9c3">E</text>
+
+  <!-- Infectious -->
+  <rect x="516" y="96" width="166" height="86" rx="14" fill="#ea580c" stroke="#c2410c" stroke-width="2.5"/>
+  <text x="599" y="132" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Infectious</text>
+  <text x="599" y="162" text-anchor="middle" font-family="Georgia, serif" font-size="21" font-style="italic" font-weight="700" fill="#ffedd5">I</text>
+
+  <!-- Recovered -->
+  <rect x="756" y="96" width="166" height="86" rx="14" fill="#2563eb" stroke="#1d4ed8" stroke-width="2.5"/>
+  <text x="839" y="132" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="#ffffff">Recovered</text>
+  <text x="839" y="162" text-anchor="middle" font-family="Georgia, serif" font-size="21" font-style="italic" font-weight="700" fill="#dbeafe">R</text>
+
+  <!-- S -> E -->
+  <line x1="205" y1="139" x2="267" y2="139" stroke="#1e293b" stroke-width="3" marker-end="url(#arrowDark4)"/>
+  <text x="239" y="126" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#0f172a">r · β</text>
+  <text x="239" y="163" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">Infection</text>
+
+  <!-- E -> I -->
+  <line x1="445" y1="139" x2="507" y2="139" stroke="#1e293b" stroke-width="3" marker-end="url(#arrowDark4)"/>
+  <text x="479" y="126" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#0f172a">σ</text>
+  <text x="479" y="163" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">Incubation</text>
+
+  <!-- I -> R -->
+  <line x1="685" y1="139" x2="747" y2="139" stroke="#1e293b" stroke-width="3" marker-end="url(#arrowDark4)"/>
+  <text x="719" y="126" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#0f172a">γ</text>
+  <text x="719" y="163" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">Recovery</text>
+
+  <!-- Dashed R -> S waning immunity -->
+  <path d="M 839 94 C 839 22, 119 22, 119 88" fill="none" stroke="#1e293b" stroke-width="2.6" stroke-dasharray="10,7" marker-end="url(#arrowDark4)"/>
+  <text x="479" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-style="italic" font-weight="700" fill="#0f172a">ε</text>
+  <text x="479" y="56" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="600" fill="#475569">Waning immunity (return to susceptible)</text>
+
+  <!-- Births into S -->
+  <line x1="92" y1="264" x2="92" y2="190" stroke="#0f766e" stroke-width="2.8" marker-end="url(#arrowBirth4)"/>
+  <text x="80" y="228" text-anchor="end" font-family="Georgia, serif" font-size="19" font-style="italic" font-weight="700" fill="#0f766e">λ</text>
+  <text x="80" y="248" text-anchor="end" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#0f766e">Births</text>
+
+  <!-- Deaths out of S, E, I, R -->
+  <line x1="146" y1="184" x2="146" y2="258" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrowDeath4)"/>
+  <text x="157" y="228" text-anchor="start" font-family="Georgia, serif" font-size="17" font-style="italic" font-weight="700" fill="#475569">μ · S</text>
+  <text x="157" y="246" text-anchor="start" font-family="system-ui, sans-serif" font-size="11.5" fill="#64748b">Death rate</text>
+
+  <line x1="359" y1="184" x2="359" y2="258" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrowDeath4)"/>
+  <text x="370" y="228" text-anchor="start" font-family="Georgia, serif" font-size="17" font-style="italic" font-weight="700" fill="#475569">μ · E</text>
+  <text x="370" y="246" text-anchor="start" font-family="system-ui, sans-serif" font-size="11.5" fill="#64748b">Death rate</text>
+
+  <line x1="599" y1="184" x2="599" y2="258" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrowDeath4)"/>
+  <text x="610" y="228" text-anchor="start" font-family="Georgia, serif" font-size="17" font-style="italic" font-weight="700" fill="#475569">μ · I</text>
+  <text x="610" y="246" text-anchor="start" font-family="system-ui, sans-serif" font-size="11.5" fill="#64748b">Death rate</text>
+
+  <line x1="839" y1="184" x2="839" y2="258" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrowDeath4)"/>
+  <text x="850" y="228" text-anchor="start" font-family="Georgia, serif" font-size="17" font-style="italic" font-weight="700" fill="#475569">μ · R</text>
+  <text x="850" y="246" text-anchor="start" font-family="system-ui, sans-serif" font-size="11.5" fill="#64748b">Death rate</text>
+</svg>
