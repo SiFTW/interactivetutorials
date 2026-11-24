@@ -8,3 +8,8 @@ parts:
       - file: week-1/03-sir-sirs-model
       - file: week-1/04-endemic-sir-model
       - file: week-1/05-seir-model
+  - caption: "Cell Signalling Modelling: NF-κB in Blood Cancer"
+    chapters:
+      - file: signalling/01-nfkb-and-systems-biology
+      - file: signalling/02-cll-tri-model-simulation
+      - file: signalling/03-waldenstrom-drug-discovery

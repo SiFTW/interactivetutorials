@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 340" width="920" height="340" role="img" aria-label="Systems biology iterative modelling loop from picture to equations to Julia simulation to experiment">
+  <defs>
+    <marker id="arrStep" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+    </marker>
+    <marker id="arrRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrOk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#15803d"/>
+    </marker>
+  </defs>
+
+  <rect width="920" height="340" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+
+  <!-- Step 1 -->
+  <rect x="24" y="42" width="152" height="92" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="100" y="68" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#92400e">1. Picture</text>
+  <text x="100" y="92" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#1e293b">IκB + NF-κB</text>
+  <text x="100" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#1e293b">⇄ IκB:NF-κB</text>
+
+  <line x1="178" y1="88" x2="202" y2="88" stroke="#334155" stroke-width="2.5" marker-end="url(#arrStep)"/>
+
+  <!-- Step 2 -->
+  <rect x="208" y="42" width="160" height="92" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="288" y="68" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#5b21b6">2. Equations</text>
+  <text x="288" y="92" text-anchor="middle" font-family="Georgia, serif" font-size="12" font-style="italic" fill="#1e293b">d[IκB]/dt =</text>
+  <text x="288" y="112" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#1e293b">−k_on[IκB][NFκB]+k_off[C]</text>
+
+  <line x1="370" y1="88" x2="394" y2="88" stroke="#334155" stroke-width="2.5" marker-end="url(#arrStep)"/>
+
+  <!-- Step 3 -->
+  <rect x="400" y="42" width="152" height="92" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="476" y="68" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#075985">3. Julia Code</text>
+  <text x="476" y="92" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#0f172a">CSV → ODEs</text>
+  <text x="476" y="112" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" fill="#334155">Simulate in Julia</text>
+
+  <line x1="554" y1="88" x2="578" y2="88" stroke="#334155" stroke-width="2.5" marker-end="url(#arrStep)"/>
+
+  <!-- Step 4 -->
+  <rect x="584" y="42" width="152" height="92" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+  <text x="660" y="68" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#1e293b">4. Compare</text>
+  <text x="660" y="92" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">Simulation vs</text>
+  <text x="660" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#334155">Lab Experiments</text>
+
+  <line x1="738" y1="88" x2="762" y2="88" stroke="#334155" stroke-width="2.5" marker-end="url(#arrStep)"/>
+
+  <!-- Decision box -->
+  <rect x="768" y="42" width="128" height="92" rx="10" fill="#0f172a" stroke="#0f172a" stroke-width="2"/>
+  <text x="832" y="82" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#ffffff">Did we get</text>
+  <text x="832" y="104" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#ffffff">it right?</text>
+
+  <!-- YES branch -->
+  <line x1="832" y1="136" x2="832" y2="232" stroke="#15803d" stroke-width="3" marker-end="url(#arrOk)"/>
+  <text x="844" y="190" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#15803d">Yes!</text>
+  <rect x="598" y="240" width="298" height="72" rx="12" fill="#dcfce7" stroke="#15803d" stroke-width="2.5"/>
+  <text x="747" y="272" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="#14532d">Accurate Virtual Cell!</text>
+  <text x="747" y="296" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12.5" fill="#166534">Predict mutations &amp; screen drugs in silico</text>
+
+  <!-- NO branch loop back to Step 1 -->
+  <path d="M 768 118 L 720 198 L 100 198 L 100 142" fill="none" stroke="#dc2626" stroke-width="3" stroke-dasharray="8,5" marker-end="url(#arrRed)"/>
+  <rect x="205" y="176" width="380" height="44" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="395" y="196" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#991b1b">No → New Biological Discovery!</text>
+  <text x="395" y="213" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#7f1d1d">Something was missing from our picture — refine &amp; re-test</text>
+</svg>

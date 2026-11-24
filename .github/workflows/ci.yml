@@ -42,10 +42,14 @@ jobs:
           test -f publish/ssc/week-1/03-sir-sirs-model.html
           test -f publish/ssc/week-1/04-endemic-sir-model.html
           test -f publish/ssc/week-1/05-seir-model.html
+          test -f publish/ssc/signalling/01-nfkb-and-systems-biology.html
+          test -f publish/ssc/signalling/02-cll-tri-model-simulation.html
+          test -f publish/ssc/signalling/03-waldenstrom-drug-discovery.html
           test -f publish/ssc/_static/ssc-thebe.js
           test -f publish/ssc/_static/ssc-thebe.css
           grep -q "ssc-thebe.js" publish/ssc/week-1/01-intro-to-modelling.html
           grep -q "ssc-thebe.js" publish/ssc/week-1/02-si-sis-model.html
+          grep -q "ssc-thebe.js" publish/ssc/signalling/02-cll-tri-model-simulation.html
 
   test-spawner-and-csv2model:
     name: Test Spawner & CSV2Model
@@ -62,6 +66,7 @@ jobs:
         run: pytest -v server/spawner/tests/test_spawner.py
       - name: Verify csv2model-multiscale.py produces valid Julia output with zero warnings
         run: |
+          python3 -W error -m py_compile tutorials/NFkB/csv2Julia/csv2model-multiscale.py
           TMPDIR="$(mktemp -d)"
           cp tutorials/toyModel/* "$TMPDIR/"
           (

@@ -22,19 +22,24 @@ Across this SSC, we explore how computational simulations help us understand bio
 | **Week 1** | **Intro to Computational Modelling & Population-Scale Models (SI, SIS, SIR, SIRS, SEIR)** | Populations & Public Health | **Live in this book** |
 | **Week 2** | Molecular Dynamics Modelling 1 | Atoms & Proteins | *Slides on [mitchell.science/post/teaching](https://mitchell.science/post/teaching/)* |
 | **Week 3** | Molecular Dynamics Modelling 2 | Atoms & Proteins | *Slides on [mitchell.science/post/teaching](https://mitchell.science/post/teaching/)* |
-| **Week 4** | Cancer Signalling 1 | Cells & Biochemical Networks | *Also see [Interactive ODE Tutorials](https://mitchell.science/tutorials/)* |
-| **Week 5** | Cancer Signalling 2 | Cells & Biochemical Networks | *Also see [Interactive ODE Tutorials](https://mitchell.science/tutorials/)* |
+| **Week 4** | **Cell Signalling Modelling: NF-κB in Blood Cancer (CLL & Waldenström)** | Cells & Biochemical Networks | **Live in this book** |
+| **Week 5** | Cancer Signalling 2 & Extensions | Cells & Biochemical Networks | *Also see [Interactive ODE Tutorials](https://mitchell.science/tutorials/)* |
 | **Week 6** | Preparation for Assessment (no taught session) | — | Independent project work |
 | **Week 7** | Assessment Week 1 (6-minute presentations — all attend) | — | Presentation |
 | **Week 8** | Assessment Week 2 (6-minute presentations — all attend) | — | Presentation |
 
 ---
 
-## Start Week 1
+## Start Exploring
 
-Begin with [**1.1 Introduction to Computational Modelling**](week-1/01-intro-to-modelling.md), or jump straight into the live epidemic simulations:
-
+### Week 1 — Introduction & Population-Scale Modelling
+- [**1.1 Introduction to Computational Modelling**](week-1/01-intro-to-modelling.md) — Overview, learning outcomes, and real-world outbreak ODEs
 - [**1.2 The SI & SIS Model**](week-1/02-si-sis-model.ipynb) — Your first two-compartment outbreak model
 - [**1.3 The SIR & SIRS Model**](week-1/03-sir-sirs-model.ipynb) — Adding immunity and waning immunity
 - [**1.4 Endemic SIR: Births & Deaths**](week-1/04-endemic-sir-model.ipynb) — Population turnover and recurrent waves
 - [**1.5 The SEIR Model & Wrap-Up**](week-1/05-seir-model.ipynb) — Incubation periods, disease-induced mortality, and discussion
+
+### Cell Signalling Modelling — NF-κB in Blood Cancer
+- [**2.1 NF-κB Signalling in Blood Cancer & Systems Biology**](signalling/01-nfkb-and-systems-biology.md) — WM, CLL, DLBCL, canonical vs non-canonical NF-κB, and the systems biology loop
+- [**2.2 Guided Practical: Simulating CLL & Drug Responses**](signalling/02-cll-tri-model-simulation.ipynb) — Build the 140-species NF-κB Tri-Model and compare M-CLL, U-CLL, and IKK inhibition
+- [**2.3 Drug Discovery for Waldenström Macroglobulinemia**](signalling/03-waldenstrom-drug-discovery.ipynb) — Switch on MYD88 L265P and screen targeted drugs & combinations
