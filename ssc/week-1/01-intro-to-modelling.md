@@ -20,9 +20,8 @@ Use the **📽️ Present Slides** button above to step through this introductio
 
 Our research group focuses on **computational systems biology and medicine** — trying to understand biology, disease, and treatment using computational simulations ([mitchell.science](https://mitchell.science/)).
 
-- **Dr Simon Mitchell** — Systems biology, cancer signalling, and population/multi-scale modelling
-- **Dr Eleanor Jayawant** — Computational biology & cell signalling
-- **Aimilia Vareli** — Systems biology & cancer signalling
+- **Prof Simon Mitchell** — Systems biology, cancer signalling, and population/multi-scale modelling
+- **Dr Tabea Fullstone** — Computational biology & cell signalling
 
 :::{admonition} Class Warm-Up
 :class: note
