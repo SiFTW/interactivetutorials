@@ -23,7 +23,7 @@ Across this SSC, we explore how computational simulations help us understand bio
 | **Week 2** | Molecular Dynamics Modelling 1 | Atoms & Proteins | *Slides on [mitchell.science/post/teaching](https://mitchell.science/post/teaching/)* |
 | **Week 3** | Molecular Dynamics Modelling 2 | Atoms & Proteins | *Slides on [mitchell.science/post/teaching](https://mitchell.science/post/teaching/)* |
 | **Week 4** | **Cell Signalling Modelling: NF-κB in Blood Cancer (CLL & Waldenström)** | Cells & Biochemical Networks | **Live in this book** |
-| **Week 5** | Cancer Signalling 2 & Extensions | Cells & Biochemical Networks | *Also see [Interactive ODE Tutorials](https://mitchell.science/tutorials/)* |
+| **Week 5** | **Cell Fate Modelling: Apoptosis (BCL2) & Cell Cycle (c-MYC)** | Cells & Biochemical Networks | **Live in this book** |
 | **Week 6** | Preparation for Assessment (no taught session) | — | Independent project work |
 | **Week 7** | Assessment Week 1 (6-minute presentations — all attend) | — | Presentation |
 | **Week 8** | Assessment Week 2 (6-minute presentations — all attend) | — | Presentation |
@@ -43,3 +43,8 @@ Across this SSC, we explore how computational simulations help us understand bio
 - [**2.1 NF-κB Signalling in Blood Cancer & Systems Biology**](signalling/01-nfkb-and-systems-biology.md) — WM, CLL, DLBCL, canonical vs non-canonical NF-κB, and the systems biology loop
 - [**2.2 Guided Practical: Simulating CLL & Drug Responses**](signalling/02-cll-tri-model-simulation.ipynb) — Build the 140-species NF-κB Tri-Model and compare M-CLL, U-CLL, and IKK inhibition
 - [**2.3 Drug Discovery for Waldenström Macroglobulinemia**](signalling/03-waldenstrom-drug-discovery.ipynb) — Switch on MYD88 L265P and screen targeted drugs & combinations
+
+### Cell Fate Modelling — Apoptosis & Cell Cycle (*Norris et al., 2024*)
+- [**3.1 Cell Fate Modelling: Apoptosis & the Cell Cycle**](cell-fate/01-apoptosis-and-cell-cycle-intro.md) — Double-Hit Lymphoma, BCL2, c-MYC, and the Apoptosis & Cell Cycle networks
+- [**3.2 Apoptosis Modelling: BCL2 Delays Cell Death (Figure 1B)**](cell-fate/02-apoptosis-bcl2-model.ipynb) — Simulate the 59-species Apoptosis model, sweep BCL2 (1×–100×), and screen rescue genes
+- [**3.3 Cell Cycle Modelling: c-MYC Shortens G1 (Figure 1E)**](cell-fate/03-cell-cycle-myc-model.ipynb) — Simulate the 37-species Cell Cycle model, prove G1 shortens with c-MYC, and rescue G1 shortening
