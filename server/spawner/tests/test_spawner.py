@@ -433,6 +433,7 @@ async def test_admin_dashboard_open_readonly_mode():
 
         data = json.loads(raw_stats)
         assert data["can_manage"] is False
+        assert data["admin_login_enabled"] is False
         assert data["server"]["active_sessions"] == 1
         assert data["server"]["max_sessions"] == 10
         assert data["host"]["cpu_cores"] >= 1
@@ -451,7 +452,8 @@ async def test_admin_dashboard_open_readonly_mode():
         assert "Sessions Launched,1,1,1,1" in csv_body
         assert user_token not in csv_body
 
-        # Stopping containers is forbidden when ADMIN_TOKEN is not configured
+        # Admin verify and stopping containers return 403 when ADMIN_TOKEN is not configured
+        assert (await client.post("/api/admin/verify")).status == 403
         stop_resp = await client.post(f"/api/admin/sessions/{sid}/stop")
         assert stop_resp.status == 403
 
@@ -471,10 +473,12 @@ async def test_admin_dashboard_token_protected_and_stop_session():
     app = create_app(cfg, backend=backend)
 
     async with TestClient(TestServer(app)) as client:
-        # /admin still serves the HTML shell (which shows the unlock prompt)
+        # /admin serves the open read-only dashboard with the Admin Login button enabled
         page = await client.get("/admin")
         assert page.status == 200
-        assert "const AUTH_REQUIRED = true;" in (await page.text())
+        page_html = await page.text()
+        assert "const ADMIN_LOGIN_ENABLED = true;" in page_html
+        assert "Admin Login" in page_html
 
         # Spawn one active session
         sse = await client.get("/build/gh/SiFTW/interactivetutorials/main")
@@ -483,30 +487,49 @@ async def test_admin_dashboard_token_protected_and_stop_session():
         sid = events[-1]["url"].rstrip("/").split("/")[-1]
         user_token = events[-1]["token"]
 
-        # Unauthenticated or wrong-token requests get 401
-        assert (await client.get("/api/admin/stats")).status == 401
-        assert (await client.get("/api/admin/export.csv")).status == 401
+        # Read-only stats and CSV remain open without password (can_manage=False)
+        anon_stats = await client.get("/api/admin/stats")
+        assert anon_stats.status == 200
+        anon_raw = await anon_stats.text()
+        assert user_token not in anon_raw
+        anon_data = json.loads(anon_raw)
+        assert anon_data["can_manage"] is False
+        assert anon_data["admin_login_enabled"] is True
+        assert anon_data["server"]["active_sessions"] == 1
+
+        anon_csv = await client.get("/api/admin/export.csv")
+        assert anon_csv.status == 200
+        assert "Mitchell Lab Interactive Tutorials" in (await anon_csv.text())
+
+        # Admin verify and write actions require valid ADMIN_TOKEN
+        assert (await client.post("/api/admin/verify")).status == 401
+        assert (
+            await client.post(
+                "/api/admin/verify", headers={"Authorization": "Bearer wrong-token"}
+            )
+        ).status == 401
         assert (await client.post(f"/api/admin/sessions/{sid}/stop")).status == 401
         assert (
-            await client.get(
-                "/api/admin/stats", headers={"Authorization": "Bearer wrong-token"}
+            await client.post(
+                f"/api/admin/sessions/{sid}/stop",
+                headers={"Authorization": "Bearer wrong-token"},
             )
         ).status == 401
 
-        # Authenticated request succeeds with can_manage=True
+        # Valid admin password unlocks verify & can_manage=True
         auth_headers = {"Authorization": "Bearer secret-admin-token"}
+        verify_resp = await client.post("/api/admin/verify", headers=auth_headers)
+        assert verify_resp.status == 200
+        assert (await verify_resp.json()) == {"authenticated": True}
+
         stats_resp = await client.get("/api/admin/stats", headers=auth_headers)
         assert stats_resp.status == 200
         raw_stats = await stats_resp.text()
         assert user_token not in raw_stats
         data = json.loads(raw_stats)
         assert data["can_manage"] is True
+        assert data["admin_login_enabled"] is True
         assert data["server"]["active_sessions"] == 1
-
-        # CSV export works with Bearer token
-        csv_resp = await client.get("/api/admin/export.csv", headers=auth_headers)
-        assert csv_resp.status == 200
-        assert "Mitchell Lab Interactive Tutorials" in (await csv_resp.text())
 
         # Stop the active container as admin
         stop_resp = await client.post(
@@ -529,4 +552,5 @@ async def test_admin_dashboard_token_protected_and_stop_session():
         assert after_data["server"]["active_sessions"] == 0
         assert len(after_data["recent_sessions"]) == 1
         assert after_data["recent_sessions"][0]["end_reason"] == "stopped by admin"
+
 

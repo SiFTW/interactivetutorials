@@ -9,9 +9,9 @@ from __future__ import annotations
 import json
 
 
-def render_admin_page(*, auth_required: bool) -> str:
+def render_admin_page(*, admin_login_enabled: bool = False) -> str:
     """Render the self-contained admin & statistics HTML page."""
-    auth_js = "true" if auth_required else "false"
+    login_enabled_js = "true" if admin_login_enabled else "false"
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -264,14 +264,24 @@ def render_admin_page(*, auth_required: bool) -> str:
       margin-right: 4px;
     }}
 
+    .modal-backdrop {{
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+    }}
     .auth-overlay {{
-      max-width: 440px;
-      margin: 4rem auto;
+      width: 100%;
+      max-width: 420px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 1.6rem;
-      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+      padding: 1.5rem;
+      box-shadow: 0 20px 44px rgba(15, 23, 42, 0.25);
     }}
     .auth-overlay h2 {{ margin-top: 0; font-size: 1.15rem; }}
     .auth-overlay input {{
@@ -282,16 +292,31 @@ def render_admin_page(*, auth_required: bool) -> str:
       font-size: 0.92rem;
       margin: 0.6rem 0 0.85rem;
     }}
+    .modal-actions {{
+      display: flex;
+      gap: 0.55rem;
+      justify-content: flex-end;
+    }}
     .auth-overlay button {{
-      width: 100%;
-      padding: 0.6rem;
+      padding: 0.55rem 1rem;
       border-radius: 8px;
-      border: none;
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }}
+    .auth-overlay button[type="submit"] {{
       background: var(--blue);
       color: #ffffff;
-      font-weight: 700;
-      font-size: 0.92rem;
-      cursor: pointer;
+    }}
+    .auth-overlay button.cancel-btn {{
+      background: #f1f5f9;
+      color: #334155;
+      border-color: #cbd5e1;
+    }}
+    .btn-admin {{
+      background: rgba(34, 197, 94, 0.22);
+      border-color: rgba(134, 239, 172, 0.55);
     }}
     .hidden {{ display: none !important; }}
   </style>
@@ -306,24 +331,30 @@ def render_admin_page(*, auth_required: bool) -> str:
       <span class="pill" id="liveBadge"><span class="dot" id="liveDot"></span><span id="liveText">Connecting…</span></span>
       <button class="btn" id="toggleAutoBtn" type="button">⏸ Pause (5s)</button>
       <button class="btn" id="refreshBtn" type="button">🔄 Refresh</button>
-      <button class="btn hidden" id="logoutBtn" type="button">🔒 Lock</button>
+      <button class="btn hidden" id="loginBtn" type="button">🔑 Admin Login</button>
+      <button class="btn btn-admin hidden" id="logoutBtn" type="button">🔓 Admin Unlocked (Lock)</button>
     </div>
   </header>
 
-  <main>
-    <div id="authBox" class="auth-overlay hidden">
-      <h2>Admin Token Required</h2>
+  <div id="authModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="auth-overlay">
+      <h2 id="authTitle">Admin Controls Login</h2>
       <p style="font-size:0.86rem;color:#475569;margin-top:0;">
-        Enter the <code>ADMIN_TOKEN</code> configured in <code>server/.env</code> on your tutorial server.
+        Enter the <code>ADMIN_TOKEN</code> from <code>server/.env</code> to unlock container management actions (such as stopping active containers).
       </p>
       <form id="authForm">
         <input id="tokenInput" type="password" placeholder="Paste ADMIN_TOKEN…" autocomplete="current-password" required />
-        <button type="submit">Unlock Dashboard</button>
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" id="cancelAuthBtn">Cancel</button>
+          <button type="submit">Unlock Admin</button>
+        </div>
       </form>
-      <p id="authErr" style="color:#dc2626;font-size:0.82rem;margin:0.6rem 0 0;"></p>
+      <p id="authErr" style="color:#dc2626;font-size:0.82rem;margin:0.65rem 0 0;"></p>
     </div>
+  </div>
 
-    <div id="dashboard" class="hidden">
+  <main>
+    <div id="dashboard">
       <div id="banner" class="notice hidden"></div>
 
       <div class="section-title" style="margin-top:0.2rem;">
@@ -461,7 +492,7 @@ def render_admin_page(*, auth_required: bool) -> str:
   </main>
 
   <script>
-    const AUTH_REQUIRED = {auth_js};
+    const ADMIN_LOGIN_ENABLED = {login_enabled_js};
     const TOKEN_KEY = "mitchell-admin-token";
     let adminToken = window.sessionStorage.getItem(TOKEN_KEY) || "";
     let selectedWindow = "all_time";
@@ -490,21 +521,22 @@ def render_admin_page(*, auth_required: bool) -> str:
       return adminToken ? {{ Authorization: "Bearer " + adminToken }} : {{}};
     }}
 
-    function showAuth(msg) {{
-      document.getElementById("dashboard").classList.add("hidden");
-      document.getElementById("authBox").classList.remove("hidden");
-      document.getElementById("logoutBtn").classList.add("hidden");
-      document.getElementById("authErr").textContent = msg || "";
-      document.getElementById("liveDot").className = "dot warn";
-      document.getElementById("liveText").textContent = "Locked";
+    function updateAuthButtons(canManage, loginEnabled) {{
+      const enabled = loginEnabled !== undefined ? Boolean(loginEnabled) : ADMIN_LOGIN_ENABLED;
+      document.getElementById("loginBtn").classList.toggle("hidden", !enabled || canManage);
+      document.getElementById("logoutBtn").classList.toggle("hidden", !enabled || !canManage);
     }}
 
-    function showDashboard() {{
-      document.getElementById("authBox").classList.add("hidden");
-      document.getElementById("dashboard").classList.remove("hidden");
-      if (AUTH_REQUIRED) {{
-        document.getElementById("logoutBtn").classList.remove("hidden");
-      }}
+    function openAuthModal(msg) {{
+      document.getElementById("authErr").textContent = msg || "";
+      document.getElementById("authModal").classList.remove("hidden");
+      setTimeout(() => document.getElementById("tokenInput").focus(), 20);
+    }}
+
+    function closeAuthModal() {{
+      document.getElementById("authModal").classList.add("hidden");
+      document.getElementById("authErr").textContent = "";
+      document.getElementById("tokenInput").value = "";
     }}
 
     function renderSummary() {{
@@ -573,19 +605,28 @@ def render_admin_page(*, auth_required: bool) -> str:
 
     function renderData(data) {{
       latestData = data;
-      showDashboard();
 
       const h = data.host || {{}};
       const srv = data.server || {{}};
       const containers = data.containers || [];
       const canManage = Boolean(data.can_manage);
+      const loginEnabled = data.admin_login_enabled !== undefined
+        ? Boolean(data.admin_login_enabled)
+        : ADMIN_LOGIN_ENABLED;
 
-      // Banner note when read-only
+      // Clear stale saved token if server rejected it silently
+      if (adminToken && !canManage) {{
+        adminToken = "";
+        window.sessionStorage.removeItem(TOKEN_KEY);
+      }}
+      updateAuthButtons(canManage, loginEnabled);
+
+      // Subtle notice only when ADMIN_TOKEN is not configured at all
       const banner = document.getElementById("banner");
-      if (!AUTH_REQUIRED) {{
+      if (!loginEnabled) {{
         banner.className = "notice";
         banner.innerHTML =
-          '<span><strong>Read-only monitoring mode.</strong> Set <code>ADMIN_TOKEN</code> in <code>server/.env</code> to password-protect this page and enable the <em>Stop Container</em> button.</span>';
+          '<span><strong>Read-only status mode.</strong> To enable container <em>Stop</em> controls via Admin Login, set <code>ADMIN_TOKEN</code> in <code>server/.env</code>.</span>';
       }} else {{
         banner.className = "notice hidden";
       }}
@@ -698,20 +739,10 @@ def render_admin_page(*, auth_required: bool) -> str:
     }}
 
     async function fetchStats() {{
-      if (AUTH_REQUIRED && !adminToken) {{
-        showAuth("");
-        return;
-      }}
       try {{
         const resp = await fetch("/api/admin/stats?hours=" + selectedHours, {{
           headers: authHeaders(),
         }});
-        if (resp.status === 401 || resp.status === 403) {{
-          adminToken = "";
-          window.sessionStorage.removeItem(TOKEN_KEY);
-          showAuth("Invalid or expired ADMIN_TOKEN. Please try again.");
-          return;
-        }}
         if (!resp.ok) throw new Error("HTTP " + resp.status);
         const data = await resp.json();
         renderData(data);
@@ -730,6 +761,12 @@ def render_admin_page(*, auth_required: bool) -> str:
         method: "POST",
         headers: authHeaders(),
       }});
+      if (resp.status === 401) {{
+        adminToken = "";
+        window.sessionStorage.removeItem(TOKEN_KEY);
+        openAuthModal("Admin session expired. Please re-enter ADMIN_TOKEN.");
+        return;
+      }}
       if (!resp.ok) {{
         alert("Could not stop container (HTTP " + resp.status + ")");
       }}
@@ -753,18 +790,47 @@ def render_admin_page(*, auth_required: bool) -> str:
       URL.revokeObjectURL(url);
     }}
 
-    document.getElementById("authForm").addEventListener("submit", (evt) => {{
+    document.getElementById("loginBtn").addEventListener("click", () => openAuthModal(""));
+    document.getElementById("cancelAuthBtn").addEventListener("click", closeAuthModal);
+    document.getElementById("authModal").addEventListener("click", (evt) => {{
+      if (evt.target === evt.currentTarget) closeAuthModal();
+    }});
+    document.addEventListener("keydown", (evt) => {{
+      if (evt.key === "Escape") closeAuthModal();
+    }});
+
+    document.getElementById("authForm").addEventListener("submit", async (evt) => {{
       evt.preventDefault();
-      adminToken = document.getElementById("tokenInput").value.trim();
-      window.sessionStorage.setItem(TOKEN_KEY, adminToken);
-      document.getElementById("tokenInput").value = "";
-      fetchStats();
+      const candidate = document.getElementById("tokenInput").value.trim();
+      if (!candidate) return;
+      document.getElementById("authErr").textContent = "";
+      try {{
+        const resp = await fetch("/api/admin/verify", {{
+          method: "POST",
+          headers: {{ Authorization: "Bearer " + candidate }},
+        }});
+        if (!resp.ok) {{
+          let msg = "Invalid admin password.";
+          try {{
+            const body = await resp.json();
+            if (body && body.error) msg = body.error;
+          }} catch (_) {{}}
+          document.getElementById("authErr").textContent = msg;
+          return;
+        }}
+        adminToken = candidate;
+        window.sessionStorage.setItem(TOKEN_KEY, adminToken);
+        closeAuthModal();
+        await fetchStats();
+      }} catch (err) {{
+        document.getElementById("authErr").textContent = "Network error: " + err.message;
+      }}
     }});
 
     document.getElementById("logoutBtn").addEventListener("click", () => {{
       adminToken = "";
       window.sessionStorage.removeItem(TOKEN_KEY);
-      showAuth("");
+      fetchStats();
     }});
 
     document.getElementById("refreshBtn").addEventListener("click", fetchStats);
@@ -796,9 +862,10 @@ def render_admin_page(*, auth_required: bool) -> str:
       downloadExport("/api/admin/stats?hours=" + selectedHours, "mitchell-lab-tutorials-stats.json");
     }});
 
+    updateAuthButtons(false, ADMIN_LOGIN_ENABLED);
     fetchStats();
     refreshTimer = setInterval(() => {{
-      if (autoRefresh && (!AUTH_REQUIRED || adminToken)) fetchStats();
+      if (autoRefresh) fetchStats();
     }}, 5000);
   </script>
 </body>

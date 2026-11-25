@@ -64,12 +64,37 @@ jobs:
           docker tag "${CANDIDATE_IMAGE}" "${LATEST_IMAGE}"
           echo "Promoted ${CANDIDATE_IMAGE} -> ${LATEST_IMAGE} (sha=${{ github.sha }})"
 
-          # Preserve any server-local .env (e.g. MAX_CONCURRENT_SESSIONS=40, CLOUDFLARE_TUNNEL_TOKEN)
+          # Preserve server-local .env (e.g. MAX_CONCURRENT_SESSIONS=40, ADMIN_TOKEN, CLOUDFLARE_TUNNEL_TOKEN)
+          # across repeated deploys even after com.docker.compose.project.working_dir moves to the runner workspace.
           COMPOSE_ENV_ARGS=()
           EXISTING_COMPOSE_DIR="$(docker inspect mitchell-tutorial-spawner --format '{{index .Config.Labels "com.docker.compose.project.working_dir"}}' 2>/dev/null || true)"
-          if [[ -n "${EXISTING_COMPOSE_DIR}" && -f "${EXISTING_COMPOSE_DIR}/.env" ]]; then
-            echo "Preserving server .env from ${EXISTING_COMPOSE_DIR}/.env"
-            COMPOSE_ENV_ARGS=(--env-file "${EXISTING_COMPOSE_DIR}/.env")
+          ENV_FILE=""
+          for candidate in \
+            "${EXISTING_COMPOSE_DIR:+${EXISTING_COMPOSE_DIR}/.env}" \
+            "/home/interactivetutorials/server/.env" \
+            "/opt/mitchell-tutorials/.env" \
+            "/etc/mitchell-tutorials/spawner.env"; do
+            if [[ -n "${candidate}" && -r "${candidate}" ]]; then
+              ENV_FILE="${candidate}"
+              break
+            fi
+          done
+
+          TEMP_ENV_FILE=""
+          trap '[[ -n "${TEMP_ENV_FILE}" ]] && rm -f "${TEMP_ENV_FILE}"' EXIT
+          if [[ -n "${ENV_FILE}" ]]; then
+            echo "Preserving server .env from ${ENV_FILE}"
+            COMPOSE_ENV_ARGS=(--env-file "${ENV_FILE}")
+          elif docker inspect mitchell-tutorial-spawner >/dev/null 2>&1; then
+            TEMP_ENV_FILE="$(mktemp)"
+            chmod 600 "${TEMP_ENV_FILE}"
+            docker inspect mitchell-tutorial-spawner --format '{{range .Config.Env}}{{println .}}{{end}}' \
+              | grep -E '^(MAX_CONCURRENT_SESSIONS|MAX_SESSIONS_PER_IP|CONTAINER_MEM_LIMIT|CONTAINER_CPUS|CONTAINER_PIDS_LIMIT|IDLE_TIMEOUT_SECONDS|MAX_SESSION_AGE_SECONDS|ADMIN_TOKEN|PUBLIC_BASE_URL|ALLOWED_ORIGINS|ALLOWED_ORIGIN_REGEX|CLOUDFLARE_TUNNEL_TOKEN)=' \
+              > "${TEMP_ENV_FILE}" || true
+            if [[ -s "${TEMP_ENV_FILE}" ]]; then
+              echo "Preserving runtime environment variables from existing mitchell-tutorial-spawner container"
+              COMPOSE_ENV_ARGS=(--env-file "${TEMP_ENV_FILE}")
+            fi
           fi
 
           (
