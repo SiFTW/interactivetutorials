@@ -49,16 +49,11 @@ RUN JULIA_MINOR="$(echo "${JULIA_VERSION}" | cut -d. -f1,2)" && \
     rm -f /tmp/julia.tar.gz && \
     julia --version
 
-# Install Jupyter Server, JupyterLab, and the Python 3 Molecular Dynamics stack (OpenMM + MDAnalysis)
+# Install Jupyter Server, JupyterLab & ipykernel (stable base layer — keeps Julia sysimage cached)
 RUN pip install --no-cache-dir \
     "jupyter-server>=2.14,<3" \
     "jupyterlab>=4.2,<5" \
-    "ipykernel>=6.29,<8" \
-    "numpy>=1.26,<3" \
-    "matplotlib>=3.8,<4" \
-    "openmm>=8.2,<9" \
-    "MDAnalysis>=2.8,<3" \
-    "PeptideBuilder>=1.1,<2" && \
+    "ipykernel>=6.29,<8" && \
     python3 -m ipykernel install --prefix=/usr/local --name python3 --display-name "Python 3"
 
 # Create non-root user and directories
@@ -99,9 +94,15 @@ RUN if [ "${BUILD_SYSIMAGE}" = "1" ]; then \
 COPY --chown=${NB_USER}:${NB_USER} server/write_kernelspec.py /opt/julia-env/write_kernelspec.py
 RUN python3 /opt/julia-env/write_kernelspec.py
 
-# Make Julia depot, environment, and kernelspecs read-only for runtime safety while keeping /home/jovyan/work writable
+# Install Python 3 Molecular Dynamics stack AFTER Julia sysimage so Python updates rebuild in ~30s
 USER root
-RUN chmod -R a+rX,go-w /opt/julia /opt/julia-env /usr/local/share/jupyter/kernels
+RUN pip install --no-cache-dir \
+    "numpy>=1.26,<3" \
+    "matplotlib>=3.8,<4" \
+    "openmm>=8.2,<9" \
+    "MDAnalysis>=2.8,<3" \
+    "PeptideBuilder>=1.1,<2" && \
+    chmod -R a+rX,go-w /opt/julia /opt/julia-env /usr/local/share/jupyter/kernels
 
 # Bake the starter Tutorial 1, SSC Molecular Dynamics (Python), NF-kB, Apoptosis, and Cell Cycle files into every student's isolated workspace
 COPY --chown=${NB_USER}:${NB_USER} tutorials/toyModel/ /home/${NB_USER}/work/
@@ -114,8 +115,11 @@ USER ${NB_USER}
 WORKDIR /home/${NB_USER}/work
 
 # Build-time smoke check confirming both kernelspecs and Python MD packages are available
-RUN python3 -c "import openmm, MDAnalysis, PeptideBuilder, matplotlib, numpy, sys; sys.path.insert(0, '/home/${NB_USER}/work/MD'); import md_helpers; print('Python MD stack verified!')" && \
+RUN python3 -c "import openmm, MDAnalysis, PeptideBuilder, matplotlib, numpy, nbclient, nbformat, sys; sys.path.insert(0, '/home/${NB_USER}/work/MD'); import md_helpers; print('Python MD stack verified!')" && \
     jupyter kernelspec list
+
+ARG GIT_SHA=unknown
+LABEL org.opencontainers.image.revision="${GIT_SHA}"
 
 EXPOSE 8888
 

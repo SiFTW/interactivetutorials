@@ -1,0 +1,103 @@
+name: Server True-Environment Test & Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Serialize Docker builds & promotions on 139.184.169.98 so concurrent pushes never clash
+concurrency:
+  group: mitchell-server-docker
+  cancel-in-progress: false
+
+jobs:
+  test-and-deploy-on-server:
+    name: Build Container & Execute All Notebooks (True Server Env)
+    runs-on: [self-hosted, linux, mitchell-server]
+    timeout-minutes: 30
+    # Security guard for public repo: NEVER execute untrusted external fork PRs on the lab server!
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association))
+
+    env:
+      CANDIDATE_IMAGE: "mitchell-lab/julia-tutorial-kernel:ci-${{ github.run_id }}"
+      LATEST_IMAGE: "mitchell-lab/julia-tutorial-kernel:latest"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build exact production kernel image (uses local Docker layer cache)
+        run: |
+          docker build \
+            --build-arg GIT_SHA="${{ github.sha }}" \
+            -f server/Dockerfile.julia-kernel \
+            -t "${CANDIDATE_IMAGE}" \
+            .
+
+      - name: Execute EVERY cell of EVERY Julia & Python notebook via real Jupyter kernels (2g RAM, --network=none)
+        run: |
+          docker run --rm \
+            --memory=2g --cpus=2 --pids-limit=256 \
+            --network=none \
+            -e GKSwstype=100 \
+            -e MPLBACKEND=Agg \
+            -e OPENMM_CPU_THREADS=1 \
+            -e OMP_NUM_THREADS=1 \
+            -v "${{ github.workspace }}:/repo:ro" \
+            "${CANDIDATE_IMAGE}" \
+            python3 /repo/scripts/test_notebooks.py \
+              --repo /repo \
+              --via-jupyter \
+              --in-container-work /home/jovyan/work \
+              --timeout 360
+
+      - name: Promote verified image to :latest & update spawner (main branch only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          docker tag "${CANDIDATE_IMAGE}" "${LATEST_IMAGE}"
+          echo "Promoted ${CANDIDATE_IMAGE} -> ${LATEST_IMAGE} (sha=${{ github.sha }})"
+
+          # Preserve any server-local .env (e.g. MAX_CONCURRENT_SESSIONS=40, CLOUDFLARE_TUNNEL_TOKEN)
+          COMPOSE_ENV_ARGS=()
+          EXISTING_COMPOSE_DIR="$(docker inspect mitchell-tutorial-spawner --format '{{index .Config.Labels "com.docker.compose.project.working_dir"}}' 2>/dev/null || true)"
+          if [[ -n "${EXISTING_COMPOSE_DIR}" && -f "${EXISTING_COMPOSE_DIR}/.env" ]]; then
+            echo "Preserving server .env from ${EXISTING_COMPOSE_DIR}/.env"
+            COMPOSE_ENV_ARGS=(--env-file "${EXISTING_COMPOSE_DIR}/.env")
+          fi
+
+          (
+            cd server
+            if docker ps --format '{{.Names}}' | grep -qx 'mitchell-tutorial-cloudflared'; then
+              docker compose "${COMPOSE_ENV_ARGS[@]}" --profile tunnel up -d --build spawner
+            else
+              docker compose "${COMPOSE_ENV_ARGS[@]}" up -d --build spawner
+            fi
+          )
+
+          # Wait briefly for spawner /health
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:8787/health >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Live end-to-end smoke test against http://127.0.0.1:8787 (main branch only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python3 scripts/smoke_test_spawner.py \
+            --url http://127.0.0.1:8787 \
+            --expect-sha "${{ github.sha }}"
+
+      - name: Clean up temporary CI image tag
+        if: always()
+        run: |
+          docker rmi "${CANDIDATE_IMAGE}" >/dev/null 2>&1 || true
