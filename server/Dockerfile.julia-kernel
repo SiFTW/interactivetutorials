@@ -104,6 +104,11 @@ RUN pip install --no-cache-dir \
     "PeptideBuilder>=1.1,<2" && \
     chmod -R a+rX,go-w /opt/julia /opt/julia-env /usr/local/share/jupyter/kernels
 
+# Clear MPLBACKEND (set earlier before the Julia sysimage layer) so ipykernel
+# automatically activates matplotlib_inline and renders plt.show() plots inline
+# in Thebe and JupyterLab (while keeping the Julia sysimage Docker layer cached).
+ENV MPLBACKEND=""
+
 # Bake the starter Tutorial 1, SSC Molecular Dynamics (Python), NF-kB, Apoptosis, and Cell Cycle files into every student's isolated workspace
 COPY --chown=${NB_USER}:${NB_USER} tutorials/toyModel/ /home/${NB_USER}/work/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/MD/ /home/${NB_USER}/work/MD/
@@ -114,8 +119,8 @@ COPY --chown=${NB_USER}:${NB_USER} tutorials/cellCycle/ /home/${NB_USER}/work/ce
 USER ${NB_USER}
 WORKDIR /home/${NB_USER}/work
 
-# Build-time smoke check confirming both kernelspecs and Python MD packages are available
-RUN python3 -c "import openmm, MDAnalysis, PeptideBuilder, matplotlib, numpy, nbclient, nbformat, sys; sys.path.insert(0, '/home/${NB_USER}/work/MD'); import md_helpers; print('Python MD stack verified!')" && \
+# Build-time smoke check confirming both kernelspecs, inline matplotlib, and Python MD packages are available
+RUN python3 -c "import os, openmm, MDAnalysis, PeptideBuilder, matplotlib, matplotlib_inline, numpy, nbclient, nbformat, sys; assert os.environ.get('MPLBACKEND', '') != 'Agg', 'MPLBACKEND=Agg breaks inline Jupyter plots'; sys.path.insert(0, '/home/${NB_USER}/work/MD'); import md_helpers; print('Python MD stack verified!')" && \
     jupyter kernelspec list
 
 ARG GIT_SHA=unknown

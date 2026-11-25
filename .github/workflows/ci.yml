@@ -187,7 +187,6 @@ jobs:
           pip install "numpy>=1.26,<3" "matplotlib>=3.8,<4" "openmm>=8.2,<9" "MDAnalysis>=2.8,<3" "PeptideBuilder>=1.1,<2" "ipykernel>=6.29,<8" "nbclient>=0.10,<1" "nbformat>=5.9,<6"
       - name: Execute every Python MD notebook via real Jupyter python3 kernel
         env:
-          MPLBACKEND: "Agg"
           OPENMM_CPU_THREADS: "1"
           OMP_NUM_THREADS: "1"
         run: |
