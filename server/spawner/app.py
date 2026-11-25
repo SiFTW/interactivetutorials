@@ -74,7 +74,7 @@ class SpawnerConfig:
     allowed_origin_regex: str = ""
     allowed_repos: tuple[str, ...] = ("siftw/interactivetutorials",)
     max_concurrent_sessions: int = 20
-    max_sessions_per_ip: int = 3
+    max_sessions_per_ip: int = 30
     container_mem_limit: str = "2g"
     container_nano_cpus: int = 2_000_000_000
     container_pids_limit: int = 256
@@ -117,7 +117,7 @@ class SpawnerConfig:
                 r.lower() for r in _csv("ALLOWED_REPOS", ("siftw/interactivetutorials",))
             ),
             max_concurrent_sessions=int(os.environ.get("MAX_CONCURRENT_SESSIONS", "20")),
-            max_sessions_per_ip=int(os.environ.get("MAX_SESSIONS_PER_IP", "3")),
+            max_sessions_per_ip=int(os.environ.get("MAX_SESSIONS_PER_IP", "30")),
             container_mem_limit=os.environ.get("CONTAINER_MEM_LIMIT", "2g"),
             container_nano_cpus=int(
                 float(os.environ.get("CONTAINER_CPUS", "2.0")) * 1_000_000_000
@@ -573,6 +573,42 @@ class TutorialSpawnerApp:
             return response
 
         ip_hash = self._client_ip_hash(request)
+        reclaim_sid: str | None = None
+        reclaim_reason = ""
+        async with self._lock:
+            now_mono = time.monotonic()
+            if len(self.sessions) >= self.config.max_concurrent_sessions:
+                candidates = [
+                    s
+                    for s in self.sessions.values()
+                    if s.container_id != "pending"
+                    and s.active_ws == 0
+                    and (now_mono - s.last_seen) >= 300.0
+                ]
+                if candidates:
+                    oldest = min(candidates, key=lambda s: s.last_seen)
+                    reclaim_sid = oldest.session_id
+                    reclaim_reason = "reclaimed idle session at capacity"
+            else:
+                ip_sessions_list = [
+                    s for s in self.sessions.values() if s.client_ip_hash == ip_hash
+                ]
+                if len(ip_sessions_list) >= self.config.max_sessions_per_ip:
+                    candidates = [
+                        s
+                        for s in ip_sessions_list
+                        if s.container_id != "pending"
+                        and s.active_ws == 0
+                        and (now_mono - s.last_seen) >= 120.0
+                    ]
+                    if candidates:
+                        oldest = min(candidates, key=lambda s: s.last_seen)
+                        reclaim_sid = oldest.session_id
+                        reclaim_reason = "reclaimed idle session for IP"
+
+        if reclaim_sid is not None:
+            await self._destroy_session(reclaim_sid, reclaim_reason)
+
         async with self._lock:
             if len(self.sessions) >= self.config.max_concurrent_sessions:
                 await sse_send(
@@ -590,7 +626,7 @@ class TutorialSpawnerApp:
                 await sse_send(
                     "failed",
                     f"You already have {ip_sessions} active tutorial sessions. "
-                    "Close an existing tab or wait for idle sessions to expire.",
+                    "Click Reset Session on an existing tab or wait a few minutes for idle sessions to expire.",
                 )
                 await response.write_eof()
                 return response
@@ -736,10 +772,40 @@ class TutorialSpawnerApp:
 </html>"""
         return web.Response(text=page, content_type="text/html")
 
+    @staticmethod
+    def _extract_session_token(request: web.Request) -> str:
+        tok = request.query.get("token", "").strip()
+        if tok:
+            return tok
+        auth = request.headers.get("Authorization", "").strip()
+        for prefix in ("token ", "bearer "):
+            if auth.lower().startswith(prefix):
+                return auth[len(prefix) :].strip()
+        return ""
+
+    async def handle_user_stop_session(self, request: web.Request) -> web.Response:
+        """Token-authenticated self-service endpoint allowing a user to stop their own container."""
+        sid = request.match_info["sid"]
+        session = self.sessions.get(sid)
+        if session is None:
+            return web.json_response({"status": "gone", "session_id": sid})
+
+        supplied = self._extract_session_token(request)
+        if not supplied or not hmac.compare_digest(supplied, session.token):
+            return web.json_response({"error": "Invalid or missing session token"}, status=403)
+
+        await self._destroy_session(sid, "stopped by user")
+        self._stats_cache_ts = 0.0
+        return web.json_response({"status": "stopped", "session_id": sid})
+
     async def handle_user_proxy(self, request: web.Request) -> web.StreamResponse:
         """Reverse proxy HTTP and WebSocket traffic to /user/{sid}/..."""
         sid = request.match_info["sid"]
         subpath = request.match_info.get("path", "")
+
+        # Self-service container cleanup via DELETE /user/{sid} or DELETE /user/{sid}/
+        if request.method == "DELETE" and not subpath.strip("/"):
+            return await self.handle_user_stop_session(request)
 
         session = self.sessions.get(sid)
         if session is None or not session.upstream_host:
@@ -1196,6 +1262,9 @@ def create_app(
     app.router.add_get("/api/admin/export.csv", spawner.handle_admin_export_csv)
     app.router.add_post(
         "/api/admin/sessions/{sid}/stop", spawner.handle_admin_stop_session
+    )
+    app.router.add_post(
+        "/api/sessions/{sid}/stop", spawner.handle_user_stop_session
     )
     app.router.add_get("/build/{provider}/{spec:.*}", spawner.handle_binder_build)
     app.router.add_get("/v2/{provider}/{spec:.*}", spawner.handle_binder_launch_page)

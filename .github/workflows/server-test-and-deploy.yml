@@ -80,14 +80,14 @@ jobs:
             fi
           done
 
-          TEMP_ENV_FILE=""
-          trap '[[ -n "${TEMP_ENV_FILE}" ]] && rm -f "${TEMP_ENV_FILE}"' EXIT
+          TEMP_ENV_FILE="$(mktemp)"
+          chmod 600 "${TEMP_ENV_FILE}"
+          trap 'rm -f "${TEMP_ENV_FILE}"' EXIT
           if [[ -n "${ENV_FILE}" ]]; then
             echo "Preserving server .env from ${ENV_FILE}"
-            COMPOSE_ENV_ARGS=(--env-file "${ENV_FILE}")
+            cp "${ENV_FILE}" "${TEMP_ENV_FILE}"
+            COMPOSE_ENV_ARGS=(--env-file "${TEMP_ENV_FILE}")
           elif docker inspect mitchell-tutorial-spawner >/dev/null 2>&1; then
-            TEMP_ENV_FILE="$(mktemp)"
-            chmod 600 "${TEMP_ENV_FILE}"
             docker inspect mitchell-tutorial-spawner --format '{{range .Config.Env}}{{println .}}{{end}}' \
               | grep -E '^(MAX_CONCURRENT_SESSIONS|MAX_SESSIONS_PER_IP|CONTAINER_MEM_LIMIT|CONTAINER_CPUS|CONTAINER_PIDS_LIMIT|IDLE_TIMEOUT_SECONDS|MAX_SESSION_AGE_SECONDS|ADMIN_TOKEN|PUBLIC_BASE_URL|ALLOWED_ORIGINS|ALLOWED_ORIGIN_REGEX|CLOUDFLARE_TUNNEL_TOKEN)=' \
               > "${TEMP_ENV_FILE}" || true
@@ -95,6 +95,13 @@ jobs:
               echo "Preserving runtime environment variables from existing mitchell-tutorial-spawner container"
               COMPOSE_ENV_ARGS=(--env-file "${TEMP_ENV_FILE}")
             fi
+          fi
+
+          # Upgrade the legacy .env.example default (MAX_SESSIONS_PER_IP<=3) to 30 at runtime
+          # so a full BSMS classroom sharing one campus Wi-Fi NAT IP is never rate-limited.
+          if [[ -s "${TEMP_ENV_FILE}" ]] && grep -Eq '^MAX_SESSIONS_PER_IP=[0-3][[:space:]]*$' "${TEMP_ENV_FILE}"; then
+            echo "Upgrading legacy MAX_SESSIONS_PER_IP<=3 -> 30 in runtime compose env for classroom NAT support"
+            sed -i -E 's/^MAX_SESSIONS_PER_IP=[0-3][[:space:]]*$/MAX_SESSIONS_PER_IP=30/' "${TEMP_ENV_FILE}"
           fi
 
           (

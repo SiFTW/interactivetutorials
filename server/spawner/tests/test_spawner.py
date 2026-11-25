@@ -554,3 +554,103 @@ async def test_admin_dashboard_token_protected_and_stop_session():
         assert after_data["recent_sessions"][0]["end_reason"] == "stopped by admin"
 
 
+@pytest.mark.asyncio
+async def test_user_self_service_stop_frees_quota_immediately():
+    backend = MockJupyterBackend()
+    cfg = SpawnerConfig(
+        allowed_repos=("siftw/interactivetutorials",),
+        max_concurrent_sessions=5,
+        max_sessions_per_ip=1,
+        cull_interval_seconds=3600,
+        metrics_db_path=":memory:",
+        metrics_sample_interval_seconds=3600,
+    )
+    assert SpawnerConfig().max_sessions_per_ip == 30
+    app = create_app(cfg, backend=backend)
+
+    async with TestClient(TestServer(app)) as client:
+        r1 = await client.get("/build/gh/SiFTW/interactivetutorials/main")
+        e1 = parse_sse_events(await r1.text())
+        assert e1[-1]["phase"] == "ready"
+        sid1 = e1[-1]["url"].rstrip("/").split("/")[-1]
+        tok1 = e1[-1]["token"]
+
+        # Without stopping, a 2nd session from same IP is blocked while active/fresh
+        r_blocked = await client.get("/build/gh/SiFTW/interactivetutorials/main")
+        e_blocked = parse_sse_events(await r_blocked.text())
+        assert e_blocked[-1]["phase"] == "failed"
+        assert "already have 1 active" in e_blocked[-1]["message"].lower()
+
+        # Wrong or missing token is rejected with 403
+        assert (await client.post(f"/api/sessions/{sid1}/stop")).status == 403
+        assert (
+            await client.post(f"/api/sessions/{sid1}/stop?token=wrong-token")
+        ).status == 403
+        assert (await client.delete(f"/user/{sid1}/?token=wrong-token")).status == 403
+
+        # Valid token stops container and frees the per-IP slot immediately
+        stop_resp = await client.post(f"/api/sessions/{sid1}/stop?token={tok1}")
+        assert stop_resp.status == 200
+        assert (await stop_resp.json()) == {"status": "stopped", "session_id": sid1}
+        assert len(backend.stopped) == 1
+
+        # Calling stop again is idempotent (returns 200 gone)
+        again_resp = await client.post(f"/api/sessions/{sid1}/stop?token={tok1}")
+        assert again_resp.status == 200
+        assert (await again_resp.json()) == {"status": "gone", "session_id": sid1}
+
+        # Spawning a fresh session succeeds immediately, and DELETE /user/{sid}/ also stops it
+        r2 = await client.get("/build/gh/SiFTW/interactivetutorials/main")
+        e2 = parse_sse_events(await r2.text())
+        assert e2[-1]["phase"] == "ready"
+        sid2 = e2[-1]["url"].rstrip("/").split("/")[-1]
+        tok2 = e2[-1]["token"]
+
+        del_resp = await client.delete(
+            f"/user/{sid2}/", headers={"Authorization": f"token {tok2}"}
+        )
+        assert del_resp.status == 200
+        assert (await del_resp.json()) == {"status": "stopped", "session_id": sid2}
+        assert len(backend.stopped) == 2
+
+
+@pytest.mark.asyncio
+async def test_reclaims_abandoned_disconnected_session_before_rejecting():
+    backend = MockJupyterBackend()
+    cfg = SpawnerConfig(
+        allowed_repos=("siftw/interactivetutorials",),
+        max_concurrent_sessions=5,
+        max_sessions_per_ip=1,
+        cull_interval_seconds=3600,
+        metrics_db_path=":memory:",
+        metrics_sample_interval_seconds=3600,
+    )
+    app = create_app(cfg, backend=backend)
+
+    async with TestClient(TestServer(app)) as client:
+        r1 = await client.get("/build/gh/SiFTW/interactivetutorials/main")
+        e1 = parse_sse_events(await r1.text())
+        assert e1[-1]["phase"] == "ready"
+        sid1 = e1[-1]["url"].rstrip("/").split("/")[-1]
+
+        spawner = app["spawner"]
+        # Mark session as idle for 3 minutes, but WITH an active WebSocket: must NOT be reclaimed
+        spawner.sessions[sid1].last_seen = time.monotonic() - 180
+        spawner.sessions[sid1].active_ws = 1
+        r_ws = await client.get("/build/gh/SiFTW/interactivetutorials/main")
+        e_ws = parse_sse_events(await r_ws.text())
+        assert e_ws[-1]["phase"] == "failed"
+        assert sid1 in spawner.sessions
+
+        # Once disconnected (active_ws=0) and idle >= 120s, it IS reclaimed automatically
+        spawner.sessions[sid1].active_ws = 0
+        r2 = await client.get("/build/gh/SiFTW/interactivetutorials/main")
+        e2 = parse_sse_events(await r2.text())
+        assert e2[-1]["phase"] == "ready"
+        sid2 = e2[-1]["url"].rstrip("/").split("/")[-1]
+        assert sid1 not in spawner.sessions
+        assert sid2 in spawner.sessions
+        assert len(backend.stopped) == 1
+
+
+

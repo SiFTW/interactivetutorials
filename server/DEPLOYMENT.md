@@ -8,7 +8,7 @@ This deployment runs **100% independently** of your existing production JupyterH
 |---|---|
 | Existing JupyterHub config & containers | Never touched. Uses its own Docker Compose project (`mitchell-tutorials`) and container prefix (`tutorial-julia-*`). |
 | Host network ports | Spawner binds **only** to `127.0.0.1:8787` (does not conflict with ports `8000`, `8080`, `8081`, `8111`, or `443`). |
-| Compute starvation of research jobs | Hard caps via Docker cgroups: `2g` RAM, `2.0` CPUs, `256` PIDs per user container, `MAX_CONCURRENT_SESSIONS=20`, `MAX_SESSIONS_PER_IP=3`. |
+| Compute starvation of research jobs | Hard caps via Docker cgroups: `2g` RAM, `2.0` CPUs, `256` PIDs per user container, `MAX_CONCURRENT_SESSIONS=20`, `MAX_SESSIONS_PER_IP=30` (supports a classroom sharing campus NAT). |
 | Network abuse / SSRF / cryptominers | Ephemeral user containers attach **only** to `mitchell-tutorials_user_net` (`internal: true`) — **zero outbound internet or campus LAN egress**. |
 | User filesystem isolation | Each visitor gets their own disposable container (`--cap-drop=ALL`, `no-new-privileges`, `auto_remove=True`), automatically culled after 20 minutes idle or 2 hours max lifetime. |
 
