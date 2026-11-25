@@ -77,8 +77,11 @@ jobs:
           pip install -r server/spawner/requirements.txt pytest pytest-asyncio
       - name: Run spawner integration tests
         run: pytest -v server/spawner/tests/test_spawner.py
-      - name: Verify csv2model-multiscale.py, MD helpers, and smoke test compile with zero warnings
+      - name: Verify spawner, csv2model-multiscale.py, MD helpers, and smoke test compile with zero warnings
         run: |
+          python3 -B -W error -m py_compile server/spawner/app.py
+          python3 -B -W error -m py_compile server/spawner/metrics.py
+          python3 -B -W error -m py_compile server/spawner/admin_ui.py
           python3 -B -W error -m py_compile tutorials/MD/md_helpers.py
           python3 -B -W error -m py_compile scripts/test_notebooks.py
           python3 -B -W error -m py_compile scripts/smoke_test_spawner.py

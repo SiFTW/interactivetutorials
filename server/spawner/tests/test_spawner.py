@@ -14,6 +14,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app import SpawnerConfig, create_app  # noqa: E402
+from metrics import MetricsStore, parse_docker_container_stats  # noqa: E402
 
 
 class MockJupyterBackend:
@@ -24,6 +25,7 @@ class MockJupyterBackend:
         self.tokens: dict[str, str] = {}
         self.stopped: list[str] = []
         self.orphans_cleaned = 0
+        self.stats_by_cid: dict[str, dict] = {}
 
     async def spawn(
         self,
@@ -88,6 +90,16 @@ class MockJupyterBackend:
         cid = f"mock-container-{session_id}"
         self.servers[cid] = server
         self.tokens[cid] = token
+        self.stats_by_cid[cid] = {
+            "cpu_percent": 42.5,
+            "cpu_seconds": 18.0,
+            "mem_bytes": 512 * 1024 * 1024,
+            "mem_mb": 512.0,
+            "mem_limit_bytes": 4 * 1024**3,
+            "mem_limit_mb": 4096.0,
+            "mem_percent": 12.5,
+            "pids": 9,
+        }
         return cid, server.host, server.port
 
     async def stop_and_remove(self, container_id: str) -> None:
@@ -110,6 +122,11 @@ class MockJupyterBackend:
             "kernel_git_sha": "abc1234",
         }
 
+    async def container_stats(self, container_id: str) -> dict | None:
+        if container_id not in self.servers:
+            return None
+        return self.stats_by_cid.get(container_id)
+
 
 def parse_sse_events(raw: str) -> list[dict]:
     events = []
@@ -130,6 +147,8 @@ async def test_binder_sse_spawn_http_and_websocket_proxy():
         max_concurrent_sessions=5,
         max_sessions_per_ip=2,
         cull_interval_seconds=3600,
+        metrics_db_path=":memory:",
+        metrics_sample_interval_seconds=3600,
     )
     app = create_app(cfg, backend=backend)
 
@@ -215,6 +234,8 @@ async def test_disallowed_repo_rejected():
     cfg = SpawnerConfig(
         allowed_repos=("siftw/interactivetutorials",),
         cull_interval_seconds=3600,
+        metrics_db_path=":memory:",
+        metrics_sample_interval_seconds=3600,
     )
     app = create_app(cfg, backend=backend)
 
@@ -236,6 +257,8 @@ async def test_session_limits_and_idle_culler():
         max_sessions_per_ip=1,
         idle_timeout_seconds=10,
         cull_interval_seconds=3600,
+        metrics_db_path=":memory:",
+        metrics_sample_interval_seconds=3600,
     )
     app = create_app(cfg, backend=backend)
 
@@ -263,3 +286,247 @@ async def test_session_limits_and_idle_culler():
         # Expired session now returns 404
         r404 = await client.get(f"/user/{sid}/api/status")
         assert r404.status == 404
+
+
+def test_parse_docker_container_stats():
+    raw = {
+        "cpu_stats": {
+            "cpu_usage": {"total_usage": 5_000_000_000},
+            "system_cpu_usage": 20_000_000_000,
+            "online_cpus": 4,
+        },
+        "precpu_stats": {
+            "cpu_usage": {"total_usage": 4_000_000_000},
+            "system_cpu_usage": 16_000_000_000,
+        },
+        "memory_stats": {
+            "usage": 600 * 1024 * 1024,
+            "limit": 4 * 1024**3,
+            "stats": {"inactive_file": 88 * 1024 * 1024},
+        },
+        "pids_stats": {"current": 14},
+    }
+    parsed = parse_docker_container_stats(raw)
+    assert parsed["cpu_percent"] == 100.0
+    assert parsed["cpu_seconds"] == 5.0
+    assert parsed["mem_mb"] == 512.0
+    assert parsed["mem_limit_mb"] == 4096.0
+    assert parsed["mem_percent"] == 12.5
+    assert parsed["pids"] == 14
+
+
+def test_metrics_store_summary_timeseries_and_csv(tmp_path: Path):
+    db_file = tmp_path / "metrics.db"
+    store = MetricsStore(str(db_file))
+    try:
+        now = time.time()
+        # Session 1 (completed 2 days ago)
+        store.record_session_start(
+            "sess0001aaaa", "visitor111111", "gh/SiFTW/interactivetutorials", active_count=1, started_at=now - 2 * 86400
+        )
+        store.record_session_end(
+            "sess0001aaaa",
+            duration_seconds=1800.0,
+            cpu_seconds=360.0,
+            peak_mem_bytes=1024 * 1024 * 600,
+            end_reason="idle timeout",
+            ended_at=now - 2 * 86400 + 1800.0,
+        )
+
+        # Session 2 (active right now from a different visitor, peak concurrency = 3)
+        store.record_session_start(
+            "sess0002bbbb", "visitor222222", "gh/SiFTW/interactivetutorials", active_count=3, started_at=now - 600
+        )
+        store.update_session_usage("sess0002bbbb", cpu_seconds=90.0, mem_bytes=1024 * 1024 * 400, now_ts=now)
+
+        # Snapshot points
+        store.record_snapshot(
+            active_sessions=3,
+            host_cpu_pct=55.5,
+            host_mem_pct=48.2,
+            host_mem_used_gb=31.0,
+            containers_cpu_pct=120.0,
+            containers_mem_mb=1536.0,
+            ts=now - 120,
+        )
+        store.record_snapshot(
+            active_sessions=1,
+            host_cpu_pct=18.0,
+            host_mem_pct=30.0,
+            host_mem_used_gb=19.2,
+            containers_cpu_pct=40.0,
+            containers_mem_mb=512.0,
+            ts=now - 60,
+        )
+
+        summary = store.get_summary(
+            live_active_count=1,
+            live_cpu_seconds_by_sid={"sess0002bbbb": 180.0},
+            live_duration_by_sid={"sess0002bbbb": 900.0},
+        )
+        assert summary["all_time"]["sessions"] == 2
+        assert summary["all_time"]["unique_visitors"] == 2
+        # 360s (sess1) + 180s (live sess2) = 540s = 0.15 CPU-hours
+        assert summary["all_time"]["cpu_hours"] == 0.15
+        # 1800s + 900s = 2700s = 0.75 session-hours
+        assert summary["all_time"]["session_hours"] == 0.75
+        assert summary["all_time"]["peak_container_mem_mb"] == 600.0
+        assert summary["last_24h"]["sessions"] == 1
+        assert summary["last_7d"]["sessions"] == 2
+        assert summary["peak_concurrent_users"] == 3
+        assert summary["peak_concurrent_at"]
+
+        series = store.get_timeseries(hours=24)
+        assert len(series) == 2
+        assert series[0]["active_sessions"] == 3
+        assert series[1]["active_sessions"] == 1
+
+        recent = store.get_recent_sessions(limit=10)
+        assert len(recent) == 1
+        assert recent[0]["session_id"] == "sess0001"
+        assert recent[0]["end_reason"] == "idle timeout"
+
+        csv_text = store.export_funder_csv()
+        assert "Mitchell Lab Interactive Tutorials" in csv_text
+        assert "Sessions Launched,2,2,2,1" in csv_text
+        assert "All-Time Peak Concurrent Users,3," in csv_text
+        assert "Date (UTC),Sessions Launched,Unique Visitors" in csv_text
+    finally:
+        store.close()
+
+
+@pytest.mark.asyncio
+async def test_admin_dashboard_open_readonly_mode():
+    backend = MockJupyterBackend()
+    cfg = SpawnerConfig(
+        allowed_repos=("siftw/interactivetutorials",),
+        max_concurrent_sessions=10,
+        max_sessions_per_ip=2,
+        cull_interval_seconds=3600,
+        admin_token="",
+        metrics_db_path=":memory:",
+        metrics_sample_interval_seconds=3600,
+    )
+    app = create_app(cfg, backend=backend)
+
+    async with TestClient(TestServer(app)) as client:
+        # Both /admin and /admin/ serve the HTML dashboard
+        for path in ("/admin", "/admin/"):
+            page = await client.get(path)
+            assert page.status == 200
+            html_body = await page.text()
+            assert "Mitchell Lab Tutorial Server" in html_body
+            assert "Live Status &amp; Usage Statistics" in html_body
+
+        # Spawn one active student session
+        sse = await client.get("/build/gh/SiFTW/interactivetutorials/main")
+        events = parse_sse_events(await sse.text())
+        assert events[-1]["phase"] == "ready"
+        sid = events[-1]["url"].rstrip("/").split("/")[-1]
+        user_token = events[-1]["token"]
+
+        # Stats API works without auth in open read-only mode
+        stats_resp = await client.get("/api/admin/stats?hours=24")
+        assert stats_resp.status == 200
+        raw_stats = await stats_resp.text()
+        assert user_token not in raw_stats  # Never leak student session tokens!
+
+        data = json.loads(raw_stats)
+        assert data["can_manage"] is False
+        assert data["server"]["active_sessions"] == 1
+        assert data["server"]["max_sessions"] == 10
+        assert data["host"]["cpu_cores"] >= 1
+        assert len(data["containers"]) == 1
+        assert data["containers"][0]["session_id"] == sid
+        assert data["containers"][0]["cpu_percent"] == 42.5
+        assert data["containers"][0]["mem_mb"] == 512.0
+        assert data["summary"]["all_time"]["sessions"] == 1
+        assert data["summary"]["peak_concurrent_users"] >= 1
+
+        # CSV export works without auth and never leaks student tokens
+        csv_resp = await client.get("/api/admin/export.csv")
+        assert csv_resp.status == 200
+        assert "text/csv" in csv_resp.headers["Content-Type"]
+        csv_body = await csv_resp.text()
+        assert "Sessions Launched,1,1,1,1" in csv_body
+        assert user_token not in csv_body
+
+        # Stopping containers is forbidden when ADMIN_TOKEN is not configured
+        stop_resp = await client.post(f"/api/admin/sessions/{sid}/stop")
+        assert stop_resp.status == 403
+
+
+@pytest.mark.asyncio
+async def test_admin_dashboard_token_protected_and_stop_session():
+    backend = MockJupyterBackend()
+    cfg = SpawnerConfig(
+        allowed_repos=("siftw/interactivetutorials",),
+        max_concurrent_sessions=10,
+        max_sessions_per_ip=2,
+        cull_interval_seconds=3600,
+        admin_token="secret-admin-token",
+        metrics_db_path=":memory:",
+        metrics_sample_interval_seconds=3600,
+    )
+    app = create_app(cfg, backend=backend)
+
+    async with TestClient(TestServer(app)) as client:
+        # /admin still serves the HTML shell (which shows the unlock prompt)
+        page = await client.get("/admin")
+        assert page.status == 200
+        assert "const AUTH_REQUIRED = true;" in (await page.text())
+
+        # Spawn one active session
+        sse = await client.get("/build/gh/SiFTW/interactivetutorials/main")
+        events = parse_sse_events(await sse.text())
+        assert events[-1]["phase"] == "ready"
+        sid = events[-1]["url"].rstrip("/").split("/")[-1]
+        user_token = events[-1]["token"]
+
+        # Unauthenticated or wrong-token requests get 401
+        assert (await client.get("/api/admin/stats")).status == 401
+        assert (await client.get("/api/admin/export.csv")).status == 401
+        assert (await client.post(f"/api/admin/sessions/{sid}/stop")).status == 401
+        assert (
+            await client.get(
+                "/api/admin/stats", headers={"Authorization": "Bearer wrong-token"}
+            )
+        ).status == 401
+
+        # Authenticated request succeeds with can_manage=True
+        auth_headers = {"Authorization": "Bearer secret-admin-token"}
+        stats_resp = await client.get("/api/admin/stats", headers=auth_headers)
+        assert stats_resp.status == 200
+        raw_stats = await stats_resp.text()
+        assert user_token not in raw_stats
+        data = json.loads(raw_stats)
+        assert data["can_manage"] is True
+        assert data["server"]["active_sessions"] == 1
+
+        # CSV export works with Bearer token
+        csv_resp = await client.get("/api/admin/export.csv", headers=auth_headers)
+        assert csv_resp.status == 200
+        assert "Mitchell Lab Interactive Tutorials" in (await csv_resp.text())
+
+        # Stop the active container as admin
+        stop_resp = await client.post(
+            f"/api/admin/sessions/{sid}/stop", headers=auth_headers
+        )
+        assert stop_resp.status == 200
+        assert (await stop_resp.json()) == {"status": "stopped", "session_id": sid}
+        assert len(backend.stopped) == 1
+
+        # Stopping a non-existent session returns 404
+        stop_missing = await client.post(
+            f"/api/admin/sessions/{sid}/stop", headers=auth_headers
+        )
+        assert stop_missing.status == 404
+
+        # Stats now show 0 active sessions and 1 recent session stopped by admin
+        after_resp = await client.get("/api/admin/stats", headers=auth_headers)
+        assert after_resp.status == 200
+        after_data = await after_resp.json()
+        assert after_data["server"]["active_sessions"] == 0
+        assert len(after_data["recent_sessions"]) == 1
+        assert after_data["recent_sessions"][0]["end_reason"] == "stopped by admin"
+

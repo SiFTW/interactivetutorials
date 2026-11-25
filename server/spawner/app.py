@@ -18,6 +18,7 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
 import hashlib
+import hmac
 import html
 import ipaddress
 import json
@@ -32,6 +33,9 @@ from aiohttp import ClientSession, ClientTimeout, WSMsgType, web
 import docker
 from docker.errors import APIError, NotFound
 from multidict import CIMultiDict
+
+import admin_ui
+from metrics import HostStatsCollector, MetricsStore, parse_docker_container_stats
 
 LOG = logging.getLogger("mitchell.spawner")
 
@@ -78,6 +82,9 @@ class SpawnerConfig:
     max_session_age_seconds: int = 7200
     spawn_timeout_seconds: int = 45
     cull_interval_seconds: int = 30
+    admin_token: str = ""
+    metrics_db_path: str = "/data/metrics.db"
+    metrics_sample_interval_seconds: int = 60
 
     @classmethod
     def from_env(cls) -> "SpawnerConfig":
@@ -122,6 +129,11 @@ class SpawnerConfig:
             ),
             spawn_timeout_seconds=int(os.environ.get("SPAWN_TIMEOUT_SECONDS", "45")),
             cull_interval_seconds=int(os.environ.get("CULL_INTERVAL_SECONDS", "30")),
+            admin_token=os.environ.get("ADMIN_TOKEN", "").strip(),
+            metrics_db_path=os.environ.get("METRICS_DB_PATH", "/data/metrics.db").strip(),
+            metrics_sample_interval_seconds=int(
+                os.environ.get("METRICS_SAMPLE_INTERVAL_SECONDS", "60")
+            ),
         )
 
 
@@ -136,6 +148,8 @@ class UserSession:
     created_at: float = field(default_factory=time.monotonic)
     last_seen: float = field(default_factory=time.monotonic)
     active_ws: int = 0
+    last_cpu_seconds: float = 0.0
+    peak_mem_bytes: int = 0
 
     @property
     def upstream_http_base(self) -> str:
@@ -323,6 +337,20 @@ class DockerBackend:
     async def image_info(self, image_name: str) -> dict[str, str]:
         return await asyncio.to_thread(self._image_info_sync, image_name)
 
+    def _container_stats_sync(self, container_id: str) -> dict[str, Any] | None:
+        try:
+            container = self._client.containers.get(container_id)
+            raw = container.stats(stream=False)
+            return parse_docker_container_stats(raw)
+        except NotFound:
+            return None
+        except Exception as exc:
+            LOG.debug("Stats read failed for container %s: %s", container_id[:12], exc)
+            return None
+
+    async def container_stats(self, container_id: str) -> dict[str, Any] | None:
+        return await asyncio.to_thread(self._container_stats_sync, container_id)
+
 
 class TutorialSpawnerApp:
     """Core application state, session registry, Binder API, proxy, and idle culler."""
@@ -335,6 +363,12 @@ class TutorialSpawnerApp:
         self._lock = asyncio.Lock()
         self._http_client: ClientSession | None = None
         self._culler_task: asyncio.Task[None] | None = None
+        self._metrics_task: asyncio.Task[None] | None = None
+        self.host_stats = HostStatsCollector()
+        self.metrics = MetricsStore(config.metrics_db_path)
+        self._stats_cache_ts: float = 0.0
+        self._stats_cache_containers: list[dict[str, Any]] = []
+        self._stats_cache_host: dict[str, Any] | None = None
         self._origin_re = (
             re.compile(config.allowed_origin_regex)
             if config.allowed_origin_regex
@@ -418,17 +452,47 @@ class TutorialSpawnerApp:
         repo = f"{parts[0]}/{parts[1]}".lower()
         return repo in self.config.allowed_repos
 
+    async def _fetch_one_container_stats(self, container_id: str) -> dict[str, Any] | None:
+        fn = getattr(self.backend, "container_stats", None)
+        if not callable(fn) or not container_id or container_id == "pending":
+            return None
+        try:
+            return await asyncio.wait_for(fn(container_id), timeout=4.0)
+        except Exception:
+            return None
+
     async def _destroy_session(self, session_id: str, reason: str) -> None:
         async with self._lock:
             session = self.sessions.pop(session_id, None)
         if session is None:
             return
+        if session.container_id != "pending":
+            final_stats = await self._fetch_one_container_stats(session.container_id)
+            if final_stats:
+                session.last_cpu_seconds = max(
+                    session.last_cpu_seconds, float(final_stats.get("cpu_seconds", 0.0))
+                )
+                session.peak_mem_bytes = max(
+                    session.peak_mem_bytes, int(final_stats.get("mem_bytes", 0))
+                )
+            duration = max(0.0, time.monotonic() - session.created_at)
+            try:
+                self.metrics.record_session_end(
+                    session_id=session_id,
+                    duration_seconds=duration,
+                    cpu_seconds=session.last_cpu_seconds,
+                    peak_mem_bytes=session.peak_mem_bytes,
+                    end_reason=reason,
+                )
+            except Exception as exc:
+                LOG.warning("Failed to record session end metrics for %s: %s", session_id, exc)
         LOG.info(
             "Removing session %s (container %s): %s",
             session_id,
             session.container_id[:12],
             reason,
         )
+        self._stats_cache_ts = 0.0
         await self.backend.stop_and_remove(session.container_id)
 
     async def _wait_until_ready(
@@ -577,6 +641,19 @@ class TutorialSpawnerApp:
                 return response
 
             public_url = f"{self._public_base_url(request)}/user/{session_id}/"
+            active_now = sum(
+                1 for s in self.sessions.values() if s.container_id != "pending"
+            )
+            try:
+                self.metrics.record_session_start(
+                    session_id=session_id,
+                    client_ip_hash=ip_hash,
+                    repo=f"{provider}/{spec}",
+                    active_count=active_now,
+                )
+            except Exception as exc:
+                LOG.warning("Failed to record session start metrics for %s: %s", session_id, exc)
+            self._stats_cache_ts = 0.0
             LOG.info(
                 "Session %s ready (container %s) -> %s",
                 session_id,
@@ -847,24 +924,223 @@ class TutorialSpawnerApp:
             except Exception as exc:
                 LOG.exception("Error in idle culler loop: %s", exc)
 
+    def _extract_admin_token(self, request: web.Request) -> str:
+        auth = request.headers.get("Authorization", "")
+        if auth.lower().startswith("bearer "):
+            return auth[7:].strip()
+        return request.query.get("token", "").strip()
+
+    def _is_admin_authorized(
+        self, request: web.Request, *, require_configured: bool = False
+    ) -> tuple[bool, int]:
+        configured = self.config.admin_token
+        if not configured:
+            if require_configured:
+                return False, 403
+            return True, 200
+        provided = self._extract_admin_token(request)
+        if provided and hmac.compare_digest(provided, configured):
+            return True, 200
+        return False, 401
+
+    async def _collect_live_stats(
+        self, *, force_refresh: bool = False
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        now_mono = time.monotonic()
+        if (
+            not force_refresh
+            and self._stats_cache_host is not None
+            and (now_mono - self._stats_cache_ts) < 3.0
+        ):
+            return self._stats_cache_host, self._stats_cache_containers
+
+        host = await asyncio.to_thread(self.host_stats.sample)
+        active_sessions = [
+            s for s in list(self.sessions.values()) if s.container_id != "pending"
+        ]
+        raw_list = await asyncio.gather(
+            *(self._fetch_one_container_stats(s.container_id) for s in active_sessions),
+            return_exceptions=True,
+        )
+
+        containers: list[dict[str, Any]] = []
+        now_mono = time.monotonic()
+        for session, raw in zip(active_sessions, raw_list):
+            st = raw if isinstance(raw, dict) else {}
+            cpu_pct = float(st.get("cpu_percent", 0.0))
+            cpu_sec = max(session.last_cpu_seconds, float(st.get("cpu_seconds", 0.0)))
+            mem_bytes = int(st.get("mem_bytes", 0))
+            session.last_cpu_seconds = cpu_sec
+            if mem_bytes > session.peak_mem_bytes:
+                session.peak_mem_bytes = mem_bytes
+
+            containers.append(
+                {
+                    "session_id": session.session_id,
+                    "visitor_id": session.client_ip_hash[:6],
+                    "age_seconds": round(max(0.0, now_mono - session.created_at), 1),
+                    "idle_seconds": round(max(0.0, now_mono - session.last_seen), 1),
+                    "active_ws": session.active_ws,
+                    "cpu_percent": round(cpu_pct, 1),
+                    "cpu_seconds": round(cpu_sec, 2),
+                    "mem_bytes": mem_bytes,
+                    "mem_mb": round(mem_bytes / (1024.0**2), 1),
+                    "mem_limit_mb": round(
+                        int(st.get("mem_limit_bytes", 0)) / (1024.0**2), 1
+                    ),
+                    "mem_percent": round(float(st.get("mem_percent", 0.0)), 1),
+                    "pids": int(st.get("pids", 0)),
+                }
+            )
+            if st:
+                try:
+                    self.metrics.update_session_usage(
+                        session.session_id, cpu_sec, mem_bytes
+                    )
+                except Exception:
+                    pass
+
+        containers.sort(key=lambda c: c["cpu_percent"], reverse=True)
+        self._stats_cache_host = host
+        self._stats_cache_containers = containers
+        self._stats_cache_ts = now_mono
+        return host, containers
+
+    async def sample_metrics_once(self) -> None:
+        """Record a periodic host + container snapshot to SQLite."""
+        host, containers = await self._collect_live_stats(force_refresh=True)
+        tot_cpu = sum(float(c["cpu_percent"]) for c in containers)
+        tot_mem_mb = sum(float(c["mem_mb"]) for c in containers)
+        self.metrics.record_snapshot(
+            active_sessions=len(containers),
+            host_cpu_pct=float(host.get("cpu_percent", 0.0)),
+            host_mem_pct=float(host.get("mem_percent", 0.0)),
+            host_mem_used_gb=float(host.get("mem_used_gb", 0.0)),
+            containers_cpu_pct=tot_cpu,
+            containers_mem_mb=tot_mem_mb,
+        )
+
+    async def _metrics_loop(self) -> None:
+        while True:
+            try:
+                await self.sample_metrics_once()
+            except asyncio.CancelledError:
+                break
+            except Exception as exc:
+                LOG.warning("Error sampling server metrics: %s", exc)
+            try:
+                await asyncio.sleep(max(5, self.config.metrics_sample_interval_seconds))
+            except asyncio.CancelledError:
+                break
+
+    async def handle_admin_page(self, request: web.Request) -> web.Response:
+        page = admin_ui.render_admin_page(auth_required=bool(self.config.admin_token))
+        return web.Response(text=page, content_type="text/html")
+
+    async def handle_admin_stats(self, request: web.Request) -> web.Response:
+        ok, status = self._is_admin_authorized(request, require_configured=False)
+        if not ok:
+            return web.json_response({"error": "Unauthorized"}, status=status)
+
+        try:
+            hours = int(request.query.get("hours", "24"))
+        except ValueError:
+            hours = 24
+        hours = max(1, min(hours, 90 * 24))
+
+        host, containers = await self._collect_live_stats()
+        img_meta: dict[str, str] = {}
+        image_info_fn = getattr(self.backend, "image_info", None)
+        if callable(image_info_fn):
+            try:
+                img_meta = await image_info_fn(self.config.kernel_image)
+            except Exception:
+                img_meta = {}
+
+        live_cpu_by_sid = {c["session_id"]: float(c["cpu_seconds"]) for c in containers}
+        live_dur_by_sid = {c["session_id"]: float(c["age_seconds"]) for c in containers}
+        summary = self.metrics.get_summary(
+            live_active_count=len(containers),
+            live_cpu_seconds_by_sid=live_cpu_by_sid,
+            live_duration_by_sid=live_dur_by_sid,
+        )
+        timeseries = self.metrics.get_timeseries(hours=hours)
+        recent = self.metrics.get_recent_sessions(limit=25)
+
+        can_manage, _ = self._is_admin_authorized(request, require_configured=True)
+        return web.json_response(
+            {
+                "host": host,
+                "server": {
+                    "active_sessions": len(containers),
+                    "max_sessions": self.config.max_concurrent_sessions,
+                    "max_sessions_per_ip": self.config.max_sessions_per_ip,
+                    "container_cpus": round(self.config.container_nano_cpus / 1e9, 2),
+                    "container_mem_limit": self.config.container_mem_limit,
+                    "container_pids_limit": self.config.container_pids_limit,
+                    "idle_timeout_seconds": self.config.idle_timeout_seconds,
+                    "kernel_image": self.config.kernel_image,
+                    **img_meta,
+                    "uptime_seconds": round(time.monotonic() - self.started_at, 1),
+                },
+                "summary": summary,
+                "timeseries": timeseries,
+                "containers": containers,
+                "recent_sessions": recent,
+                "can_manage": can_manage,
+            }
+        )
+
+    async def handle_admin_export_csv(self, request: web.Request) -> web.Response:
+        ok, status = self._is_admin_authorized(request, require_configured=False)
+        if not ok:
+            return web.json_response({"error": "Unauthorized"}, status=status)
+        csv_body = self.metrics.export_funder_csv()
+        return web.Response(
+            text=csv_body,
+            content_type="text/csv",
+            headers={
+                "Content-Disposition": 'attachment; filename="mitchell-lab-tutorials-usage-report.csv"'
+            },
+        )
+
+    async def handle_admin_stop_session(self, request: web.Request) -> web.Response:
+        ok, status = self._is_admin_authorized(request, require_configured=True)
+        if not ok:
+            msg = (
+                "Stopping containers requires ADMIN_TOKEN to be set on the server."
+                if status == 403
+                else "Unauthorized"
+            )
+            return web.json_response({"error": msg}, status=status)
+        sid = request.match_info["sid"]
+        if sid not in self.sessions:
+            return web.json_response({"error": "Session not found"}, status=404)
+        await self._destroy_session(sid, "stopped by admin")
+        self._stats_cache_ts = 0.0
+        return web.json_response({"status": "stopped", "session_id": sid})
+
     async def on_startup(self, app: web.Application) -> None:
         self._http_client = ClientSession()
         removed = await self.backend.cleanup_orphans()
         if removed:
             LOG.info("Cleaned up %d orphaned tutorial container(s) on startup", removed)
         self._culler_task = asyncio.create_task(self._culler_loop())
+        self._metrics_task = asyncio.create_task(self._metrics_loop())
 
     async def on_cleanup(self, app: web.Application) -> None:
-        if self._culler_task:
-            self._culler_task.cancel()
-            try:
-                await self._culler_task
-            except asyncio.CancelledError:
-                pass
+        for task in (self._culler_task, self._metrics_task):
+            if task:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
         for sid in list(self.sessions.keys()):
             await self._destroy_session(sid, "spawner shutdown")
         if self._http_client:
             await self._http_client.close()
+        self.metrics.close()
 
 
 def create_app(
@@ -906,6 +1182,13 @@ def create_app(
     app.on_cleanup.append(spawner.on_cleanup)
 
     app.router.add_get("/health", spawner.handle_health)
+    app.router.add_get("/admin", spawner.handle_admin_page)
+    app.router.add_get("/admin/", spawner.handle_admin_page)
+    app.router.add_get("/api/admin/stats", spawner.handle_admin_stats)
+    app.router.add_get("/api/admin/export.csv", spawner.handle_admin_export_csv)
+    app.router.add_post(
+        "/api/admin/sessions/{sid}/stop", spawner.handle_admin_stop_session
+    )
     app.router.add_get("/build/{provider}/{spec:.*}", spawner.handle_binder_build)
     app.router.add_get("/v2/{provider}/{spec:.*}", spawner.handle_binder_launch_page)
     app.router.add_route("*", "/user/{sid}", spawner.handle_user_proxy)

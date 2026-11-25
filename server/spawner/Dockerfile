@@ -8,7 +8,8 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY app.py /app/app.py
+COPY app.py metrics.py admin_ui.py /app/
+RUN mkdir -p /data
 
 EXPOSE 8787
 

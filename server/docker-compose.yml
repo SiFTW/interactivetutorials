@@ -36,9 +36,13 @@ services:
       MAX_SESSION_AGE_SECONDS: "${MAX_SESSION_AGE_SECONDS:-7200}"
       SPAWN_TIMEOUT_SECONDS: "${SPAWN_TIMEOUT_SECONDS:-45}"
       CULL_INTERVAL_SECONDS: "${CULL_INTERVAL_SECONDS:-30}"
+      ADMIN_TOKEN: "${ADMIN_TOKEN:-}"
+      METRICS_DB_PATH: "${METRICS_DB_PATH:-/data/metrics.db}"
+      METRICS_SAMPLE_INTERVAL_SECONDS: "${METRICS_SAMPLE_INTERVAL_SECONDS:-60}"
       LOG_LEVEL: "${LOG_LEVEL:-INFO}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - spawner_data:/data
     networks:
       - front_net
       - user_net
@@ -62,6 +66,9 @@ services:
     depends_on:
       spawner:
         condition: service_healthy
+
+volumes:
+  spawner_data:
 
 networks:
   # Front network connecting spawner <-> optional cloudflared sidecar
