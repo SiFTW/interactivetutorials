@@ -595,8 +595,100 @@
     };
   }
 
+  function initPredefinedOutputLock() {
+    document.querySelectorAll("div.cell").forEach((cell) => {
+      const outputDiv = cell.querySelector("div.cell_output");
+      const hasRealContent =
+        outputDiv &&
+        (outputDiv.children.length > 0 || (outputDiv.textContent || "").trim().length > 0);
+      if (hasRealContent) {
+        cell.dataset.hasPredefinedOutput = "true";
+      } else {
+        cell.classList.add("mitchell-output-unlocked");
+      }
+    });
+  }
+
+  function stripOutputVeils() {
+    document.querySelectorAll(".mitchell-output-veil").forEach((el) => el.remove());
+  }
+
+  function unlockCellOutput(cell) {
+    if (!cell) return;
+    cell.classList.add("mitchell-output-unlocked");
+    cell.querySelectorAll(".mitchell-output-veil").forEach((el) => el.remove());
+  }
+
+  function unlockCellOutputById(cellId, cellObj) {
+    let cell = null;
+    if (cellObj && cellObj.area && cellObj.area.node) {
+      cell = cellObj.area.node.closest("div.cell");
+    }
+    if (!cell && cellId) {
+      const thebeEl = document.querySelector(`.thebe-cell[data-thebe-id="${cellId}"]`);
+      if (thebeEl) {
+        cell = thebeEl.closest("div.cell");
+      }
+    }
+    if (cell) {
+      unlockCellOutput(cell);
+    }
+  }
+
+  function mountOutputVeils(onActivate, lang) {
+    document.querySelectorAll("div.cell").forEach((cell) => {
+      if (
+        cell.dataset.hasPredefinedOutput !== "true" ||
+        cell.classList.contains("mitchell-output-unlocked")
+      ) {
+        return;
+      }
+      const outputDiv = cell.querySelector("div.cell_output");
+      if (!outputDiv) return;
+
+      outputDiv.querySelectorAll(".mitchell-output-veil").forEach((el) => el.remove());
+
+      const veil = document.createElement("div");
+      veil.className = "mitchell-output-veil";
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "mitchell-veil-btn";
+      if (activated) {
+        btn.innerHTML = `${ICONS.play}Run cell to reveal output`;
+      } else if (activating) {
+        btn.disabled = true;
+        btn.innerHTML = `${ICONS.spinner}Connecting to ${lang}…`;
+      } else {
+        btn.innerHTML = `${ICONS.play}Activate ${lang} &amp; run to reveal output`;
+      }
+
+      btn.addEventListener("click", () => {
+        if (activated) {
+          const runBtn = cell.querySelector(".thebe-run-button, .thebelab-run-button");
+          if (runBtn) {
+            runBtn.click();
+          }
+        } else if (onActivate) {
+          onActivate();
+        }
+      });
+
+      const hint = document.createElement("span");
+      hint.className = "mitchell-veil-hint";
+      hint.textContent = activated
+        ? "Click here or press Shift + Enter in the code cell above."
+        : "Default output is hidden until you run this cell live.";
+
+      veil.appendChild(btn);
+      veil.appendChild(hint);
+      outputDiv.appendChild(veil);
+    });
+  }
+
   function prepareCellsForThebe(kernel) {
     document.querySelectorAll(".mitchell-cell-activate-pill").forEach((el) => el.remove());
+    stripOutputVeils();
 
     document.querySelectorAll("div.cell").forEach((cell) => {
       const inputDiv = cell.querySelector("div.cell_input");
@@ -613,6 +705,7 @@
         outputDiv = document.createElement("div");
         outputDiv.className = "cell_output docutils container";
         cell.appendChild(outputDiv);
+        cell.classList.add("mitchell-output-unlocked");
       }
       outputDiv.setAttribute("data-output", "true");
 
@@ -636,7 +729,7 @@
             Reading mode
           </span>
           <span id="mitchell-status-msg" class="mitchell-status-msg">
-            Read at your own pace, or click to run &amp; edit live ${lang} simulations.
+            Default outputs are blurred — activate live ${lang} cells and run each cell to see your results.
           </span>
         </div>
         <div class="mitchell-live-right">
@@ -837,6 +930,7 @@
     if (activating || activated) return;
     const kernel = ui.kernel;
     const lang = kernel.shortLabel;
+    const retryActivate = () => activateThebe(ui);
     activating = true;
     ui.launchBtn.disabled = true;
     ui.launchBtn.innerHTML = `${ICONS.spinner}Connecting to ${lang}…`;
@@ -844,6 +938,7 @@
       ui.headerBtn.disabled = true;
       ui.headerBtn.innerHTML = `${ICONS.spinner}Connecting…`;
     }
+    mountOutputVeils(retryActivate, lang);
     setStatus(
       ui,
       "loading",
@@ -882,6 +977,12 @@
 
       if (window.thebe && window.thebe.events) {
         window.thebe.events.on("status", (_evt, data) => {
+          if (data && data.subject === "cell") {
+            if (data.status === "executing" || data.status === "idle") {
+              unlockCellOutputById(data.id, data.object);
+            }
+            return;
+          }
           const msg = data && data.message ? data.message : "";
           const status = data && data.status ? data.status : "launching";
           if (status === "failed") {
@@ -900,6 +1001,10 @@
         });
 
         window.thebe.events.on("error", (_evt, data) => {
+          if (data && data.subject === "cell") {
+            unlockCellOutputById(data.id, data.object);
+            return;
+          }
           const msg = (data && data.message) || lastServerError || `Failed to connect to ${lang} kernel server.`;
           lastServerError = msg;
           setStatus(ui, "error", "Error", msg);
@@ -911,6 +1016,7 @@
           }
           ui.resetBtn.style.display = "inline-flex";
           activating = false;
+          mountOutputVeils(retryActivate, lang);
         });
       }
 
@@ -966,8 +1072,9 @@
         ui,
         "ready",
         `${lang} Ready`,
-        "Edit any parameter or code below, then press Shift + Enter (or click Run)."
+        "Run each cell below (Shift + Enter or click Run) to reveal its live output."
       );
+      mountOutputVeils(retryActivate, lang);
 
       const creds = extractServerCredentials(result);
       if (creds) {
@@ -1067,6 +1174,7 @@
         (err && err.message) ||
         "Could not reach kernels.mitchell.science.";
       setStatus(ui, "error", "Connection Failed", detail);
+      mountOutputVeils(retryActivate, lang);
     }
   }
 
@@ -1080,6 +1188,8 @@
     const ui = createToolbar(hasCodeCells, presentApi, kernel);
 
     if (!hasCodeCells) return;
+
+    initPredefinedOutputLock();
 
     const triggerActivate = () => activateThebe(ui);
     ui.launchBtn.addEventListener("click", triggerActivate);
@@ -1095,6 +1205,7 @@
     });
 
     addPreActivationCellPills(triggerActivate, kernel);
+    mountOutputVeils(triggerActivate, kernel.shortLabel);
 
     if (hasSavedSession()) {
       activateThebe(ui);

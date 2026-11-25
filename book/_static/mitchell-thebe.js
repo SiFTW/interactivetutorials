@@ -291,14 +291,106 @@
     });
   }
 
+  function initPredefinedOutputLock() {
+    document.querySelectorAll("div.cell").forEach((cell) => {
+      const outputDiv = cell.querySelector("div.cell_output");
+      const hasRealContent =
+        outputDiv &&
+        (outputDiv.children.length > 0 || (outputDiv.textContent || "").trim().length > 0);
+      if (hasRealContent) {
+        cell.dataset.hasPredefinedOutput = "true";
+      } else {
+        cell.classList.add("mitchell-output-unlocked");
+      }
+    });
+  }
+
+  function stripOutputVeils() {
+    document.querySelectorAll(".mitchell-output-veil").forEach((el) => el.remove());
+  }
+
+  function unlockCellOutput(cell) {
+    if (!cell) return;
+    cell.classList.add("mitchell-output-unlocked");
+    cell.querySelectorAll(".mitchell-output-veil").forEach((el) => el.remove());
+  }
+
+  function unlockCellOutputById(cellId, cellObj) {
+    let cell = null;
+    if (cellObj && cellObj.area && cellObj.area.node) {
+      cell = cellObj.area.node.closest("div.cell");
+    }
+    if (!cell && cellId) {
+      const thebeEl = document.querySelector(`.thebe-cell[data-thebe-id="${cellId}"]`);
+      if (thebeEl) {
+        cell = thebeEl.closest("div.cell");
+      }
+    }
+    if (cell) {
+      unlockCellOutput(cell);
+    }
+  }
+
+  function mountOutputVeils(onActivate) {
+    document.querySelectorAll("div.cell").forEach((cell) => {
+      if (
+        cell.dataset.hasPredefinedOutput !== "true" ||
+        cell.classList.contains("mitchell-output-unlocked")
+      ) {
+        return;
+      }
+      const outputDiv = cell.querySelector("div.cell_output");
+      if (!outputDiv) return;
+
+      outputDiv.querySelectorAll(".mitchell-output-veil").forEach((el) => el.remove());
+
+      const veil = document.createElement("div");
+      veil.className = "mitchell-output-veil";
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "mitchell-veil-btn";
+      if (activated) {
+        btn.innerHTML = `${ICONS.play}Run cell to reveal output`;
+      } else if (activating) {
+        btn.disabled = true;
+        btn.innerHTML = `${ICONS.spinner}Connecting to Julia…`;
+      } else {
+        btn.innerHTML = `${ICONS.play}Activate Julia &amp; run to reveal output`;
+      }
+
+      btn.addEventListener("click", () => {
+        if (activated) {
+          const runBtn = cell.querySelector(".thebe-run-button, .thebelab-run-button");
+          if (runBtn) {
+            runBtn.click();
+          }
+        } else if (onActivate) {
+          onActivate();
+        }
+      });
+
+      const hint = document.createElement("span");
+      hint.className = "mitchell-veil-hint";
+      hint.textContent = activated
+        ? "Click here or press Shift + Enter in the code cell above."
+        : "Default output is hidden until you run this cell live.";
+
+      veil.appendChild(btn);
+      veil.appendChild(hint);
+      outputDiv.appendChild(veil);
+    });
+  }
+
   /**
    * Prepare every notebook cell DOM node for Thebe, guaranteeing an exact 1-to-1
    * match between [data-executable] inputs and [data-output] containers even for
    * cells that have no pre-rendered outputs.
    */
   function prepareCellsForThebe() {
-    // Remove any pre-activation helper pills first
+    // Remove any pre-activation helper pills & veils first so Thebe never captures them
     document.querySelectorAll(".mitchell-cell-activate-pill").forEach((el) => el.remove());
+    stripOutputVeils();
 
     const cells = document.querySelectorAll("div.cell");
     cells.forEach((cell) => {
@@ -316,6 +408,7 @@
         output = document.createElement("div");
         output.className = "cell_output docutils container";
         cell.appendChild(output);
+        cell.classList.add("mitchell-output-unlocked");
       }
       output.setAttribute("data-output", "true");
 
@@ -337,7 +430,7 @@
           Static preview
         </span>
         <span id="mitchell-status-msg" class="mitchell-status-msg">
-          Click to launch your private Julia kernel and edit any code cell below.
+          Default outputs are blurred — launch your private Julia kernel and run each cell to see your results.
         </span>
       </div>
       <div class="mitchell-live-right">
@@ -404,6 +497,7 @@
 
   async function activateThebe(ui) {
     if (activating || activated) return;
+    const retryActivate = () => activateThebe(ui);
     activating = true;
     ui.launchBtn.disabled = true;
     ui.launchBtn.innerHTML = `${ICONS.spinner}Connecting to Julia…`;
@@ -411,6 +505,7 @@
       ui.headerBtn.disabled = true;
       ui.headerBtn.innerHTML = `${ICONS.spinner}Connecting…`;
     }
+    mountOutputVeils(retryActivate);
     setStatus(
       ui,
       "loading",
@@ -447,6 +542,12 @@
 
       if (window.thebe && window.thebe.events) {
         window.thebe.events.on("status", (_evt, data) => {
+          if (data && data.subject === "cell") {
+            if (data.status === "executing" || data.status === "idle") {
+              unlockCellOutputById(data.id, data.object);
+            }
+            return;
+          }
           const msg = data && data.message ? data.message : "";
           const status = data && data.status ? data.status : "launching";
           if (status === "failed") {
@@ -457,7 +558,7 @@
               ui,
               "ready",
               "Julia Ready",
-              "Click inside any code cell to edit, then press Shift + Enter (or click Run)."
+              "Run each cell below (Shift + Enter or click Run) to reveal its live output."
             );
           } else {
             setStatus(ui, "loading", "Launching…", msg || `Status: ${status}`);
@@ -465,6 +566,10 @@
         });
 
         window.thebe.events.on("error", (_evt, data) => {
+          if (data && data.subject === "cell") {
+            unlockCellOutputById(data.id, data.object);
+            return;
+          }
           const msg = (data && data.message) || lastServerError || "Failed to connect to Julia kernel server.";
           lastServerError = msg;
           setStatus(ui, "error", "Error", msg);
@@ -476,6 +581,7 @@
           }
           ui.resetBtn.style.display = "inline-flex";
           activating = false;
+          mountOutputVeils(retryActivate);
         });
       }
 
@@ -531,8 +637,9 @@
         ui,
         "ready",
         "Julia Ready",
-        "Click inside any code cell to edit, then press Shift + Enter (or click Run)."
+        "Run each cell below (Shift + Enter or click Run) to reveal its live output."
       );
+      mountOutputVeils(retryActivate);
 
       const creds = extractServerCredentials(result);
       if (creds) {
@@ -594,6 +701,7 @@
         (err && err.message) ||
         "Could not reach kernels.mitchell.science.";
       setStatus(ui, "error", "Connection Failed", detail);
+      mountOutputVeils(retryActivate);
     }
   }
 
@@ -722,6 +830,8 @@
     const cells = document.querySelectorAll("div.cell");
     if (cells.length === 0) return;
 
+    initPredefinedOutputLock();
+
     const ui = createToolbar();
     const triggerActivate = () => activateThebe(ui);
 
@@ -738,6 +848,7 @@
     });
 
     addPreActivationCellPills(triggerActivate);
+    mountOutputVeils(triggerActivate);
 
     // If the student already launched a Julia session on another chapter,
     // seamlessly reconnect on this page so cells are editable immediately.
