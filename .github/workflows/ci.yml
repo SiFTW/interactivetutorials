@@ -77,9 +77,11 @@ jobs:
           pip install -r server/spawner/requirements.txt pytest pytest-asyncio
       - name: Run spawner integration tests
         run: pytest -v server/spawner/tests/test_spawner.py
-      - name: Verify csv2model-multiscale.py and MD helpers compile with zero warnings
+      - name: Verify csv2model-multiscale.py, MD helpers, and smoke test compile with zero warnings
         run: |
           python3 -B -W error -m py_compile tutorials/MD/md_helpers.py
+          python3 -B -W error -m py_compile scripts/test_notebooks.py
+          python3 -B -W error -m py_compile scripts/smoke_test_spawner.py
           python3 -B -W error -m py_compile tutorials/NFkB/csv2Julia/csv2model-multiscale.py
           python3 -B -W error -m py_compile tutorials/apoptosis/csv2model-multiscale.py
           python3 -B -W error -m py_compile tutorials/cellCycle/csv2model-multiscale.py
@@ -108,11 +110,12 @@ jobs:
             grep -q "function odeCellCycle(dy,y,p,t)" odeCellCycle.jl
             grep -q '"k1_myc"=>1.0' scanIncludes.jl
           )
-      - name: Verify server auto-update scripts (syntax & selective rebuild logic)
+      - name: Verify server auto-update & GitHub runner scripts (syntax & selective rebuild logic)
         run: |
           bash -n server/auto-update/update-tutorial-server.sh
           bash -n server/auto-update/install-systemd-timer.sh
           bash -n server/auto-update/uninstall-systemd-timer.sh
+          bash -n server/github-runner/setup-runner.sh
           TEST_ROOT="$(mktemp -d)"
           git init --bare --initial-branch=main "$TEST_ROOT/origin.git" >/dev/null
           git clone "$TEST_ROOT/origin.git" "$TEST_ROOT/work" >/dev/null 2>&1
@@ -164,38 +167,13 @@ jobs:
           python3 scripts/test_notebooks.py --repo . --language python --julia-args="--sysimage=/opt/julia-env/tutorial_sysimage.so --project=/opt/julia-env" --syntax-only
           python3 scripts/test_notebooks.py --repo . --language python --julia-args "--sysimage=/opt/julia-env/tutorial_sysimage.so --project=/opt/julia-env" --syntax-only
 
-  test-notebooks-julia:
-    name: Execute All Julia Notebooks (book/ & ssc/)
+  # NOTE: Full end-to-end Julia + Python notebook execution inside the exact production Docker
+  # container runs on the self-hosted runner on 139.184.169.98 via
+  # `.github/workflows/server-test-and-deploy.yml` (~2 min with warm Docker sysimage cache!).
+  test-notebooks-python-fast:
+    name: Fast Python MD Notebook Check (ubuntu-latest)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - uses: julia-actions/setup-julia@v2
-        with:
-          version: "1.10.14"
-      - name: Cache Julia depot
-        uses: actions/cache@v4
-        with:
-          path: ~/.julia
-          key: ${{ runner.os }}-julia-1.10.14-${{ hashFiles('server/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-julia-1.10.14-
-      - name: Instantiate & precompile tutorial Julia packages
-        run: |
-          julia --project=server -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-      - name: Execute every code cell in all Julia notebooks
-        env:
-          GKSwstype: "100"
-        run: |
-          python3 scripts/test_notebooks.py --repo . --language julia --julia-args="--project=${{ github.workspace }}/server" --timeout 360
-
-  test-notebooks-python:
-    name: Execute All Python MD Notebooks (ssc/)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -203,11 +181,11 @@ jobs:
           python-version: "3.12"
       - name: Install Python MD simulation & analysis stack
         run: |
-          pip install "numpy>=1.26,<3" "matplotlib>=3.8,<4" "openmm>=8.2,<9" "MDAnalysis>=2.8,<3" "PeptideBuilder>=1.1,<2"
-      - name: Execute every code cell in all Python notebooks
+          pip install "numpy>=1.26,<3" "matplotlib>=3.8,<4" "openmm>=8.2,<9" "MDAnalysis>=2.8,<3" "PeptideBuilder>=1.1,<2" "ipykernel>=6.29,<8" "nbclient>=0.10,<1" "nbformat>=5.9,<6"
+      - name: Execute every Python MD notebook via real Jupyter python3 kernel
         env:
           MPLBACKEND: "Agg"
           OPENMM_CPU_THREADS: "1"
           OMP_NUM_THREADS: "1"
         run: |
-          python3 scripts/test_notebooks.py --repo . --language python --timeout 300
+          python3 scripts/test_notebooks.py --repo . --language python --via-jupyter --timeout 300

@@ -315,6 +315,98 @@ def run_notebook(
         return proc.returncode == 0, dt, combined
 
 
+def run_notebook_via_jupyter(
+    repo_dir: Path,
+    nb_path: Path,
+    nb_lang: str,
+    in_container_work: Path | None,
+    timeout_sec: int,
+) -> tuple[bool, float, str]:
+    """Execute a notebook through its real registered Jupyter kernelspec via nbclient.
+
+    Tests the exact kernel.json (including Julia sysimage & Python MD environment)
+    that students hit in Thebe and JupyterLab.
+    """
+    import nbformat
+    from nbclient import NotebookClient
+    from nbclient.exceptions import CellExecutionError
+
+    rel = str(nb_path.relative_to(repo_dir))
+    nb = nbformat.read(str(nb_path), as_version=4)
+
+    code_cells = [
+        "".join(cell.get("source", []))
+        for cell in nb.cells
+        if cell.get("cell_type") == "code" and "".join(cell.get("source", [])).strip()
+    ]
+    if nb_lang == "julia":
+        banned = check_banned_imports(rel, code_cells)
+        if banned:
+            return False, 0.0, "\n".join(banned)
+
+    kernel_name = "python3" if nb_lang == "python" else "julia"
+    t0 = time.monotonic()
+
+    with tempfile.TemporaryDirectory(prefix="nbjup_") as td:
+        if in_container_work is not None:
+            cwd = in_container_work
+        else:
+            work_dir = Path(td) / "work"
+            work_dir.mkdir()
+            prepare_workspace(repo_dir, work_dir)
+            cwd = work_dir
+
+        os.environ.setdefault("GKSwstype", "100")
+        os.environ.setdefault("PLOTS_DEFAULT_BACKEND", "GR")
+        os.environ.setdefault("MPLBACKEND", "Agg")
+        os.environ.setdefault("OPENMM_CPU_THREADS", "1")
+        os.environ.setdefault("OMP_NUM_THREADS", "1")
+
+        client = NotebookClient(
+            nb,
+            timeout=timeout_sec,
+            startup_timeout=120,
+            kernel_name=kernel_name,
+            resources={"metadata": {"path": str(cwd)}},
+        )
+        try:
+            client.execute()
+        except CellExecutionError as exc:
+            dt = time.monotonic() - t0
+            return False, dt, str(exc)
+        except Exception as exc:
+            dt = time.monotonic() - t0
+            return False, dt, f"{type(exc).__name__}: {exc}"
+
+    dt = time.monotonic() - t0
+    lines: list[str] = []
+    code_idx = 0
+    for cell in nb.cells:
+        if cell.get("cell_type") != "code" or not "".join(cell.get("source", [])).strip():
+            continue
+        code_idx += 1
+        tags = (cell.get("metadata", {}) or {}).get("tags", []) or []
+        expect_err = "raises-exception" in tags
+        has_err = any(o.get("output_type") == "error" for o in cell.get("outputs", []))
+        if expect_err and not has_err:
+            return (
+                False,
+                dt,
+                f"EXPECTED ERROR DID NOT OCCUR in {rel} code cell #{code_idx} (tagged raises-exception)",
+            )
+        if not expect_err and has_err:
+            err_out = next(o for o in cell.get("outputs", []) if o.get("output_type") == "error")
+            return (
+                False,
+                dt,
+                f"RUNTIME ERROR in {rel} code cell #{code_idx}: {err_out.get('ename')}: {err_out.get('evalue')}",
+            )
+        suffix = ", expected error verified" if expect_err else ""
+        lines.append(f"  [OK] cell {code_idx}/{len(code_cells)} (kernel={kernel_name}{suffix})")
+
+    return True, dt, "\n".join(lines)
+
+
 def _normalize_argv(argv: list[str]) -> list[str]:
     """Rewrite `--julia-args <val>` to `--julia-args=<val>` so argparse accepts values starting with `-`."""
     out: list[str] = []
@@ -366,6 +458,11 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Use an existing container workspace (e.g. /home/jovyan/work) instead of copying tutorials/ into a temp dir",
     )
+    parser.add_argument(
+        "--via-jupyter",
+        action="store_true",
+        help="Execute notebooks via their real registered Jupyter kernelspecs using nbclient (true user environment)",
+    )
     parser.add_argument("--syntax-only", action="store_true", help="Only syntax-check cells without running")
     parser.add_argument("--filter", default=None, help="Only test notebooks whose relative path contains this substring")
     parser.add_argument("--timeout", type=int, default=300, help="Per-notebook timeout in seconds (default: 300)")
@@ -387,7 +484,12 @@ def main(argv: list[str] | None = None) -> int:
         print("No notebooks matched!", file=sys.stderr)
         return 1
 
-    mode = "SYNTAX-ONLY" if args.syntax_only else "FULL EXECUTION"
+    if args.syntax_only:
+        mode = "SYNTAX-ONLY"
+    elif args.via_jupyter:
+        mode = "JUPYTER KERNEL EXECUTION"
+    else:
+        mode = "FULL EXECUTION"
     print(f"=== Testing {len(selected)} interactive notebooks ({args.language}, {mode}) ===", flush=True)
 
     failures: list[tuple[str, str]] = []
@@ -396,16 +498,25 @@ def main(argv: list[str] | None = None) -> int:
     for nb_path, nb_lang in selected:
         rel = str(nb_path.relative_to(repo_dir))
         print(f"\n--> {rel} [{nb_lang}]", flush=True)
-        ok, dt, output = run_notebook(
-            repo_dir=repo_dir,
-            nb_path=nb_path,
-            nb_lang=nb_lang,
-            julia_cmd=julia_cmd,
-            python_cmd=python_cmd,
-            in_container_work=in_container_work,
-            syntax_only=args.syntax_only,
-            timeout_sec=args.timeout,
-        )
+        if args.via_jupyter and not args.syntax_only:
+            ok, dt, output = run_notebook_via_jupyter(
+                repo_dir=repo_dir,
+                nb_path=nb_path,
+                nb_lang=nb_lang,
+                in_container_work=in_container_work,
+                timeout_sec=args.timeout,
+            )
+        else:
+            ok, dt, output = run_notebook(
+                repo_dir=repo_dir,
+                nb_path=nb_path,
+                nb_lang=nb_lang,
+                julia_cmd=julia_cmd,
+                python_cmd=python_cmd,
+                in_container_work=in_container_work,
+                syntax_only=args.syntax_only,
+                timeout_sec=args.timeout,
+            )
         if ok:
             print(f"PASS {rel} ({dt:.1f}s)", flush=True)
             if output:

@@ -81,6 +81,7 @@ run_notebook_suite() {
     "$image" \
     python3 /repo/scripts/test_notebooks.py \
       --repo /repo \
+      --via-jupyter \
       --julia-args="$julia_args" \
       --in-container-work /home/jovyan/work
 }
@@ -165,7 +166,7 @@ if [[ "$NEED_KERNEL_BUILD" -eq 1 ]]; then
   if [[ "$DRY_RUN" -eq 1 ]]; then
     log "[dry-run] Would run: docker build -f server/Dockerfile.julia-kernel -t ${CANDIDATE_IMAGE} ."
   else
-    docker build -f server/Dockerfile.julia-kernel -t "$CANDIDATE_IMAGE" .
+    docker build --build-arg GIT_SHA="$(git rev-parse HEAD)" -f server/Dockerfile.julia-kernel -t "$CANDIDATE_IMAGE" .
   fi
 
   if [[ "$SKIP_TESTS" -eq 0 ]]; then

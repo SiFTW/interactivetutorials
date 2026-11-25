@@ -302,6 +302,27 @@ class DockerBackend:
     async def cleanup_orphans(self) -> int:
         return await asyncio.to_thread(self._cleanup_orphans_sync)
 
+    def _image_info_sync(self, image_name: str) -> dict[str, str]:
+        try:
+            img = self._client.images.get(image_name)
+            labels = (img.attrs.get("Config") or {}).get("Labels") or {}
+            return {
+                "kernel_image_id": img.short_id,
+                "kernel_image_created": str(img.attrs.get("Created", "")),
+                "kernel_git_sha": str(
+                    labels.get("org.opencontainers.image.revision", "unknown")
+                ),
+            }
+        except Exception:
+            return {
+                "kernel_image_id": "unknown",
+                "kernel_image_created": "",
+                "kernel_git_sha": "unknown",
+            }
+
+    async def image_info(self, image_name: str) -> dict[str, str]:
+        return await asyncio.to_thread(self._image_info_sync, image_name)
+
 
 class TutorialSpawnerApp:
     """Core application state, session registry, Binder API, proxy, and idle culler."""
@@ -439,12 +460,20 @@ class TutorialSpawnerApp:
         return False
 
     async def handle_health(self, request: web.Request) -> web.Response:
+        img_meta: dict[str, str] = {}
+        image_info_fn = getattr(self.backend, "image_info", None)
+        if callable(image_info_fn):
+            try:
+                img_meta = await image_info_fn(self.config.kernel_image)
+            except Exception:
+                img_meta = {}
         return web.json_response(
             {
                 "status": "ok",
                 "active_sessions": len(self.sessions),
                 "max_sessions": self.config.max_concurrent_sessions,
                 "kernel_image": self.config.kernel_image,
+                **img_meta,
                 "uptime_seconds": round(time.monotonic() - self.started_at, 1),
             }
         )

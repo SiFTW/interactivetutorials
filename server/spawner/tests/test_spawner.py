@@ -103,6 +103,13 @@ class MockJupyterBackend:
         self.orphans_cleaned += 1
         return 0
 
+    async def image_info(self, image_name: str) -> dict[str, str]:
+        return {
+            "kernel_image_id": "sha256:mock1234",
+            "kernel_image_created": "2026-01-01T00:00:00Z",
+            "kernel_git_sha": "abc1234",
+        }
+
 
 def parse_sse_events(raw: str) -> list[dict]:
     events = []
@@ -133,6 +140,7 @@ async def test_binder_sse_spawn_http_and_websocket_proxy():
         health = await resp.json()
         assert health["status"] == "ok"
         assert health["active_sessions"] == 0
+        assert health["kernel_git_sha"] == "abc1234"
 
         # 2. CORS preflight
         pre = await client.options(
