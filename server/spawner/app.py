@@ -1034,14 +1034,23 @@ class TutorialSpawnerApp:
                 break
 
     async def handle_admin_page(self, request: web.Request) -> web.Response:
-        page = admin_ui.render_admin_page(auth_required=bool(self.config.admin_token))
+        page = admin_ui.render_admin_page(
+            admin_login_enabled=bool(self.config.admin_token)
+        )
         return web.Response(text=page, content_type="text/html")
 
-    async def handle_admin_stats(self, request: web.Request) -> web.Response:
-        ok, status = self._is_admin_authorized(request, require_configured=False)
+    async def handle_admin_verify(self, request: web.Request) -> web.Response:
+        ok, status = self._is_admin_authorized(request, require_configured=True)
         if not ok:
-            return web.json_response({"error": "Unauthorized"}, status=status)
+            msg = (
+                "Admin login is not configured (set ADMIN_TOKEN in server/.env)."
+                if status == 403
+                else "Invalid admin password."
+            )
+            return web.json_response({"authenticated": False, "error": msg}, status=status)
+        return web.json_response({"authenticated": True})
 
+    async def handle_admin_stats(self, request: web.Request) -> web.Response:
         try:
             hours = int(request.query.get("hours", "24"))
         except ValueError:
@@ -1088,13 +1097,11 @@ class TutorialSpawnerApp:
                 "containers": containers,
                 "recent_sessions": recent,
                 "can_manage": can_manage,
+                "admin_login_enabled": bool(self.config.admin_token),
             }
         )
 
     async def handle_admin_export_csv(self, request: web.Request) -> web.Response:
-        ok, status = self._is_admin_authorized(request, require_configured=False)
-        if not ok:
-            return web.json_response({"error": "Unauthorized"}, status=status)
         csv_body = self.metrics.export_funder_csv()
         return web.Response(
             text=csv_body,
@@ -1184,6 +1191,7 @@ def create_app(
     app.router.add_get("/health", spawner.handle_health)
     app.router.add_get("/admin", spawner.handle_admin_page)
     app.router.add_get("/admin/", spawner.handle_admin_page)
+    app.router.add_post("/api/admin/verify", spawner.handle_admin_verify)
     app.router.add_get("/api/admin/stats", spawner.handle_admin_stats)
     app.router.add_get("/api/admin/export.csv", spawner.handle_admin_export_csv)
     app.router.add_post(
