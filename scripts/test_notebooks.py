@@ -358,7 +358,6 @@ def run_notebook_via_jupyter(
 
         os.environ.setdefault("GKSwstype", "100")
         os.environ.setdefault("PLOTS_DEFAULT_BACKEND", "GR")
-        os.environ.setdefault("MPLBACKEND", "Agg")
         os.environ.setdefault("OPENMM_CPU_THREADS", "1")
         os.environ.setdefault("OMP_NUM_THREADS", "1")
 
@@ -382,12 +381,14 @@ def run_notebook_via_jupyter(
     lines: list[str] = []
     code_idx = 0
     for cell in nb.cells:
-        if cell.get("cell_type") != "code" or not "".join(cell.get("source", [])).strip():
+        src = "".join(cell.get("source", []))
+        if cell.get("cell_type") != "code" or not src.strip():
             continue
         code_idx += 1
         tags = (cell.get("metadata", {}) or {}).get("tags", []) or []
         expect_err = "raises-exception" in tags
-        has_err = any(o.get("output_type") == "error" for o in cell.get("outputs", []))
+        outputs = cell.get("outputs", [])
+        has_err = any(o.get("output_type") == "error" for o in outputs)
         if expect_err and not has_err:
             return (
                 False,
@@ -395,12 +396,27 @@ def run_notebook_via_jupyter(
                 f"EXPECTED ERROR DID NOT OCCUR in {rel} code cell #{code_idx} (tagged raises-exception)",
             )
         if not expect_err and has_err:
-            err_out = next(o for o in cell.get("outputs", []) if o.get("output_type") == "error")
+            err_out = next(o for o in outputs if o.get("output_type") == "error")
             return (
                 False,
                 dt,
                 f"RUNTIME ERROR in {rel} code cell #{code_idx}: {err_out.get('ename')}: {err_out.get('evalue')}",
             )
+        # Verify Python matplotlib cells calling plt.show() actually render an inline image
+        if nb_lang == "python" and not expect_err and "plt.show(" in src:
+            has_plot_image = any(
+                o.get("output_type") == "display_data"
+                and any(k in (o.get("data") or {}) for k in ("image/png", "image/svg+xml"))
+                for o in outputs
+            )
+            if not has_plot_image:
+                return (
+                    False,
+                    dt,
+                    f"MISSING PLOT OUTPUT in {rel} code cell #{code_idx}: "
+                    "plt.show() ran but produced no inline image/png or image/svg+xml "
+                    "(check MPLBACKEND is not set to Agg)",
+                )
         suffix = ", expected error verified" if expect_err else ""
         lines.append(f"  [OK] cell {code_idx}/{len(code_cells)} (kernel={kernel_name}{suffix})")
 

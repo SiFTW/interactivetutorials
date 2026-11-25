@@ -48,7 +48,6 @@ jobs:
             --memory=2g --cpus=2 --pids-limit=256 \
             --network=none \
             -e GKSwstype=100 \
-            -e MPLBACKEND=Agg \
             -e OPENMM_CPU_THREADS=1 \
             -e OMP_NUM_THREADS=1 \
             -v "${{ github.workspace }}:/repo:ro" \

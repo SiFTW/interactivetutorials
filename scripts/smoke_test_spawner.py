@@ -99,6 +99,17 @@ def main() -> int:
             print(f"FAIL: Missing workspace folder /home/jovyan/work/{folder}/ (HTTP {exc.code})", file=sys.stderr)
             return 1
 
+    # 5. Verify /admin dashboard serves cleanly
+    with urllib.request.urlopen(f"{base}/admin", timeout=10) as resp:
+        if resp.status != 200:
+            print(f"FAIL: GET /admin returned HTTP {resp.status}", file=sys.stderr)
+            return 1
+        body = resp.read().decode("utf-8", errors="replace")
+        if "Mitchell Lab Tutorial Server" not in body:
+            print("FAIL: GET /admin did not return expected dashboard HTML", file=sys.stderr)
+            return 1
+        print("  [OK] /admin dashboard reachable")
+
     print("LIVE SPAWNER SMOKE TEST PASSED!")
     return 0
 

@@ -77,8 +77,11 @@ jobs:
           pip install -r server/spawner/requirements.txt pytest pytest-asyncio
       - name: Run spawner integration tests
         run: pytest -v server/spawner/tests/test_spawner.py
-      - name: Verify csv2model-multiscale.py, MD helpers, and smoke test compile with zero warnings
+      - name: Verify spawner, csv2model-multiscale.py, MD helpers, and smoke test compile with zero warnings
         run: |
+          python3 -B -W error -m py_compile server/spawner/app.py
+          python3 -B -W error -m py_compile server/spawner/metrics.py
+          python3 -B -W error -m py_compile server/spawner/admin_ui.py
           python3 -B -W error -m py_compile tutorials/MD/md_helpers.py
           python3 -B -W error -m py_compile scripts/test_notebooks.py
           python3 -B -W error -m py_compile scripts/smoke_test_spawner.py
@@ -184,7 +187,6 @@ jobs:
           pip install "numpy>=1.26,<3" "matplotlib>=3.8,<4" "openmm>=8.2,<9" "MDAnalysis>=2.8,<3" "PeptideBuilder>=1.1,<2" "ipykernel>=6.29,<8" "nbclient>=0.10,<1" "nbformat>=5.9,<6"
       - name: Execute every Python MD notebook via real Jupyter python3 kernel
         env:
-          MPLBACKEND: "Agg"
           OPENMM_CPU_THREADS: "1"
           OMP_NUM_THREADS: "1"
         run: |
