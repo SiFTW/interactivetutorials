@@ -22,6 +22,7 @@ Across this SSC, we explore how computational simulations help us understand bio
 | **Week 1** | **Intro to Computational Modelling & Population-Scale Models (SI, SIS, SIR, SIRS, SEIR)** | Populations & Public Health | Julia | **Live in this book** |
 | **Week 2** | **Molecular Dynamics I: Force Fields, Equations & Protein Structures (`.pdb`)** | Atoms & Proteins | Python | **Live in this book** |
 | **Week 3** | **Molecular Dynamics II: Energy Landscapes, OpenMM Protein Folding & Analysis** | Atoms & Proteins | Python | **Live in this book** |
+| **MD III** | **AlphaFold, Clinical Mutations & MD (*MYD88* L265P, Sickle-Cell, Proinsulin)** | Atoms & Proteins | Python | **Live in this book** |
 | **Week 4** | **Cell Signalling Modelling: NF-κB in Blood Cancer (CLL & Waldenström)** | Cells & Biochemical Networks | Julia | **Live in this book** |
 | **Week 5** | **Cell Fate Modelling: Apoptosis (BCL2) & Cell Cycle (c-MYC)** | Cells & Biochemical Networks | Julia | **Live in this book** |
 | **Week 6** | Preparation for Assessment (no taught session) | — | — | Independent project work |
@@ -46,6 +47,11 @@ Across this SSC, we explore how computational simulations help us understand bio
 ### Week 3 — Molecular Dynamics II: Simulating & Analysing Protein Folding *(Python)*
 - [**3.1 Molecular Dynamics II: Energy Landscapes & Trajectory Analysis**](molecular-dynamics/03-energy-landscapes-and-analysis.md) — Energy barriers, the sampling problem, secondary structure (DSSP), H-bonds, Ramachandran plots, and RMSD
 - [**3.2 Live OpenMM Practical: Simulating Protein Folding**](molecular-dynamics/04-protein-folding-simulation.ipynb) — Simulate 200 ps of `polyALA.pdb` folding into an $\alpha$-helix at $300\text{ K}$, watch the animated 3D trajectory, plot end-to-end distance & Ramachandran transitions, and test temperature, polyglycine, or your own name peptide
+
+### MD III — AlphaFold, Clinical Mutations & Molecular Dynamics *(Python)*
+- [**3.3 AlphaFold, Clinical Mutations & Molecular Dynamics**](molecular-dynamics/05-alphafold-and-clinical-mutations.md) — Combining AI structure prediction (pLDDT, PAE, AlphaMissense) with physics-based MD for **MYD88 L265P**, **Sickle-Cell Haemoglobin E6V**, and **Proinsulin C96Y**
+- [**3.4 Practical A: AlphaFold Confidence, Validation & Clinical Pathogenicity**](molecular-dynamics/06-alphafold-clinical-variants.ipynb) — Colour human MYD88 by pLDDT, inspect the 296 × 296 PAE map, discover the 20.8 Å BB-loop switch (`7L6W` vs `4EO7`), and explore real AlphaMissense scores (including why AI misses Sickle-Cell E6V!)
+- [**3.5 Practical B: Simulating MYD88 L265P & Clinical Mutations in OpenMM**](molecular-dynamics/07-myd88-l265p-md-simulation.ipynb) — Mutate MYD88 WT → L252P (clinical L265P) live in OpenMM, test whether AlphaFold pLDDT predicts real MD flexibility (RMSF), quantify the Proline Ramachandran kink, and screen other clinical variants
 
 ### Week 4 — Cell Signalling Modelling: NF-κB in Blood Cancer *(Julia)*
 - [**4.1 NF-κB Signalling in Blood Cancer & Systems Biology**](signalling/01-nfkb-and-systems-biology.md) — WM, CLL, DLBCL, canonical vs non-canonical NF-κB, and the systems biology loop
