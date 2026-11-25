@@ -18,14 +18,104 @@
     repoProvider: "github",
   };
 
+  const IMAGE_ID_KEY = "mitchell-thebe-kernel-image-id";
+
   let activating = false;
   let activated = false;
+  let activeSessionCreds = null;
 
   function runWhenReady(cb) {
     if (document.readyState !== "loading") {
       cb();
     } else {
       document.addEventListener("DOMContentLoaded", cb);
+    }
+  }
+
+  function parseSessionTarget(rawUrl, token) {
+    if (!rawUrl || !token) return null;
+    try {
+      const parsed = new URL(rawUrl, BINDER_CONFIG.binderUrl);
+      const match = parsed.pathname.match(/\/user\/([a-zA-Z0-9_-]+)/);
+      if (!match) return null;
+      return {
+        origin: parsed.origin,
+        sid: match[1],
+        token: String(token),
+      };
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  function collectSavedSessions(extraCreds) {
+    const seen = new Set();
+    const targets = [];
+    const addTarget = (rawUrl, token) => {
+      const t = parseSessionTarget(rawUrl, token);
+      if (!t || seen.has(t.sid)) return;
+      seen.add(t.sid);
+      targets.push(t);
+    };
+    if (extraCreds && extraCreds.baseUrl && extraCreds.token) {
+      addTarget(extraCreds.baseUrl, extraCreds.token);
+    }
+    try {
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const key = window.localStorage.key(i);
+        if (key && (key.startsWith(STORAGE_PREFIX) || key.startsWith("thebe-binder"))) {
+          const raw = window.localStorage.getItem(key);
+          if (!raw) continue;
+          const data = JSON.parse(raw);
+          if (data && (data.url || data.wsUrl) && data.token) {
+            addTarget(data.url || data.wsUrl, data.token);
+          }
+        }
+      }
+    } catch (_err) {
+      // Ignore storage restrictions
+    }
+    return targets;
+  }
+
+  async function stopSavedSessions(extraCreds) {
+    const targets = collectSavedSessions(extraCreds || activeSessionCreds);
+    if (targets.length === 0) return;
+    await Promise.all(
+      targets.map(async (t) => {
+        const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(() => ctrl.abort(), 2000) : null;
+        try {
+          const stopUrl = `${t.origin}/api/sessions/${encodeURIComponent(t.sid)}/stop?token=${encodeURIComponent(t.token)}`;
+          await fetch(stopUrl, {
+            method: "POST",
+            keepalive: true,
+            signal: ctrl ? ctrl.signal : undefined,
+          });
+        } catch (_err) {
+          // Best-effort cleanup; ignore network errors during reset
+        } finally {
+          if (timer) clearTimeout(timer);
+        }
+      })
+    );
+  }
+
+  async function fetchServerImageId() {
+    const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), 2500) : null;
+    try {
+      const resp = await fetch(`${BINDER_CONFIG.binderUrl}/health`, {
+        cache: "no-store",
+        signal: ctrl ? ctrl.signal : undefined,
+      });
+      if (!resp.ok) return "";
+      const data = await resp.json();
+      return (data && (data.kernel_image_id || data.kernel_git_sha)) || "";
+    } catch (_err) {
+      return "";
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   }
 
@@ -48,7 +138,12 @@
       const toRemove = [];
       for (let i = 0; i < window.localStorage.length; i++) {
         const key = window.localStorage.key(i);
-        if (key && (key.startsWith(STORAGE_PREFIX) || key.startsWith("thebe-binder"))) {
+        if (
+          key &&
+          (key.startsWith(STORAGE_PREFIX) ||
+            key.startsWith("thebe-binder") ||
+            key === IMAGE_ID_KEY)
+        ) {
           toRemove.push(key);
         }
       }
@@ -311,9 +406,30 @@
       "Loading interactive editor and connecting to kernels.mitchell.science…"
     );
 
+    let lastServerError = "";
     try {
       loadStylesheet(THEBE_CSS_URL);
       await loadScript(THEBE_JS_URL);
+
+      const serverImageId = await fetchServerImageId();
+      if (serverImageId && hasSavedSession()) {
+        let savedImageId = "";
+        try {
+          savedImageId = window.localStorage.getItem(IMAGE_ID_KEY) || "";
+        } catch (_e) {
+          savedImageId = "";
+        }
+        if (savedImageId && savedImageId !== serverImageId) {
+          setStatus(
+            ui,
+            "loading",
+            "Updating…",
+            "A newer tutorial environment is available on the server — launching a fresh container…"
+          );
+          await stopSavedSessions();
+          clearSavedSessions();
+        }
+      }
 
       prepareCellsForThebe();
 
@@ -321,7 +437,10 @@
         window.thebe.events.on("status", (_evt, data) => {
           const msg = data && data.message ? data.message : "";
           const status = data && data.status ? data.status : "launching";
-          if (status === "ready") {
+          if (status === "failed") {
+            if (msg) lastServerError = msg;
+            setStatus(ui, "error", "Connection Failed", msg || "Failed to launch Julia kernel.");
+          } else if (status === "ready") {
             setStatus(
               ui,
               "ready",
@@ -334,7 +453,8 @@
         });
 
         window.thebe.events.on("error", (_evt, data) => {
-          const msg = (data && data.message) || "Failed to connect to Julia kernel server.";
+          const msg = (data && data.message) || lastServerError || "Failed to connect to Julia kernel server.";
+          lastServerError = msg;
           setStatus(ui, "error", "Error", msg);
           ui.launchBtn.disabled = false;
           ui.launchBtn.textContent = "⚡ Retry Connection";
@@ -379,6 +499,14 @@
         },
       });
 
+      if (serverImageId) {
+        try {
+          window.localStorage.setItem(IMAGE_ID_KEY, serverImageId);
+        } catch (_e) {
+          // Ignore storage restrictions
+        }
+      }
+
       activated = true;
       activating = false;
       ui.launchBtn.style.display = "none";
@@ -396,6 +524,7 @@
 
       const creds = extractServerCredentials(result);
       if (creds) {
+        activeSessionCreds = creds;
         let currentLabUrl = buildLabUrl(creds.baseUrl, creds.token, null);
         ui.labLink.href = currentLabUrl;
         ui.labLink.style.display = "inline-flex";
@@ -448,12 +577,11 @@
         ui.headerBtn.textContent = "⚡ Retry Julia";
       }
       ui.resetBtn.style.display = "inline-flex";
-      setStatus(
-        ui,
-        "error",
-        "Connection Failed",
-        err && err.message ? err.message : "Could not reach kernels.mitchell.science."
-      );
+      const detail =
+        lastServerError ||
+        (err && err.message) ||
+        "Could not reach kernels.mitchell.science.";
+      setStatus(ui, "error", "Connection Failed", detail);
     }
   }
 
@@ -589,7 +717,10 @@
     if (ui.headerBtn) {
       ui.headerBtn.addEventListener("click", triggerActivate);
     }
-    ui.resetBtn.addEventListener("click", () => {
+    ui.resetBtn.addEventListener("click", async () => {
+      ui.resetBtn.disabled = true;
+      ui.resetBtn.textContent = "⏳ Resetting…";
+      await stopSavedSessions(activeSessionCreds);
       clearSavedSessions();
       window.location.reload();
     });

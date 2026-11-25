@@ -78,37 +78,49 @@ def main() -> int:
 
     # Rewrite returned public URL to the requested base URL (so localhost smoke tests stay local)
     parsed_ready = urllib.parse.urlparse(ready_payload["url"])
+    sid = parsed_ready.path.strip("/").split("/")[-1]
     user_base = f"{base}{parsed_ready.path.rstrip('/')}"
     token = urllib.parse.quote(ready_payload["token"], safe="")
 
-    # 3. Verify BOTH julia and python3 kernelspecs exist in the live container
-    ks = _get_json(f"{user_base}/api/kernelspecs?token={token}")
-    specs = sorted((ks.get("kernelspecs") or {}).keys())
-    print("Live kernelspecs:", specs)
-    for required in ("julia", "python3"):
-        if required not in specs:
-            print(f"FAIL: Required kernelspec {required!r} missing from live container ({specs})", file=sys.stderr)
-            return 1
+    try:
+        # 3. Verify BOTH julia and python3 kernelspecs exist in the live container
+        ks = _get_json(f"{user_base}/api/kernelspecs?token={token}")
+        specs = sorted((ks.get("kernelspecs") or {}).keys())
+        print("Live kernelspecs:", specs)
+        for required in ("julia", "python3"):
+            if required not in specs:
+                print(f"FAIL: Required kernelspec {required!r} missing from live container ({specs})", file=sys.stderr)
+                return 1
 
-    # 4. Verify all tutorial workspace directories exist in /home/jovyan/work
-    for folder in ("MD", "NFkB", "apoptosis", "cellCycle"):
+        # 4. Verify all tutorial workspace directories exist in /home/jovyan/work
+        for folder in ("MD", "NFkB", "apoptosis", "cellCycle"):
+            try:
+                _get_json(f"{user_base}/api/contents/{folder}?content=0&token={token}")
+                print(f"  [OK] /home/jovyan/work/{folder}/ present")
+            except urllib.error.HTTPError as exc:
+                print(f"FAIL: Missing workspace folder /home/jovyan/work/{folder}/ (HTTP {exc.code})", file=sys.stderr)
+                return 1
+
+        # 5. Verify /admin dashboard serves cleanly
+        with urllib.request.urlopen(f"{base}/admin", timeout=10) as resp:
+            if resp.status != 200:
+                print(f"FAIL: GET /admin returned HTTP {resp.status}", file=sys.stderr)
+                return 1
+            body = resp.read().decode("utf-8", errors="replace")
+            if "Mitchell Lab Tutorial Server" not in body:
+                print("FAIL: GET /admin did not return expected dashboard HTML", file=sys.stderr)
+                return 1
+            print("  [OK] /admin dashboard reachable")
+    finally:
+        # 6. Always stop our ephemeral smoke-test container via self-service stop endpoint
+        stop_url = f"{base}/api/sessions/{sid}/stop?token={token}"
+        stop_req = urllib.request.Request(stop_url, method="POST", data=b"")
         try:
-            _get_json(f"{user_base}/api/contents/{folder}?content=0&token={token}")
-            print(f"  [OK] /home/jovyan/work/{folder}/ present")
-        except urllib.error.HTTPError as exc:
-            print(f"FAIL: Missing workspace folder /home/jovyan/work/{folder}/ (HTTP {exc.code})", file=sys.stderr)
-            return 1
-
-    # 5. Verify /admin dashboard serves cleanly
-    with urllib.request.urlopen(f"{base}/admin", timeout=10) as resp:
-        if resp.status != 200:
-            print(f"FAIL: GET /admin returned HTTP {resp.status}", file=sys.stderr)
-            return 1
-        body = resp.read().decode("utf-8", errors="replace")
-        if "Mitchell Lab Tutorial Server" not in body:
-            print("FAIL: GET /admin did not return expected dashboard HTML", file=sys.stderr)
-            return 1
-        print("  [OK] /admin dashboard reachable")
+            with urllib.request.urlopen(stop_req, timeout=10) as stop_resp:
+                stop_data = json.loads(stop_resp.read().decode("utf-8"))
+                print(f"  [OK] Cleaned up smoke-test session {sid} ({stop_data.get('status')})")
+        except Exception as exc:
+            print(f"WARN: Failed to clean up smoke-test session {sid}: {exc}", file=sys.stderr)
 
     print("LIVE SPAWNER SMOKE TEST PASSED!")
     return 0
