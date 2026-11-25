@@ -10,7 +10,7 @@ Every tutorial page in this book contains real, editable Julia code cells backed
 
 :::{tip} Launching your live editable Julia session
 1. Open any tutorial chapter from the sidebar on the left.
-2. Click the **⚡ Activate Live Editable Julia Cells** button near the top of the page to launch your own private, sandboxed Julia kernel (it takes just a few seconds because `DifferentialEquations.jl`, `Plots.jl`, and `CSV2Model` are already pre-installed and precompiled!).
+2. Click the **Activate Live Editable Julia Cells** button near the top of the page to launch your own private, sandboxed Julia kernel (it takes just a few seconds because `DifferentialEquations.jl`, `Plots.jl`, and `CSV2Model` are already pre-installed and precompiled!).
 3. Once connected, every code block turns into an **editable code editor** — click inside any cell to modify the code and press **Shift + Enter** (or click the **Run** button underneath the cell) to re-run the simulation and watch the plots update live.
 :::
 

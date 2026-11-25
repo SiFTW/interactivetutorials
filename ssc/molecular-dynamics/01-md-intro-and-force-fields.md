@@ -3,7 +3,7 @@
 **Modelling Across Scales: From Molecules to Pandemics (Week 2)**
 *Dr Eleanor Jayawant — Mitchell Lab, Brighton and Sussex Medical School*
 
-Click **📽️ Present Slides** above to step through this lecture slide-by-slide in class, or scroll down to read at your own pace before exploring real protein structures in Python.
+Click **Present Slides** above to step through this lecture slide-by-slide in class, or scroll down to read at your own pace before exploring real protein structures in Python.
 
 ---
 

@@ -418,7 +418,7 @@ def view_trajectory(
     <div class="hint">Drag to rotate · Scroll to zoom · Click Play or drag slider</div>
   </div>
   <div class="scrub-bar">
-    <button class="btn play" id="playBtn">▶ Play</button>
+    <button class="btn play" id="playBtn">Play</button>
     <input type="range" id="scrubber" min="0" max="{max(0, n_shown - 1)}" value="0" aria-label="Trajectory frame">
     <span class="frame-label" id="frameLabel">Frame 1 / {n_shown} ({frame_times_ps[0]} ps)</span>
   </div>
@@ -471,14 +471,14 @@ function showFrame(idx) {{
 function stopPlay() {{
   playing = false;
   if (timerId !== null) {{ clearInterval(timerId); timerId = null; }}
-  playBtn.textContent = "▶ Play";
+  playBtn.textContent = "Play";
 }}
 
 function startPlay() {{
   if (N_FRAMES <= 1) return;
   stopPlay();
   playing = true;
-  playBtn.textContent = "⏸ Pause";
+  playBtn.textContent = "Pause";
   timerId = setInterval(function() {{
     showFrame(curFrame + 1);
   }}, frameDelay);

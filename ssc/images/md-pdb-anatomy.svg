@@ -53,13 +53,13 @@
   <text x="142" y="206" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#15803d">2. Serial #</text>
   <text x="142" y="220" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569">Atom index</text>
 
-  <line x1="261" y1="150" x2="261" y2="190" stroke="#ea580c" stroke-width="2"/>
-  <text x="261" y="206" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#c2410c">4. Residue</text>
-  <text x="261" y="220" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569">3-letter AA (ALA)</text>
+  <polyline points="261,150 261,170 250,190" fill="none" stroke="#ea580c" stroke-width="2"/>
+  <text x="250" y="206" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#c2410c">4. Residue</text>
+  <text x="250" y="220" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.2" fill="#475569">3-letter AA (ALA)</text>
 
-  <line x1="351" y1="150" x2="351" y2="190" stroke="#0891b2" stroke-width="2"/>
-  <text x="351" y="206" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#0e7490">6. Res #</text>
-  <text x="351" y="220" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#475569">Sequence pos.</text>
+  <polyline points="351,150 351,170 374,190" fill="none" stroke="#0891b2" stroke-width="2"/>
+  <text x="374" y="206" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#0e7490">6. Res #</text>
+  <text x="374" y="220" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.2" fill="#475569">Sequence pos.</text>
 
   <line x1="732" y1="150" x2="732" y2="190" stroke="#64748b" stroke-width="2"/>
   <text x="732" y="206" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">Occupancy &amp; B-factor</text>

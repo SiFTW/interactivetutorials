@@ -3,7 +3,7 @@
 **Modelling Signalling — Computational Modelling SSC (Week 4)**
 *Mitchell Lab, Brighton and Sussex Medical School*
 
-Click **📽️ Present Slides** above to step through this session slide-by-slide in class, or scroll down to read at your own pace before launching the live NF-κB simulations.
+Click **Present Slides** above to step through this session slide-by-slide in class, or scroll down to read at your own pace before launching the live NF-κB simulations.
 
 ---
 

@@ -197,6 +197,9 @@ html[data-theme="dark"] .mitchell-btn-secondary {
 }
 
 .mitchell-header-live-btn {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.32rem;
   background-color: #0284c7 !important;
   color: #ffffff !important;
   border-radius: 6px !important;
@@ -212,9 +215,19 @@ html[data-theme="dark"] .mitchell-btn-secondary {
   background-color: #15803d !important;
 }
 
+@keyframes mitchell-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.mitchell-icon-spin {
+  animation: mitchell-spin 0.9s linear infinite;
+}
+
 .mitchell-cell-activate-pill {
   display: inline-flex;
   align-items: center;
+  gap: 0.35rem;
   margin-top: 0.35rem;
   padding: 0.22rem 0.65rem;
   border-radius: 5px;

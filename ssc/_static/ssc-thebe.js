@@ -3,10 +3,10 @@
  *
  * Provides:
  *  1. Reliable primary & secondary sidebar toggles across all viewport widths.
- *  2. Classroom Presentation Mode ("📽️ Present") that steps section-by-section
- *     as full-bleed slides while keeping live Julia CodeMirror cells interactive,
+ *  2. Classroom Presentation Mode ("Present Slides") that steps section-by-section
+ *     as full-bleed slides while keeping live Julia/Python CodeMirror cells interactive,
  *     with seamless return to continuous Reading Mode for students.
- *  3. Live editable Julia code cells via Thebe 0.9 + https://kernels.mitchell.science.
+ *  3. Live editable Julia & Python code cells via Thebe 0.9 + https://kernels.mitchell.science.
  *  4. "Open JupyterLab ↗" button that syncs the current SSC notebook (including
  *     live edits) into /home/jovyan/work/ and opens full JupyterLab.
  */
@@ -23,6 +23,22 @@
   };
   const STORAGE_PREFIX = "mitchell-thebe-session-";
   const IMAGE_ID_KEY = "mitchell-thebe-kernel-image-id";
+
+  // Crisp monochrome currentColor icons (automatically match button text & dark/light themes)
+  const SVG_ATTR =
+    'class="mitchell-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px;flex-shrink:0;"';
+  const SPIN_ATTR =
+    'class="mitchell-icon mitchell-icon-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px;flex-shrink:0;"';
+  const ICONS = {
+    play: `<svg ${SVG_ATTR}><polygon points="6 4 20 12 6 20 6 4" fill="currentColor" stroke="none"/></svg>`,
+    slides: `<svg ${SVG_ATTR}><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+    book: `<svg ${SVG_ATTR}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+    reset: `<svg ${SVG_ATTR}><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/></svg>`,
+    check: `<svg ${SVG_ATTR}><polyline points="20 6 9 17 4 12"/></svg>`,
+    warn: `<svg ${SVG_ATTR}><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    fullscreen: `<svg ${SVG_ATTR}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>`,
+    spinner: `<svg ${SPIN_ATTR}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
+  };
 
   let activating = false;
   let activated = false;
@@ -351,8 +367,8 @@
       <button type="button" id="mitchell-present-prev">← Prev</button>
       <select id="mitchell-present-select" aria-label="Jump to slide"></select>
       <button type="button" id="mitchell-present-next">Next →</button>
-      <button type="button" id="mitchell-present-fs" title="Toggle browser fullscreen">⛶ Fullscreen</button>
-      <button type="button" id="mitchell-present-exit" class="mitchell-present-exit" title="Return to continuous student reading mode (Esc)">📖 Reading Mode</button>
+      <button type="button" id="mitchell-present-fs" title="Toggle browser fullscreen">${ICONS.fullscreen}Fullscreen</button>
+      <button type="button" id="mitchell-present-exit" class="mitchell-present-exit" title="Return to continuous student reading mode (Esc)">${ICONS.book}Reading Mode</button>
     `;
     document.body.appendChild(presentBar);
 
@@ -527,7 +543,7 @@
       }
     });
 
-    // Add a quick "📽️ Present" button in the top-right article header bar on EVERY page
+    // Add a quick "Present" button in the top-right article header bar on EVERY page
     const headerRight = document.querySelector(".article-header-buttons");
     if (headerRight) {
       const headerPresentBtn = document.createElement("button");
@@ -535,7 +551,7 @@
       headerPresentBtn.id = "mitchell-header-present-btn";
       headerPresentBtn.className = "btn btn-sm mitchell-header-present-btn";
       headerPresentBtn.title = "Switch to full-screen slide Presentation Mode for class";
-      headerPresentBtn.textContent = "📽️ Present";
+      headerPresentBtn.innerHTML = `${ICONS.slides}Present`;
       headerPresentBtn.addEventListener("click", () => enterPresentMode(0));
       headerRight.prepend(headerPresentBtn);
     }
@@ -614,7 +630,7 @@
       bar.innerHTML = `
         <div class="mitchell-live-left">
           <button id="mitchell-launch-btn" type="button" class="mitchell-btn mitchell-btn-primary">
-            ⚡ Activate Live Editable ${lang} Cells
+            ${ICONS.play}Activate Live Editable ${lang} Cells
           </button>
           <span id="mitchell-status-pill" class="mitchell-status-pill mitchell-status-idle">
             Reading mode
@@ -625,13 +641,13 @@
         </div>
         <div class="mitchell-live-right">
           <button id="mitchell-present-btn" type="button" class="mitchell-btn mitchell-btn-present" title="Present this chapter as interactive slides in class">
-            📽️ Present Slides
+            ${ICONS.slides}Present Slides
           </button>
           <a id="mitchell-lab-link" class="mitchell-btn mitchell-btn-secondary" href="#" target="_blank" rel="noopener" style="display:none;">
             Open JupyterLab ↗
           </a>
           <button id="mitchell-reset-btn" type="button" class="mitchell-btn mitchell-btn-secondary" style="display:none;" title="Discard current container and start a fresh workspace">
-            🔄 Reset Session
+            ${ICONS.reset}Reset Session
           </button>
         </div>
       `;
@@ -646,7 +662,7 @@
         </div>
         <div class="mitchell-live-right">
           <button id="mitchell-present-btn" type="button" class="mitchell-btn mitchell-btn-present" title="Present this page as full-screen slides">
-            📽️ Present Slides
+            ${ICONS.slides}Present Slides
           </button>
         </div>
       `;
@@ -674,7 +690,7 @@
         headerBtn.id = "mitchell-header-launch-btn";
         headerBtn.className = "btn btn-sm mitchell-header-live-btn";
         headerBtn.title = `Activate live editable ${lang} code cells`;
-        headerBtn.textContent = `⚡ Live ${lang}`;
+        headerBtn.innerHTML = `${ICONS.play}Live ${lang}`;
         headerRight.prepend(headerBtn);
       }
     }
@@ -698,7 +714,7 @@
       const pill = document.createElement("button");
       pill.type = "button";
       pill.className = "mitchell-cell-activate-pill";
-      pill.textContent = `⚡ Click to edit & run live in ${kernel.shortLabel}`;
+      pill.innerHTML = `${ICONS.play}Click to edit &amp; run live in ${kernel.shortLabel}`;
       pill.addEventListener("click", onActivate);
       inputDiv.appendChild(pill);
     });
@@ -823,10 +839,10 @@
     const lang = kernel.shortLabel;
     activating = true;
     ui.launchBtn.disabled = true;
-    ui.launchBtn.textContent = `⏳ Connecting to ${lang}…`;
+    ui.launchBtn.innerHTML = `${ICONS.spinner}Connecting to ${lang}…`;
     if (ui.headerBtn) {
       ui.headerBtn.disabled = true;
-      ui.headerBtn.textContent = "⏳ Connecting…";
+      ui.headerBtn.innerHTML = `${ICONS.spinner}Connecting…`;
     }
     setStatus(
       ui,
@@ -888,10 +904,10 @@
           lastServerError = msg;
           setStatus(ui, "error", "Error", msg);
           ui.launchBtn.disabled = false;
-          ui.launchBtn.textContent = "⚡ Retry Connection";
+          ui.launchBtn.innerHTML = `${ICONS.play}Retry Connection`;
           if (ui.headerBtn) {
             ui.headerBtn.disabled = false;
-            ui.headerBtn.textContent = `⚡ Retry ${lang}`;
+            ui.headerBtn.innerHTML = `${ICONS.play}Retry ${lang}`;
           }
           ui.resetBtn.style.display = "inline-flex";
           activating = false;
@@ -942,7 +958,7 @@
       activating = false;
       ui.launchBtn.style.display = "none";
       if (ui.headerBtn) {
-        ui.headerBtn.textContent = `✅ ${lang} Live`;
+        ui.headerBtn.innerHTML = `${ICONS.check}${lang} Live`;
         ui.headerBtn.classList.add("is-ready");
       }
       ui.resetBtn.style.display = "inline-flex";
@@ -966,14 +982,14 @@
             if (specs && !Object.prototype.hasOwnProperty.call(specs, kernel.kernelName)) {
               const avail = Object.keys(specs).join(", ") || "none";
               if (ui.headerBtn) {
-                ui.headerBtn.textContent = "⚠️ Reset Needed";
+                ui.headerBtn.innerHTML = `${ICONS.warn}Reset Needed`;
                 ui.headerBtn.classList.remove("is-ready");
               }
               setStatus(
                 ui,
                 "error",
                 "Kernel Mismatch",
-                `Connected container only has [${avail}] (missing '${kernel.kernelName}'). Click 🔄 Reset Session to launch a fresh ${lang} container.`
+                `Connected container only has [${avail}] (missing '${kernel.kernelName}'). Click Reset Session to launch a fresh ${lang} container.`
               );
               return;
             }
@@ -984,14 +1000,14 @@
               const mdResp = await fetch(mdUrl);
               if (!mdResp.ok) {
                 if (ui.headerBtn) {
-                  ui.headerBtn.textContent = "⚠️ Reset Needed";
+                  ui.headerBtn.innerHTML = `${ICONS.warn}Reset Needed`;
                   ui.headerBtn.classList.remove("is-ready");
                 }
                 setStatus(
                   ui,
                   "error",
                   "Update Pending",
-                  "This container was built before the Python MD stack (OpenMM / MDAnalysis) was installed. Click 🔄 Reset Session once the server update completes."
+                  "This container was built before the Python MD stack (OpenMM / MDAnalysis) was installed. Click Reset Session once the server update completes."
                 );
               }
             }
@@ -1040,10 +1056,10 @@
       console.error("[ssc-thebe] Activation failed:", err);
       activating = false;
       ui.launchBtn.disabled = false;
-      ui.launchBtn.textContent = "⚡ Retry Connection";
+      ui.launchBtn.innerHTML = `${ICONS.play}Retry Connection`;
       if (ui.headerBtn) {
         ui.headerBtn.disabled = false;
-        ui.headerBtn.textContent = `⚡ Retry ${lang}`;
+        ui.headerBtn.innerHTML = `${ICONS.play}Retry ${lang}`;
       }
       ui.resetBtn.style.display = "inline-flex";
       const detail =
@@ -1072,7 +1088,7 @@
     }
     ui.resetBtn.addEventListener("click", async () => {
       ui.resetBtn.disabled = true;
-      ui.resetBtn.textContent = "⏳ Resetting…";
+      ui.resetBtn.innerHTML = `${ICONS.spinner}Resetting…`;
       await stopSavedSessions(activeSessionCreds);
       clearSavedSessions();
       window.location.reload();

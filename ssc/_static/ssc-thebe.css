@@ -415,12 +415,21 @@ html.mitchell-present-mode article.bd-article li {
 }
 
 html.mitchell-present-mode article.bd-article img,
-html.mitchell-present-mode article.bd-article svg {
+html.mitchell-present-mode article.bd-article svg:not(.mitchell-icon) {
   max-height: 52vh;
   max-width: 100%;
   width: auto;
   display: block;
   margin: 0.75rem auto;
+}
+
+@keyframes mitchell-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.mitchell-icon-spin {
+  animation: mitchell-spin 0.9s linear infinite;
 }
 
 html.mitchell-present-mode .mitchell-live-toolbar {
@@ -468,6 +477,9 @@ html.mitchell-present-mode #mitchell-present-bar {
 }
 
 #mitchell-present-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   background: rgba(255, 255, 255, 0.12);
   color: #f8fafc;
   border: 1px solid rgba(255, 255, 255, 0.18);

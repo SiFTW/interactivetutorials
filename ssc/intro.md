@@ -5,8 +5,8 @@ Welcome to the **Brighton and Sussex Medical School (BSMS) Student Selected Comp
 This interactive book combines our **in-class lecture slides** and **live Julia & Python computational simulations** in one place—no logins, software installation, or prior coding or mathematics background required.
 
 :::{tip} Two Ways to Use This Book
-- **📖 Reading Mode (default):** Scroll through the explanations, diagrams, equations, 3D protein viewers, and pre-computed plots at your own pace, and click **⚡ Activate Live Editable Cells** whenever you want to edit parameters and run live simulations in your browser.
-- **📽️ Present Slides:** Click **📽️ Present Slides** (top toolbar or top-right header) to step section-by-section in full-screen slide view—ideal for presenting in class while running live simulations right on the projector. Press `Esc` or click **📖 Reading Mode** at any time to return.
+- **Reading Mode (default):** Scroll through the explanations, diagrams, equations, 3D protein viewers, and pre-computed plots at your own pace, and click **Activate Live Editable Cells** whenever you want to edit parameters and run live simulations in your browser.
+- **Present Slides:** Click **Present Slides** (top toolbar or top-right header) to step section-by-section in full-screen slide view—ideal for presenting in class while running live simulations right on the projector. Press `Esc` or click **Reading Mode** at any time to return.
 :::
 
 ---

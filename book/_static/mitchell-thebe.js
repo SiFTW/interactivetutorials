@@ -20,6 +20,18 @@
 
   const IMAGE_ID_KEY = "mitchell-thebe-kernel-image-id";
 
+  // Crisp monochrome currentColor icons (automatically match button text & dark/light themes)
+  const SVG_ATTR =
+    'class="mitchell-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px;flex-shrink:0;"';
+  const SPIN_ATTR =
+    'class="mitchell-icon mitchell-icon-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px;flex-shrink:0;"';
+  const ICONS = {
+    play: `<svg ${SVG_ATTR}><polygon points="6 4 20 12 6 20 6 4" fill="currentColor" stroke="none"/></svg>`,
+    reset: `<svg ${SVG_ATTR}><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/></svg>`,
+    check: `<svg ${SVG_ATTR}><polyline points="20 6 9 17 4 12"/></svg>`,
+    spinner: `<svg ${SPIN_ATTR}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
+  };
+
   let activating = false;
   let activated = false;
   let activeSessionCreds = null;
@@ -319,7 +331,7 @@
     bar.innerHTML = `
       <div class="mitchell-live-left">
         <button id="mitchell-launch-btn" type="button" class="mitchell-btn mitchell-btn-primary">
-          ⚡ Activate Live Editable Julia Cells
+          ${ICONS.play}Activate Live Editable Julia Cells
         </button>
         <span id="mitchell-status-pill" class="mitchell-status-pill mitchell-status-idle">
           Static preview
@@ -333,7 +345,7 @@
           Open JupyterLab ↗
         </a>
         <button id="mitchell-reset-btn" type="button" class="mitchell-btn mitchell-btn-secondary" style="display:none;" title="Discard current container and start a fresh Julia workspace">
-          🔄 Reset Session
+          ${ICONS.reset}Reset Session
         </button>
       </div>
     `;
@@ -356,7 +368,7 @@
       headerBtn.id = "mitchell-header-launch-btn";
       headerBtn.className = "btn btn-sm mitchell-header-live-btn";
       headerBtn.title = "Activate live editable Julia code cells";
-      headerBtn.textContent = "⚡ Live Julia";
+      headerBtn.innerHTML = `${ICONS.play}Live Julia`;
       headerRight.prepend(headerBtn);
     }
 
@@ -378,7 +390,7 @@
       const pill = document.createElement("button");
       pill.type = "button";
       pill.className = "mitchell-cell-activate-pill";
-      pill.textContent = "⚡ Click to edit & run live in Julia";
+      pill.innerHTML = `${ICONS.play}Click to edit &amp; run live in Julia`;
       pill.addEventListener("click", onActivate);
       inputDiv.appendChild(pill);
     });
@@ -394,10 +406,10 @@
     if (activating || activated) return;
     activating = true;
     ui.launchBtn.disabled = true;
-    ui.launchBtn.textContent = "⏳ Connecting to Julia…";
+    ui.launchBtn.innerHTML = `${ICONS.spinner}Connecting to Julia…`;
     if (ui.headerBtn) {
       ui.headerBtn.disabled = true;
-      ui.headerBtn.textContent = "⏳ Connecting…";
+      ui.headerBtn.innerHTML = `${ICONS.spinner}Connecting…`;
     }
     setStatus(
       ui,
@@ -457,10 +469,10 @@
           lastServerError = msg;
           setStatus(ui, "error", "Error", msg);
           ui.launchBtn.disabled = false;
-          ui.launchBtn.textContent = "⚡ Retry Connection";
+          ui.launchBtn.innerHTML = `${ICONS.play}Retry Connection`;
           if (ui.headerBtn) {
             ui.headerBtn.disabled = false;
-            ui.headerBtn.textContent = "⚡ Retry Julia";
+            ui.headerBtn.innerHTML = `${ICONS.play}Retry Julia`;
           }
           ui.resetBtn.style.display = "inline-flex";
           activating = false;
@@ -511,7 +523,7 @@
       activating = false;
       ui.launchBtn.style.display = "none";
       if (ui.headerBtn) {
-        ui.headerBtn.textContent = "✅ Julia Live";
+        ui.headerBtn.innerHTML = `${ICONS.check}Julia Live`;
         ui.headerBtn.classList.add("is-ready");
       }
       ui.resetBtn.style.display = "inline-flex";
@@ -571,10 +583,10 @@
       console.error("[mitchell-thebe] Activation failed:", err);
       activating = false;
       ui.launchBtn.disabled = false;
-      ui.launchBtn.textContent = "⚡ Retry Connection";
+      ui.launchBtn.innerHTML = `${ICONS.play}Retry Connection`;
       if (ui.headerBtn) {
         ui.headerBtn.disabled = false;
-        ui.headerBtn.textContent = "⚡ Retry Julia";
+        ui.headerBtn.innerHTML = `${ICONS.play}Retry Julia`;
       }
       ui.resetBtn.style.display = "inline-flex";
       const detail =
@@ -719,7 +731,7 @@
     }
     ui.resetBtn.addEventListener("click", async () => {
       ui.resetBtn.disabled = true;
-      ui.resetBtn.textContent = "⏳ Resetting…";
+      ui.resetBtn.innerHTML = `${ICONS.spinner}Resetting…`;
       await stopSavedSessions(activeSessionCreds);
       clearSavedSessions();
       window.location.reload();
