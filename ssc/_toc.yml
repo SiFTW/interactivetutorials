@@ -16,6 +16,11 @@ parts:
     chapters:
       - file: molecular-dynamics/03-energy-landscapes-and-analysis
       - file: molecular-dynamics/04-protein-folding-simulation
+  - caption: "MD III: AlphaFold & Clinical Mutations (MYD88 L265P)"
+    chapters:
+      - file: molecular-dynamics/05-alphafold-and-clinical-mutations
+      - file: molecular-dynamics/06-alphafold-clinical-variants
+      - file: molecular-dynamics/07-myd88-l265p-md-simulation
   - caption: "Week 4: Cell Signalling Modelling — NF-κB in Blood Cancer"
     chapters:
       - file: signalling/01-nfkb-and-systems-biology

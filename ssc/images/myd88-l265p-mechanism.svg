@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 390" width="960" height="390" role="img" aria-label="Domain architecture of human MYD88 and structural mechanism of the oncogenic L265P (UniProt L252P) mutation">
+  <defs>
+    <marker id="arrDark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+    </marker>
+    <marker id="arrMag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#be185d"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="390" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="480" y="30" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16.5" font-weight="700" fill="#0f172a">Human MYD88 (UniProt Q99836, 296 aa): Architecture &amp; Oncogenic L265P (L252P) Switch</text>
+
+  <!-- Domain bar -->
+  <text x="42" y="66" font-family="system-ui, sans-serif" font-size="12" font-weight="700" fill="#475569">N-term</text>
+  <rect x="42" y="74" width="60" height="44" rx="7" fill="#ffedd5" stroke="#ea580c" stroke-width="1.8"/>
+  <text x="72" y="94" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#9a3412">1–20</text>
+  <text x="72" y="109" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9.5" fill="#9a3412">pLDDT 45</text>
+
+  <!-- Death Domain -->
+  <rect x="106" y="74" width="248" height="44" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="230" y="94" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#1e3a8a">Death Domain (DD) · aa 21–109</text>
+  <text x="230" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#1d4ed8">Recruits IRAK4/IRAK1 kinases · Mean pLDDT 87.4</text>
+
+  <!-- Intermediary Linker -->
+  <rect x="358" y="74" width="136" height="44" rx="7" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.8" stroke-dasharray="5,3"/>
+  <text x="426" y="94" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" font-weight="700" fill="#854d0e">Linker (ID) 110–155</text>
+  <text x="426" y="109" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#a16207">Flexible · pLDDT 70.4</text>
+
+  <!-- TIR Domain -->
+  <rect x="498" y="74" width="420" height="44" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.2"/>
+  <text x="708" y="94" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#0c4a6e">TIR Domain (Toll / IL-1 Receptor) · aa 156–296</text>
+  <text x="708" y="110" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#0369a1">Binds TLRs &amp; self-assembles into Myddosome · Mean pLDDT 84.6</text>
+
+  <!-- BB-loop marker -->
+  <rect x="605" y="124" width="84" height="22" rx="5" fill="#fef3c7" stroke="#d97706" stroke-width="1.4"/>
+  <text x="647" y="139" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="700" fill="#92400e">BB-loop 196–206</text>
+
+  <!-- L252P pin -->
+  <line x1="782" y1="62" x2="782" y2="148" stroke="#be185d" stroke-width="2.6" stroke-dasharray="4,2"/>
+  <circle cx="782" cy="96" r="7" fill="#db2777" stroke="#ffffff" stroke-width="2"/>
+  <rect x="700" y="148" width="218" height="44" rx="8" fill="#fdf2f8" stroke="#be185d" stroke-width="1.8"/>
+  <text x="809" y="167" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11.5" font-weight="700" fill="#9d174d">Clinical L265P = UniProt L252P</text>
+  <text x="809" y="183" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#831843">(+13 aa isoform offset · βD-strand core)</text>
+
+  <!-- Isoform note box on left -->
+  <rect x="42" y="142" width="540" height="50" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="58" y="162" font-family="system-ui, sans-serif" font-size="11.5" font-weight="700" fill="#0f172a">Real-World Clinical Bioinformatics Pitfall: Isoform Numbering Offset (+13)</text>
+  <text x="58" y="180" font-family="system-ui, sans-serif" font-size="11" fill="#334155">Pathology reports use RefSeq isoform 1 (309 aa → L265P); UniProt Q99836, AlphaFold DB &amp; PDB (4EO7/7L6W) use 296 aa → L252P!</text>
+
+  <!-- Bottom comparison: Healthy WT vs Oncogenic L265P -->
+  <rect x="42" y="212" width="424" height="156" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.8"/>
+  <text x="254" y="236" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#14532d">Wild-Type MYD88 (Leu252 / Clinical Leu265)</text>
+  <text x="60" y="260" font-family="system-ui, sans-serif" font-size="11.5" fill="#166534">• Branched hydrophobic Leu252 packs snugly into the TIR core</text>
+  <text x="72" y="277" font-family="system-ui, sans-serif" font-size="11.5" fill="#166534">(surrounded by Met219, Val221, Leu241, Leu268, Ile271).</text>
+  <text x="60" y="299" font-family="system-ui, sans-serif" font-size="11.5" fill="#166534">• Backbone βD-strand (R251–L252–I253–P254) stays unstrained.</text>
+  <text x="60" y="321" font-family="system-ui, sans-serif" font-size="11.5" fill="#166534">• Monomeric TIR stays OFF until a pathogen activates TLR.</text>
+  <rect x="96" y="334" width="316" height="24" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+  <text x="254" y="350" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#14532d">Controlled NF-κB pulse only during infection</text>
+
+  <line x1="466" y1="290" x2="494" y2="290" stroke="#be185d" stroke-width="2.6" marker-end="url(#arrMag)"/>
+
+  <rect x="498" y="212" width="420" height="156" rx="10" fill="#fdf2f8" stroke="#be185d" stroke-width="1.8"/>
+  <text x="708" y="236" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13.5" font-weight="700" fill="#9d174d">Oncogenic Mutant (Pro252 / Clinical L265P)</text>
+  <text x="516" y="260" font-family="system-ui, sans-serif" font-size="11.5" fill="#831843">• Rigid Proline ring creates a P252–I253–P254 kink &amp; loses</text>
+  <text x="528" y="277" font-family="system-ui, sans-serif" font-size="11.5" fill="#831843">both the bulky Leu hydrophobic packing and backbone N–H.</text>
+  <text x="516" y="299" font-family="system-ui, sans-serif" font-size="11.5" fill="#831843">• Allosterically perturbs the BB-loop (196–206) &amp; CD-loop,</text>
+  <text x="528" y="316" font-family="system-ui, sans-serif" font-size="11.5" fill="#831843">lowering the barrier for spontaneous TIR–TIR self-assembly.</text>
+  <rect x="546" y="334" width="324" height="24" rx="6" fill="#fce7f3" stroke="#be185d" stroke-width="1.2"/>
+  <text x="708" y="350" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#9d174d">Constitutive Myddosome → Chronic NF-κB (WM / DLBCL)</text>
+</svg>

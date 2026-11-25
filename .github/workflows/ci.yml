@@ -47,6 +47,9 @@ jobs:
           test -f publish/ssc/molecular-dynamics/02-exploring-pdb-structures.html
           test -f publish/ssc/molecular-dynamics/03-energy-landscapes-and-analysis.html
           test -f publish/ssc/molecular-dynamics/04-protein-folding-simulation.html
+          test -f publish/ssc/molecular-dynamics/05-alphafold-and-clinical-mutations.html
+          test -f publish/ssc/molecular-dynamics/06-alphafold-clinical-variants.html
+          test -f publish/ssc/molecular-dynamics/07-myd88-l265p-md-simulation.html
           test -f publish/ssc/signalling/01-nfkb-and-systems-biology.html
           test -f publish/ssc/signalling/02-cll-tri-model-simulation.html
           test -f publish/ssc/signalling/03-waldenstrom-drug-discovery.html
@@ -60,6 +63,10 @@ jobs:
           grep -q "ssc-thebe.js" publish/ssc/molecular-dynamics/02-exploring-pdb-structures.html
           grep -q "ssc-thebe.js" publish/ssc/molecular-dynamics/04-protein-folding-simulation.html
           grep -q "highlight-ipython3" publish/ssc/molecular-dynamics/04-protein-folding-simulation.html
+          grep -q "ssc-thebe.js" publish/ssc/molecular-dynamics/06-alphafold-clinical-variants.html
+          grep -q "highlight-ipython3" publish/ssc/molecular-dynamics/06-alphafold-clinical-variants.html
+          grep -q "ssc-thebe.js" publish/ssc/molecular-dynamics/07-myd88-l265p-md-simulation.html
+          grep -q "highlight-ipython3" publish/ssc/molecular-dynamics/07-myd88-l265p-md-simulation.html
           grep -q "ssc-thebe.js" publish/ssc/signalling/02-cll-tri-model-simulation.html
           grep -q "ssc-thebe.js" publish/ssc/cell-fate/02-apoptosis-bcl2-model.html
           grep -q "ssc-thebe.js" publish/ssc/cell-fate/03-cell-cycle-myc-model.html
