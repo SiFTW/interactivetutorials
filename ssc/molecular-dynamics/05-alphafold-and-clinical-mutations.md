@@ -3,7 +3,7 @@
 **Modelling Across Scales: From Molecules to Pandemics (Molecular Dynamics III)**
 *Mitchell Lab, Brighton and Sussex Medical School*
 
-Click **📽️ Present Slides** above to step through this lecture slide-by-slide in class (~20–25 mins), then dive into our two live Python practicals:
+Click **Present Slides** above to step through this lecture slide-by-slide in class (~20–25 mins), then dive into our two live Python practicals:
 - [**3.4 Practical A: AlphaFold Confidence, Experimental Validation & Clinical Pathogenicity**](06-alphafold-clinical-variants.ipynb) (~25 mins)
 - [**3.5 Practical B: Simulating MYD88 L265P & Clinical Mutations in OpenMM**](07-myd88-l265p-md-simulation.ipynb) (~30–35 mins)
 
@@ -66,7 +66,7 @@ In **Practical A**, you will see this dramatically in **full-length MYD88** (`AF
 ![Human MYD88 domain architecture and L265P structural mechanism](../images/myd88-l265p-mechanism.svg)
 
 ### A Famous Real-World Bioinformatics Pitfall: Isoform Numbering!
-- In hospital genomics reports and haematology papers, the Waldenström Macroglobulinemia mutation is universally called ***MYD88* L265P** (numbered from the 309-aa RefSeq isoform 1, `NP_001166038`).
+- In hospital genomics reports and haematology papers, the Waldenström Macroglobulinemia mutation is universally called ***MYD88* L265P** (numbered from the 309-aa historical RefSeq `NP_002459.2`).
 - In **UniProt `Q99836-1`**, **AlphaFold DB (`AF-Q99836-F1`)**, and **RCSB PDB (`4EO7`, `7L6W`)**, canonical MYD88 is 296 aa long — so that **exact same Leucine** in the βD-strand (`R251–L252–I253–P254`) is **Leu252 (`L252P`)**, offset by **+13 residues**!
 - Always verify the **surrounding amino acid motif** (`HQKRLIPIKYK`) whenever mapping a clinical variant onto a 3D structure!
 

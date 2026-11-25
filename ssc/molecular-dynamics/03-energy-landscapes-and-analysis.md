@@ -3,7 +3,7 @@
 **Modelling Across Scales: From Molecules to Pandemics (Week 3)**
 *Dr Eleanor Jayawant — Mitchell Lab, Brighton and Sussex Medical School*
 
-Click **📽️ Present Slides** above to step through this lecture slide-by-slide in class (~10 mins), then dive straight into [**3.2 Live OpenMM Practical: Protein Folding & Trajectory Analysis**](04-protein-folding-simulation.ipynb) (~35 mins + 10 mins discussion).
+Click **Present Slides** above to step through this lecture slide-by-slide in class (~10 mins), then dive straight into [**3.2 Live OpenMM Practical: Protein Folding & Trajectory Analysis**](04-protein-folding-simulation.ipynb) (~35 mins + 10 mins discussion).
 
 ---
 
@@ -94,7 +94,7 @@ $$\text{RMSD}(t) = \sqrt{\frac{1}{N}\sum_{i=1}^{N} \bigl\|\mathbf{r}_i(t) - \mat
 ## Today's Practical & Assessment Ideas
 
 ### Guided Practical (~35 mins)
-Open [**3.2 Live OpenMM Practical: Simulating Protein Folding**](04-protein-folding-simulation.ipynb) and click **⚡ Activate Live Editable Python Cells** to:
+Open [**3.2 Live OpenMM Practical: Simulating Protein Folding**](04-protein-folding-simulation.ipynb) and click **Activate Live Editable Python Cells** to:
 
 1. Inspect and view **Villin** (`villin_water.pdb`) and fully extended **polyalanine** (`polyALA.pdb`) in 3D.
 2. Run a **200 ps** all-atom MD simulation of `polyALA.pdb` folding into an **$\alpha$-helix** at $300\text{ K}$ using **OpenMM** (`amber10.xml` + Langevin thermostat).

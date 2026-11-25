@@ -3,7 +3,7 @@
 **Modelling Across Scales: From Molecules to Pandemics**
 *SSC Intro and Overview — Dr Simon Mitchell, Brighton and Sussex Medical School*
 
-Use the **📽️ Present Slides** button above to step through this introduction slide-by-slide in class, or scroll straight down to read at your own pace.
+Use the **Present Slides** button above to step through this introduction slide-by-slide in class, or scroll straight down to read at your own pace.
 
 ---
 
