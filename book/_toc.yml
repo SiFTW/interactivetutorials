@@ -15,3 +15,7 @@ parts:
       - file: tutorial-3/01-csv2julia-rules-and-modes
       - file: tutorial-3/02-time-dependent-inputs
       - file: tutorial-3/03-published-nfkb-model
+  - caption: "Tutorial 4: Multi-Module Models & Figure 5"
+    chapters:
+      - file: tutorial-4/01-combining-modules
+      - file: tutorial-4/02-recreating-figure-5

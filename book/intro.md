@@ -33,6 +33,11 @@ Each reader gets a **fresh, isolated workspace** containing all the starter mode
 2. **[Creating Time-Dependent Input Curves](./tutorial-3/02-time-dependent-inputs.ipynb)** — Learn how time-dependent functions $f(t)$ work, build constant, pulse, smooth-decay, and linearly interpolated experimental input curves, and swap dynamic inputs into the Toy Model at run-time using `CSV2Julia`'s `(t)` syntax.
 3. **[Running the Published NF-κB Model](./tutorial-3/03-published-nfkb-model.ipynb)** — Generate and simulate the published **101-species, 257-parameter NF-κB model** ([`SiFTW/NFkBModel`](https://github.com/SiFTW/NFkBModel)), apply canonical **NEMO/IKK** and non-canonical **NIK** inputs to observe nuclear **RelA:p50** (`RelAnp50n`) and **RelB:p52** (`RelBnp52n`) increasing respectively, and test runtime parameter perturbations.
 
+## What you will learn in Tutorial 4
+
+1. **[Combining Modules into the BCR–TLR–NF-κB Tri-Model](./tutorial-4/01-combining-modules.ipynb)** — Learn how `combineModels` merges separate `BCR`, `TLR`, `NFkB`, and `linking` CSV modules into a single 150-species, 444-parameter model, why conserved upstream pools need non-zero initial conditions, and how BCR and TLR signals drive nuclear `RelAnp50n`.
+2. **[Recreating Figure 5 of Jayawant *et al.*](./tutorial-4/02-recreating-figure-5.ipynb)** — Simulate heterogeneous virtual populations of four DLBCL cell lines (`RIVA`, `U2932 R1`, `U2932 R2`, and `HBL1`) with their genetic mutations (`TAK1`, `CD79B`, `MYD88`), reproduce the steady-state and TLR9 fold-change plots from Figure 5 of Jayawant *et al.*, and dissect the contribution of each mutation.
+
 :::{note} Want to follow along on your own machine or the lab JupyterHub?
 Every notebook page can also be downloaded as a `.ipynb` file (or opened from the [GitHub repository](https://github.com/SiFTW/interactivetutorials)). When you transition from these tutorials to full-scale lab research, see the [Mitchell Lab Handbook](https://docs.mitchell.science/) for connecting to our research compute servers.
 :::

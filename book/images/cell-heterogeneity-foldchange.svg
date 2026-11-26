@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 260" role="img" aria-label="Explanation of cell-to-cell heterogeneity (11% CV sampling) and fold-change normalisation in Figure 5">
+  <defs>
+    <marker id="arr-h" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+    <filter id="sh-h" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="872" height="252" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="440" y="34" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15.5" font-weight="700" fill="#0f172a">From Single Virtual Cells to Population Error Bars &amp; Fold Change</text>
+
+  <!-- Card 1: Cell-to-cell variability -->
+  <g filter="url(#sh-h)">
+    <rect x="24" y="52" width="254" height="184" rx="12" fill="#ffffff" stroke="#0ea5e9" stroke-width="2"/>
+    <rect x="24" y="52" width="254" height="32" rx="10" fill="#0ea5e9"/>
+    <rect x="24" y="72" width="254" height="12" fill="#0ea5e9"/>
+  </g>
+  <text x="151" y="73" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">1. Cell-to-Cell Variability</text>
+  <text x="38" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">Each cell gets slightly different rates</text>
+  <text x="38" y="124" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">for parameters with <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700">distribute = 1</tspan>:</text>
+  <rect x="38" y="138" width="226" height="30" rx="6" fill="#e0f2fe"/>
+  <text x="151" y="157" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" font-weight="700" fill="#0369a1">val × (1.0 ± 0.11 random)</text>
+  <text x="38" y="190" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">• Cell 1: slightly faster synthesis</text>
+  <text x="38" y="207" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">• Cell 2: slightly slower decay</text>
+  <text x="38" y="224" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">• Repeat for N virtual cells</text>
+
+  <line x1="278" y1="144" x2="306" y2="144" stroke="#334155" stroke-width="2.2" marker-end="url(#arr-h)"/>
+
+  <!-- Card 2: Population summary -->
+  <g filter="url(#sh-h)">
+    <rect x="314" y="52" width="252" height="184" rx="12" fill="#ffffff" stroke="#8b5cf6" stroke-width="2"/>
+    <rect x="314" y="52" width="252" height="32" rx="10" fill="#8b5cf6"/>
+    <rect x="314" y="72" width="252" height="12" fill="#8b5cf6"/>
+  </g>
+  <text x="440" y="73" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">2. Population Mean ± SD</text>
+  <text x="328" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">At every minute t across all N cells:</text>
+  <text x="328" y="130" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• <tspan font-weight="700" fill="#6d28d9">Mean</tspan> → solid centre curve</text>
+  <text x="328" y="150" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• <tspan font-weight="700" fill="#6d28d9">SD</tspan> (spread) → error bar / ribbon</text>
+  <rect x="328" y="168" width="224" height="50" rx="8" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.2"/>
+  <text x="440" y="189" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="700" fill="#5b21b6">Figure 5 Left Panel:</text>
+  <text x="440" y="207" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">Steady State (t = 0) in nM</text>
+
+  <line x1="566" y1="144" x2="594" y2="144" stroke="#334155" stroke-width="2.2" marker-end="url(#arr-h)"/>
+
+  <!-- Card 3: Fold Change -->
+  <g filter="url(#sh-h)">
+    <rect x="602" y="52" width="254" height="184" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
+    <rect x="602" y="52" width="254" height="32" rx="10" fill="#10b981"/>
+    <rect x="602" y="72" width="254" height="12" fill="#10b981"/>
+  </g>
+  <text x="729" y="73" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">3. Fold-Change Normalisation</text>
+  <text x="616" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">Divide the time course by its own</text>
+  <text x="616" y="124" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">resting mean so every line starts at 1:</text>
+  <rect x="616" y="138" width="226" height="30" rx="6" fill="#d1fae5"/>
+  <text x="729" y="157" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" font-weight="700" fill="#047857">mean(t) / mean(t = 0)</text>
+  <text x="616" y="190" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">• 1.0 = unchanged from rest</text>
+  <text x="616" y="207" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">• 2.6 = 2.6× above resting baseline</text>
+  <text x="616" y="224" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#047857">Figure 5 Right Panel!</text>
+</svg>
