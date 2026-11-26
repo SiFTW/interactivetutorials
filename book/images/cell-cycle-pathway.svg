@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 342" role="img" aria-label="Cell cycle phases G1, S, G2, M and regulation by c-MYC, Cyclins, RB1, E2F, and p27">
+  <defs>
+    <marker id="arrCC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e293b"/>
+    </marker>
+    <marker id="arrMyc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#15803d"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="342" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="480" y="30" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Cell Cycle Decision Circuit — Why c-MYC Specifically Shortens G1</text>
+
+  <!-- Phase 1: G1 -->
+  <rect x="24" y="138" width="248" height="122" rx="14" fill="#f3e8ff" stroke="#7c3aed" stroke-width="2.5"/>
+  <text x="148" y="166" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16.5" font-weight="700" fill="#4c1d95">G1 Phase (~5 h)</text>
+  <text x="148" y="188" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#6d28d9">Growth &amp; Restriction Point</text>
+  <text x="148" y="210" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.2" fill="#334155">CycD &amp; CycE phosphorylate RB1</text>
+  <text x="148" y="228" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.2" fill="#334155">→ releases E2F; Cdh1 drops</text>
+  <text x="148" y="248" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#7c3aed">Shortens with MYC OE</text>
+
+  <!-- c-MYC driving G1 / Growth -->
+  <rect x="28" y="50" width="152" height="52" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="3"/>
+  <text x="104" y="73" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#14532d">c-MYC</text>
+  <text x="104" y="92" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.8" font-weight="600" fill="#166534">Drives GM &amp; Mass</text>
+  <line x1="104" y1="104" x2="104" y2="132" stroke="#15803d" stroke-width="3" marker-end="url(#arrMyc)"/>
+
+  <!-- p27 / RB1 braking G1 -->
+  <rect x="192" y="50" width="128" height="52" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="256" y="73" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#92400e">p27 &amp; RB1</text>
+  <text x="256" y="92" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#92400e">G1/S Brakes</text>
+  <line x1="226" y1="104" x2="226" y2="132" stroke="#d97706" stroke-width="2.5"/>
+  <line x1="215" y1="132" x2="237" y2="132" stroke="#d97706" stroke-width="3"/>
+
+  <line x1="274" y1="199" x2="304" y2="199" stroke="#1e293b" stroke-width="2.8" marker-end="url(#arrCC)"/>
+
+  <!-- Phase 2: S -->
+  <rect x="310" y="138" width="204" height="122" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
+  <text x="412" y="166" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#14532d">S Phase (~4.7 h)</text>
+  <text x="412" y="188" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#166534">DNA Replication</text>
+  <text x="412" y="212" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">CycA rises steadily</text>
+  <text x="412" y="232" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">CycE turns off</text>
+  <text x="412" y="250" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">Duration ~constant</text>
+
+  <line x1="516" y1="199" x2="546" y2="199" stroke="#1e293b" stroke-width="2.8" marker-end="url(#arrCC)"/>
+
+  <!-- Phase 3: G2 -->
+  <rect x="552" y="138" width="180" height="122" rx="14" fill="#ffedd5" stroke="#ea580c" stroke-width="2.5"/>
+  <text x="642" y="166" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16.5" font-weight="700" fill="#9a3412">G2 (~1.7 h)</text>
+  <text x="642" y="188" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#c2410c">Prep for Mitosis</text>
+  <text x="642" y="212" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">CycB climbs to peak</text>
+  <text x="642" y="232" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">CycA reaches max</text>
+  <text x="642" y="250" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">Duration ~constant</text>
+
+  <line x1="734" y1="199" x2="764" y2="199" stroke="#1e293b" stroke-width="2.8" marker-end="url(#arrCC)"/>
+
+  <!-- Phase 4: M -->
+  <rect x="770" y="138" width="166" height="122" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+  <text x="853" y="166" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16.5" font-weight="700" fill="#1e3a8a">M (~42 m)</text>
+  <text x="853" y="188" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#1d4ed8">Mitosis</text>
+  <text x="853" y="212" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#334155">Cdc20 degrades CycB</text>
+  <text x="853" y="232" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#334155">Cdh1 ↑ → Mass ÷ 2</text>
+  <text x="853" y="250" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">Division event</text>
+
+  <!-- Return loop M -> G1 -->
+  <path d="M 853 262 L 853 296 L 148 296 L 148 268" fill="none" stroke="#475569" stroke-width="2.5" stroke-dasharray="8,5" marker-end="url(#arrCC)"/>
+  <text x="500" y="320" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#475569">Two daughter cells re-enter G1 with half the cell mass (Mass → 0.5 × Mass)</text>
+</svg>

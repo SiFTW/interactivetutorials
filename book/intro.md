@@ -38,6 +38,11 @@ Each reader gets a **fresh, isolated workspace** containing all the starter mode
 1. **[Combining Modules into the BCR–TLR–NF-κB Tri-Model](./tutorial-4/01-combining-modules.ipynb)** — Learn how `combineModels` merges separate `BCR`, `TLR`, `NFkB`, and `linking` CSV modules into a single 150-species, 444-parameter model, why conserved upstream pools need non-zero initial conditions, and how BCR and TLR signals drive nuclear `RelAnp50n`.
 2. **[Recreating Figure 5 of Jayawant *et al.*](./tutorial-4/02-recreating-figure-5.ipynb)** — Simulate heterogeneous virtual populations of four DLBCL cell lines (`RIVA`, `U2932 R1`, `U2932 R2`, and `HBL1`) with their genetic mutations (`TAK1`, `CD79B`, `MYD88`), reproduce the steady-state and TLR9 fold-change plots from Figure 5 of Jayawant *et al.*, and dissect the contribution of each mutation.
 
+## What you will learn in Tutorial 5
+
+1. **[Apoptosis Timing & Scanning BCL2 (Norris *et al.* Figure 1B)](./tutorial-5/01-apoptosis-bcl2-figure1b.ipynb)** — Build the 59-species apoptosis ODE model, clamp the external death-ligand species with `fixSpecies.jl`, scan **BCL2** overexpression (`1×` to `100×`) to measure time to cell death (`Cleaved PARP > 10%`), and explore the clinical relevance of `BCL2` deregulation and BH3 mimetics (venetoclax).
+2. **[Cell Cycle Timing & Scanning c-MYC (Norris *et al.* Figure 1E)](./tutorial-5/02-cell-cycle-myc-figure1e.ipynb)** — Build the 37-species cell-cycle ODE model with mitotic division callbacks (`ContinuousCallback`), scan **c-MYC** overexpression (`1×` to `100×`) to see why **G1** specifically shortens, and connect `BCL2` + `MYC` Double-Hit Lymphoma to upcoming multiscale modelling.
+
 :::{note} Want to follow along on your own machine or the lab JupyterHub?
 Every notebook page can also be downloaded as a `.ipynb` file (or opened from the [GitHub repository](https://github.com/SiFTW/interactivetutorials)). When you transition from these tutorials to full-scale lab research, see the [Mitchell Lab Handbook](https://docs.mitchell.science/) for connecting to our research compute servers.
 :::

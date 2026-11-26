@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 268" role="img" aria-label="How single-cell apoptosis time (BCL2) and cell-cycle division time (c-MYC) combine in Double-Hit Lymphoma and feed into multiscale population modelling">
+  <defs>
+    <marker id="arr-ms" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+    <filter id="sh-ms" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="872" height="260" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="440" y="34" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15.5" font-weight="700" fill="#0f172a">Two Single-Cell Fate Clocks: Building Towards Multiscale Modelling</text>
+
+  <!-- Box 1: Apoptosis / BCL2 -->
+  <g filter="url(#sh-ms)">
+    <rect x="24" y="54" width="258" height="186" rx="12" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+    <rect x="24" y="54" width="258" height="32" rx="10" fill="#ef4444"/>
+    <rect x="24" y="74" width="258" height="12" fill="#ef4444"/>
+  </g>
+  <text x="153" y="75" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">1. Apoptosis Clock (BCL2)</text>
+  <text x="153" y="108" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#991b1b">Time to Cell Death (h)</text>
+  <text x="153" y="130" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">59-species ODE (Norris Fig 1B)</text>
+  <text x="153" y="150" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Readout: Cleaved PARP &gt; 10%</text>
+  <rect x="38" y="168" width="230" height="56" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1.2"/>
+  <text x="153" y="189" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#b91c1c">BCL2 Overexpression (AA):</text>
+  <text x="153" y="208" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">Delays or blocks apoptosis</text>
+
+  <!-- Box 2: Cell Cycle / c-MYC -->
+  <g filter="url(#sh-ms)">
+    <rect x="312" y="54" width="256" height="186" rx="12" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+    <rect x="312" y="54" width="256" height="32" rx="10" fill="#8b5cf6"/>
+    <rect x="312" y="74" width="256" height="12" fill="#8b5cf6"/>
+  </g>
+  <text x="440" y="75" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">2. Cell Cycle Clock (c-MYC)</text>
+  <text x="440" y="108" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#5b21b6">Time to Division (mins)</text>
+  <text x="440" y="130" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">37-species ODE + division events</text>
+  <text x="440" y="150" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Readout: G1, S, G2, M durations</text>
+  <rect x="326" y="168" width="228" height="56" rx="8" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.2"/>
+  <text x="440" y="189" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#6d28d9">c-MYC Overexpression (PP):</text>
+  <text x="440" y="208" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">Shortens G1 → faster division</text>
+
+  <!-- Plus & Arrow -->
+  <text x="297" y="153" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" fill="#475569">+</text>
+  <line x1="568" y1="147" x2="594" y2="147" stroke="#334155" stroke-width="2.5" marker-end="url(#arr-ms)"/>
+
+  <!-- Box 3: Multiscale Outcome -->
+  <g filter="url(#sh-ms)">
+    <rect x="602" y="54" width="254" height="186" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+    <rect x="602" y="54" width="254" height="32" rx="10" fill="#14b8a6"/>
+    <rect x="602" y="74" width="254" height="12" fill="#14b8a6"/>
+  </g>
+  <text x="729" y="75" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Next: Multiscale Tumour</text>
+  <text x="729" y="108" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#0f766e">Competing Fate Race</text>
+  <text x="729" y="130" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">Each cell runs both clocks:</text>
+  <text x="729" y="150" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Does it divide or die first?</text>
+  <rect x="616" y="168" width="226" height="56" rx="8" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.2"/>
+  <text x="729" y="189" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#0f766e">Double-Hit (AA + PP):</text>
+  <text x="729" y="208" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">Rapid growth + therapy resistance</text>
+</svg>
