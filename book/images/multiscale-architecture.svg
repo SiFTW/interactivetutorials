@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 475" role="img" aria-label="Architecture of the 193-species multiscale B-cell model combining NF-kB, linking, cell cycle, apoptosis, and differentiation modules">
+  <defs>
+    <marker id="arr-dark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arr-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arr-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#7c3aed"/>
+    </marker>
+    <marker id="inhib-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <line x1="6" y1="1" x2="6" y2="9" stroke="#dc2626" stroke-width="2.2"/>
+    </marker>
+    <marker id="inhib-amber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <line x1="6" y1="1" x2="6" y2="9" stroke="#b45309" stroke-width="2.2"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="475" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+
+  <text x="480" y="34" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#0f172a">
+    Combining Five CSV Modules into the 193-Species Multiscale B-Cell Model
+  </text>
+  <text x="480" y="55" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" fill="#475569">
+    Each individual model from Tutorials 3–5 is wired together via the linking module (563 parameters total)
+  </text>
+
+  <!-- Input Signal Box -->
+  <rect x="20" y="135" width="160" height="106" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="100" y="160" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#1d4ed8">Microenvironment</text>
+  <text x="100" y="182" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e3a8a">Dynamic IKK pulse</text>
+  <text x="100" y="199" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e3a8a">Stabilised NIK</text>
+  <text x="100" y="220" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#991b1b">Death signal (L = 1)</text>
+
+  <!-- Module 1: NF-kB -->
+  <rect x="210" y="122" width="176" height="132" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="298" y="147" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#1e40af">1. NF-κB Module</text>
+  <text x="298" y="165" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#334155">(Tutorials 3 &amp; 4)</text>
+  <text x="298" y="189" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#0f172a">Nuclear RelA:p50</text>
+  <text x="298" y="208" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#0f172a">Nuclear cRel:p50</text>
+  <text x="298" y="228" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#475569">IκBα / IκBβ / IκBε / IκBδ</text>
+
+  <!-- Linking Module Banner -->
+  <rect x="420" y="92" width="172" height="270" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="506" y="116" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#334155">5. Linking Module</text>
+  <text x="506" y="133" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#64748b">NF-κB target genes</text>
+
+  <rect x="434" y="148" width="144" height="54" rx="7" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.5"/>
+  <text x="506" y="169" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#6b21a8">cMyct → cMyc</text>
+  <text x="506" y="187" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#581c87">Cycdt → CycD</text>
+
+  <rect x="434" y="216" width="144" height="44" rx="7" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="506" y="236" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#991b1b">Bcl2t → Bcl2</text>
+  <text x="506" y="252" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#7f1d1d">k1_bcl2Exp-linking</text>
+
+  <rect x="434" y="274" width="144" height="58" rx="7" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="506" y="294" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#92400e">IRF4 induction</text>
+  <text x="506" y="311" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#78350f">Blimp1 ⊣ tcRel</text>
+  <text x="506" y="325" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#78350f">(feedback to NF-κB)</text>
+
+  <!-- Module 2: Cell Cycle -->
+  <rect x="632" y="84" width="308" height="96" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="786" y="108" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#6d28d9">2. Cell Cycle Module (PP)</text>
+  <text x="786" y="128" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e293b">cMyc → GM → Mass growth; RB1 / E2F / p27</text>
+  <text x="786" y="147" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#5b21b6">Division trigger: Cdh1 rises ≥ 0.2 &amp; Mass ≥ 1</text>
+  <text x="786" y="167" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" font-weight="700" fill="#7c3aed">MYC hit: k1_mycExp-linking (5× / 1.5×)</text>
+
+  <!-- Module 3: Apoptosis -->
+  <rect x="632" y="196" width="308" height="96" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="786" y="220" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#b91c1c">3. Apoptosis Module (AA)</text>
+  <text x="786" y="240" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e293b">L → DISC → tBid → BAX (MOMP) → Casp3</text>
+  <text x="786" y="259" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#991b1b">Death trigger: Cleaved PARP ≥ 2500</text>
+  <text x="786" y="279" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" font-weight="700" fill="#dc2626">BCL2 hit: k1_bcl2Exp-linking (5× / 1.5×)</text>
+
+  <!-- Module 4: Differentiation -->
+  <rect x="632" y="308" width="308" height="96" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+  <text x="786" y="332" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#b45309">4. Differentiation Module</text>
+  <text x="786" y="352" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e293b">IRF4 → Blimp1 ⊣ Pax5 &amp; Bcl6 (plasma cell)</text>
+  <text x="786" y="371" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#92400e">Bcl6 ⊣ Blimp1 (blocks terminal differentiation)</text>
+  <text x="786" y="391" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.2" font-weight="700" fill="#b45309">BCL6 hit: k1_s_Bcl6-differentiation (5× / 1.5×)</text>
+
+  <!-- Arrows -->
+  <line x1="180" y1="188" x2="206" y2="188" stroke="#2563eb" stroke-width="2.2" marker-end="url(#arr-blue)"/>
+  <line x1="386" y1="174" x2="430" y2="174" stroke="#7c3aed" stroke-width="2" marker-end="url(#arr-purple)"/>
+  <line x1="386" y1="210" x2="430" y2="236" stroke="#dc2626" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="386" y1="234" x2="430" y2="294" stroke="#334155" stroke-width="2" marker-end="url(#arr-dark)"/>
+
+  <!-- Linking to downstream modules -->
+  <line x1="578" y1="174" x2="628" y2="132" stroke="#7c3aed" stroke-width="2.2" marker-end="url(#arr-purple)"/>
+  <line x1="578" y1="238" x2="628" y2="244" stroke="#dc2626" stroke-width="2.2" marker-end="url(#inhib-red)"/>
+  <line x1="578" y1="304" x2="628" y2="352" stroke="#334155" stroke-width="2.2" marker-end="url(#arr-dark)"/>
+
+  <!-- Blimp1 feedback cleanly routed below Module 4 -->
+  <path d="M 786 404 L 786 422 L 298 422 L 298 258" fill="none" stroke="#b45309" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#inhib-amber)"/>
+  <text x="542" y="438" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#92400e">
+    Blimp1 represses cRel transcription (opposed by BCL6)
+  </text>
+
+  <!-- Bottom note -->
+  <text x="480" y="460" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">
+    Double-Hit synergy requires hitting BOTH Cell Cycle (PP) and Apoptosis (AA) — e.g. MYC + BCL2
+  </text>
+</svg>

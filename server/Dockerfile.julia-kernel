@@ -116,6 +116,7 @@ COPY --chown=${NB_USER}:${NB_USER} tutorials/NFkB/ /home/${NB_USER}/work/NFkB/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/NFkB_Figure5/ /home/${NB_USER}/work/NFkB_Figure5/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/apoptosis/ /home/${NB_USER}/work/apoptosis/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/cellCycle/ /home/${NB_USER}/work/cellCycle/
+COPY --chown=${NB_USER}:${NB_USER} tutorials/multiscale/ /home/${NB_USER}/work/multiscale/
 
 USER ${NB_USER}
 WORKDIR /home/${NB_USER}/work

@@ -218,7 +218,7 @@ def prepare_workspace(repo_dir: Path, work_dir: Path) -> None:
             elif item.is_dir() and item.name != "__pycache__":
                 shutil.copytree(item, dst)
 
-    for sub in ("MD", "NFkB", "NFkB_Figure5", "apoptosis", "cellCycle"):
+    for sub in ("MD", "NFkB", "NFkB_Figure5", "apoptosis", "cellCycle", "multiscale"):
         src = repo_dir / "tutorials" / sub
         if src.is_dir():
             shutil.copytree(
