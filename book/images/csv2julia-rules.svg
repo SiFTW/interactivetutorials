@@ -1,88 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 320" role="img" aria-label="How CSV2Julia connects ratelaws.csv, reactions.csv, and parameters.csv using positional species placeholders and underscore-prefix parameter naming">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 324" role="img" aria-label="How CSV2Julia connects ratelaws.csv, reactions.csv, and parameters.csv using positional species placeholders and underscore-prefix parameter naming">
   <defs>
     <marker id="arr-r" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#334155"/>
-    </marker>
-    <marker id="arr-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#0284c7"/>
-    </marker>
-    <marker id="arr-amber" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#d97706"/>
-    </marker>
-    <marker id="arr-violet" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#7c3aed"/>
     </marker>
     <filter id="sh-r" x="-8%" y="-8%" width="116%" height="124%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.09"/>
     </filter>
   </defs>
 
-  <rect x="4" y="4" width="852" height="312" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="4" y="4" width="872" height="316" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
 
-  <text x="430" y="34" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#0f172a">How CSV2Julia Matches Your Three CSV Tables</text>
+  <text x="440" y="34" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#0f172a">How CSV2Julia Matches Your Three CSV Tables</text>
 
   <!-- Box 1: ratelaws.csv -->
   <g filter="url(#sh-r)">
-    <rect x="24" y="54" width="254" height="128" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
-    <rect x="24" y="54" width="254" height="32" rx="10" fill="#0ea5e9"/>
-    <rect x="24" y="74" width="254" height="12" fill="#0ea5e9"/>
+    <rect x="24" y="54" width="262" height="128" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <rect x="24" y="54" width="262" height="32" rx="10" fill="#0ea5e9"/>
+    <rect x="24" y="74" width="262" height="12" fill="#0ea5e9"/>
   </g>
-  <text x="151" y="75" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="700" fill="#ffffff">1. ratelaws.csv</text>
+  <text x="155" y="75" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="700" fill="#ffffff">1. ratelaws.csv</text>
   <text x="38" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#475569">Induced Expression:</text>
   <text x="38" y="130" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" font-weight="700" fill="#0f172a">
     <tspan fill="#d97706">{k1}</tspan>*([<tspan fill="#0284c7">Mod1</tspan>]/(<tspan fill="#7c3aed">{k2}</tspan>+[<tspan fill="#0284c7">Mod1</tspan>]))
   </text>
   <text x="38" y="154" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">• [S1], [Mod1] = matched by position</text>
-  <text x="38" y="170" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">• {k1}, {k2} = matched by prefix (no _!)</text>
+  <text x="38" y="170" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">• {k1}, {k2} = matched by prefix (no _)</text>
 
   <!-- Box 2: reactions.csv -->
   <g filter="url(#sh-r)">
-    <rect x="304" y="54" width="272" height="128" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
-    <rect x="304" y="54" width="272" height="32" rx="10" fill="#10b981"/>
-    <rect x="304" y="74" width="272" height="12" fill="#10b981"/>
+    <rect x="312" y="54" width="268" height="128" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
+    <rect x="312" y="54" width="268" height="32" rx="10" fill="#10b981"/>
+    <rect x="312" y="74" width="268" height="12" fill="#10b981"/>
   </g>
-  <text x="440" y="75" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="700" fill="#ffffff">2. reactions.csv</text>
-  <text x="318" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Products: <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700" fill="#0f172a">IkB</tspan></text>
-  <text x="318" y="126" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Modifiers: <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700" fill="#0284c7">NFkB</tspan></text>
-  <text x="318" y="146" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Parameters:</text>
-  <text x="318" y="166" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#0f172a">
+  <text x="446" y="75" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="700" fill="#ffffff">2. reactions.csv</text>
+  <text x="326" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Products: <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700" fill="#0f172a">IkB</tspan></text>
+  <text x="326" y="126" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Modifiers: <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700" fill="#0284c7">NFkB</tspan></text>
+  <text x="326" y="146" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Parameters:</text>
+  <text x="326" y="166" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#0f172a">
     <tspan fill="#d97706">k1</tspan>_IkBexp   <tspan fill="#7c3aed">k2</tspan>_IkBexp
   </text>
 
   <!-- Box 3: parameters.csv -->
   <g filter="url(#sh-r)">
-    <rect x="602" y="54" width="234" height="128" rx="12" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
-    <rect x="602" y="54" width="234" height="32" rx="10" fill="#f59e0b"/>
-    <rect x="602" y="74" width="234" height="12" fill="#f59e0b"/>
+    <rect x="606" y="54" width="250" height="128" rx="12" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+    <rect x="606" y="54" width="250" height="32" rx="10" fill="#f59e0b"/>
+    <rect x="606" y="74" width="250" height="12" fill="#f59e0b"/>
   </g>
-  <text x="719" y="75" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="700" fill="#ffffff">3. parameters.csv</text>
-  <text x="616" y="108" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#0f172a"><tspan fill="#d97706">k1</tspan>_IkBexp , 20</text>
-  <text x="616" y="130" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#0f172a"><tspan fill="#7c3aed">k2</tspan>_IkBexp , 5</text>
-  <text x="616" y="154" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Exact name match to reactions.csv</text>
-  <text x="616" y="170" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">(numbers OR t-&gt;func(t) curves!)</text>
+  <text x="731" y="75" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="13" font-weight="700" fill="#ffffff">3. parameters.csv</text>
+  <text x="620" y="108" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#0f172a"><tspan fill="#d97706">k1</tspan>_IkBexp , 20</text>
+  <text x="620" y="130" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#0f172a"><tspan fill="#7c3aed">k2</tspan>_IkBexp , 5</text>
+  <text x="620" y="154" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Exact name match to reactions.csv</text>
+  <text x="620" y="170" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">(numbers OR t-&gt;func(t) curves)</text>
 
   <!-- Connecting arrows between boxes -->
-  <line x1="278" y1="118" x2="300" y2="118" stroke="#334155" stroke-width="2" marker-end="url(#arr-r)"/>
-  <line x1="576" y1="118" x2="598" y2="118" stroke="#334155" stroke-width="2" marker-end="url(#arr-r)"/>
+  <line x1="286" y1="118" x2="308" y2="118" stroke="#334155" stroke-width="2" marker-end="url(#arr-r)"/>
+  <line x1="580" y1="118" x2="602" y2="118" stroke="#334155" stroke-width="2" marker-end="url(#arr-r)"/>
 
-  <!-- Golden Underscore Rule callout bar at bottom -->
+  <!-- Underscore Rule callout bar at bottom -->
   <g filter="url(#sh-r)">
-    <rect x="24" y="206" width="812" height="92" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.8"/>
+    <rect x="24" y="206" width="832" height="94" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.8"/>
   </g>
-  <text x="430" y="230" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#92400e">The Golden Underscore Rule:   prefix_uniqueDescription</text>
+  <text x="440" y="231" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#92400e">The Underscore Naming Rule: prefix_uniqueDescription</text>
 
   <!-- Visual anatomy of k1_IkBexp -->
-  <rect x="46" y="244" width="60" height="32" rx="7" fill="#fef3c7" stroke="#d97706" stroke-width="1.8"/>
-  <text x="76" y="265" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="15" font-weight="700" fill="#b45309">k1</text>
+  <rect x="44" y="246" width="58" height="32" rx="7" fill="#fef3c7" stroke="#d97706" stroke-width="1.8"/>
+  <text x="73" y="267" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="15" font-weight="700" fill="#b45309">k1</text>
 
-  <text x="118" y="266" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="20" font-weight="700" fill="#64748b">_</text>
+  <text x="114" y="268" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="20" font-weight="700" fill="#64748b">_</text>
 
-  <rect x="132" y="244" width="120" height="32" rx="7" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
-  <text x="192" y="265" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="14.5" font-weight="700" fill="#334155">IkBexp</text>
+  <rect x="128" y="246" width="114" height="32" rx="7" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="185" y="267" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="14.5" font-weight="700" fill="#334155">IkBexp</text>
 
-  <text x="274" y="257" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#b45309">Before 1st "_":</text>
-  <text x="366" y="257" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">MUST match <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700">{k1}</tspan> in ratelaws.csv (use k1, k2, Kd1... for multiple slots)</text>
+  <!-- Single <text> elements with <tspan> so spacing never collides across OS fonts -->
+  <text x="262" y="259" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">
+    <tspan font-weight="700" fill="#b45309">Before 1st "_": </tspan>must match <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700">{k1}</tspan> in ratelaws.csv (use k1, k2, Kd1... for multiple slots)
+  </text>
 
-  <text x="274" y="278" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#475569">After 1st "_":</text>
-  <text x="366" y="278" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">Unique human-readable label so every reaction has its own value</text>
+  <text x="262" y="280" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">
+    <tspan font-weight="700" fill="#475569">After 1st "_": </tspan>unique label so each reaction has its own entry in parameters.csv
+  </text>
 </svg>
