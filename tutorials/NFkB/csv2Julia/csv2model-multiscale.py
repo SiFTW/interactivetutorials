@@ -29,6 +29,8 @@ re-run with the 5th argument set to \'scan\' or \'inline\'')
         #skip header row
         next(csvreader)
         for line in csvreader:
+            if not line or not any(cell.strip() for cell in line):
+                continue
             #print('adding key:{key}, val:{val} to ratelaws dict'.format(key=line[0],val=line[0]))
             ratelaws[line[0].strip()]=line[1].strip()
 
@@ -45,6 +47,8 @@ re-run with the 5th argument set to \'scan\' or \'inline\'')
         next(csvreader)
 
         for line in csvreader:
+            if not line or not any(cell.strip() for cell in line):
+                continue
             parametersDict[line[0].strip()]=str(line[1].strip())
             parametersIndexDict[line[0].strip()]=lineIndex
             parametersIndexValueList.append(str(line[1].strip()))
@@ -59,6 +63,8 @@ re-run with the 5th argument set to \'scan\' or \'inline\'')
         #skip header row
         next(csvreader)
         for line in csvreader:
+            if not line or not any(cell.strip() for cell in line):
+                continue
             #substrate, products, kinetic law, modifiers, parameters
             substrates=line[0].strip()
             products=line[1].strip()

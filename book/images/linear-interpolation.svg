@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 280" role="img" aria-label="Intuitive explanation of linear interpolation between two measured timepoints">
+  <defs>
+    <filter id="sh-li" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="812" height="272" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="410" y="34" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Linear Interpolation: "Connecting the Experimental Dots"</text>
+
+  <!-- Left panel: Graph -->
+  <g filter="url(#sh-li)">
+    <rect x="26" y="52" width="430" height="206" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  </g>
+  <!-- Axes -->
+  <line x1="74" y1="224" x2="430" y2="224" stroke="#475569" stroke-width="2"/>
+  <line x1="74" y1="224" x2="74" y2="74" stroke="#475569" stroke-width="2"/>
+  <text x="252" y="249" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#475569">Time t (minutes)</text>
+  <text x="48" y="150" text-anchor="middle" transform="rotate(-90 48 150)" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#475569">Input signal</text>
+
+  <!-- Interpolated polyline across 4 dots -->
+  <polyline points="90,210 190,104 310,136 410,168" fill="none" stroke="#0ea5e9" stroke-width="3"/>
+
+  <!-- Highlight segment (1 -> 2) rise/run dashed triangle -->
+  <line x1="90" y1="210" x2="190" y2="210" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+  <line x1="190" y1="210" x2="190" y2="104" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+
+  <!-- Query point t = 2.5 halfway between dot 1 and dot 2 -->
+  <line x1="140" y1="224" x2="140" y2="157" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"/>
+  <line x1="74" y1="157" x2="140" y2="157" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"/>
+
+  <!-- Experimental dots -->
+  <circle cx="90" cy="210" r="6.5" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+  <circle cx="190" cy="104" r="6.5" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+  <circle cx="310" cy="136" r="6.5" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+  <circle cx="410" cy="168" r="6.5" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+
+  <!-- Query dot -->
+  <circle cx="140" cy="157" r="7.5" fill="#f59e0b" stroke="#ffffff" stroke-width="2"/>
+
+  <!-- Labels on graph -->
+  <text x="90" y="238" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" fill="#334155">0</text>
+  <text x="140" y="238" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" font-weight="700" fill="#d97706">2.5</text>
+  <text x="190" y="238" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" fill="#334155">5</text>
+  <text x="310" y="238" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" fill="#334155">15</text>
+
+  <text x="190" y="90" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#0284c7">Measured: (5, 0.85)</text>
+  <text x="128" y="196" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#64748b">Measured: (0, 0)</text>
+  <text x="206" y="156" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="700" fill="#b45309">At t = 2.5:</text>
+  <text x="206" y="172" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-weight="600" fill="#b45309">val = 0.425</text>
+
+  <!-- Right panel: 3 simple steps -->
+  <g filter="url(#sh-li)">
+    <rect x="478" y="52" width="316" height="206" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  </g>
+  <text x="496" y="80" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a">3 Simple Steps at Any Time t</text>
+
+  <circle cx="506" cy="108" r="11" fill="#0ea5e9"/>
+  <text x="506" y="112" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#ffffff">1</text>
+  <text x="526" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Find the two neighbouring dots</text>
+  <text x="526" y="122" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Dot before t: (0, 0)  •  Dot after t: (5, 0.85)</text>
+
+  <circle cx="506" cy="156" r="11" fill="#8b5cf6"/>
+  <text x="506" y="160" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#ffffff">2</text>
+  <text x="526" y="154" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Compute the slope (rise ÷ run)</text>
+  <text x="526" y="170" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" fill="#6d28d9">(0.85 - 0) / (5 - 0) = 0.17 / min</text>
+
+  <circle cx="506" cy="204" r="11" fill="#f59e0b"/>
+  <text x="506" y="208" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#ffffff">3</text>
+  <text x="526" y="202" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#0f172a">Walk along the straight line</text>
+  <text x="526" y="218" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" fill="#b45309">0 + 0.17 * (2.5 - 0) = 0.425</text>
+
+  <text x="496" y="246" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-style="italic" fill="#64748b">This is the exact algorithm inside ikkDefault(t, maxTime)!</text>
+</svg>

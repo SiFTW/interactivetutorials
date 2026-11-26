@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 220" role="img" aria-label="Two-phase simulation workflow: Phase 1 finds the resting steady state, then Phase 2 swaps in dynamic input curves">
+  <defs>
+    <marker id="arr-tp" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+    <filter id="sh-tp" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="832" height="212" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="420" y="32" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15.5" font-weight="700" fill="#0f172a">The Two-Phase Simulation Workflow (Steady State → Time Course)</text>
+
+  <!-- Phase 1 -->
+  <g filter="url(#sh-tp)">
+    <rect x="24" y="52" width="318" height="142" rx="12" fill="#ffffff" stroke="#0ea5e9" stroke-width="2"/>
+    <rect x="24" y="52" width="318" height="32" rx="10" fill="#0ea5e9"/>
+    <rect x="24" y="72" width="318" height="12" fill="#0ea5e9"/>
+  </g>
+  <text x="183" y="73" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Phase 1: Resting Steady State</text>
+  <text x="40" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#334155">• Start at <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="600">y0 = zeros(101)</tspan></text>
+  <text x="40" y="128" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#334155">• Basal inputs: <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="600" fill="#0369a1">ikkSS</tspan> (1%) &amp; <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="600" fill="#6d28d9">nikSS = 1</tspan></text>
+  <text x="40" y="150" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#334155">• Simulate for a long time (e.g. 1,000 hrs)</text>
+  <text x="40" y="176" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-style="italic" fill="#64748b">→ All 101 species settle to resting balance!</text>
+
+  <!-- Arrow between Phase 1 and Phase 2 -->
+  <line x1="350" y1="124" x2="486" y2="124" stroke="#334155" stroke-width="2.5" marker-end="url(#arr-tp)"/>
+  <text x="420" y="108" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" font-weight="700" fill="#0f766e">y0_ss = sol_ss.u[end]</text>
+  <text x="420" y="144" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Use resting cell</text>
+  <text x="420" y="158" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">as starting point</text>
+
+  <!-- Phase 2 -->
+  <g filter="url(#sh-tp)">
+    <rect x="498" y="52" width="318" height="142" rx="12" fill="#ffffff" stroke="#8b5cf6" stroke-width="2"/>
+    <rect x="498" y="52" width="318" height="32" rx="10" fill="#8b5cf6"/>
+    <rect x="498" y="72" width="318" height="12" fill="#8b5cf6"/>
+  </g>
+  <text x="657" y="73" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Phase 2: Dynamic Time Course</text>
+  <text x="514" y="106" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#334155">• Start from <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="600">y0_ss</tspan> (resting cell!)</text>
+  <text x="514" y="128" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#334155">• Swap input(s) in <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="600">paramVals</tspan> at runtime:</text>
+  <text x="528" y="149" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11.5" fill="#0369a1">ikkTC(t)</text>
+  <text x="588" y="149" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">or</text>
+  <text x="608" y="149" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11.5" fill="#6d28d9">nikTC(t)</text>
+  <text x="514" y="176" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" font-style="italic" fill="#64748b">→ Watch RelAnp50n or RelBnp52n respond!</text>
+</svg>
