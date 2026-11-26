@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 320" role="img" aria-label="Canonical NEMO/IKK pathway driving RelA:p50 and non-canonical NIK pathway driving RelB:p52 in the published NF-kB model">
+  <defs>
+    <marker id="arr-n" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+    <marker id="arr-sky" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#0284c7"/>
+    </marker>
+    <marker id="arr-purp" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#7c3aed"/>
+    </marker>
+    <filter id="sh-n" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="852" height="312" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="430" y="32" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Two Inputs into the Published NF-κB Model (101 Species, 257 Parameters)</text>
+
+  <!-- CANONICAL ROW -->
+  <rect x="24" y="48" width="812" height="114" rx="12" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.5"/>
+  <text x="40" y="70" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="700" fill="#0369a1">CANONICAL PATHWAY (Fast: minutes → hours)</text>
+
+  <g filter="url(#sh-n)">
+    <rect x="40" y="82" width="188" height="62" rx="10" fill="#0ea5e9" stroke="#0284c7" stroke-width="2"/>
+  </g>
+  <text x="134" y="108" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#ffffff">NEMO / IKK Input</text>
+  <text x="134" y="128" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" fill="#e0f2fe">ikk1_ikkactivity(t) ↑</text>
+
+  <line x1="234" y1="113" x2="294" y2="113" stroke="#0284c7" stroke-width="2.5" marker-end="url(#arr-sky)"/>
+
+  <g filter="url(#sh-n)">
+    <rect x="302" y="82" width="234" height="62" rx="10" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+  </g>
+  <text x="419" y="108" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#0f172a">Degrades IκBα / IκBβ / IκBε</text>
+  <text x="419" y="128" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Frees sequestered dimers (+ IκBα feedback)</text>
+
+  <line x1="542" y1="113" x2="602" y2="113" stroke="#0284c7" stroke-width="2.5" marker-end="url(#arr-sky)"/>
+
+  <g filter="url(#sh-n)">
+    <rect x="610" y="82" width="206" height="62" rx="10" fill="#0369a1" stroke="#075985" stroke-width="2"/>
+  </g>
+  <text x="713" y="108" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#ffffff">Nuclear RelA:p50 ↑</text>
+  <text x="713" y="128" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11.5" fill="#bae6fd">RelAnp50n</text>
+
+  <!-- NON-CANONICAL ROW -->
+  <rect x="24" y="178" width="812" height="122" rx="12" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <text x="40" y="200" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" font-weight="700" fill="#6d28d9">NON-CANONICAL PATHWAY (Slow &amp; sustained: hours → days)</text>
+
+  <g filter="url(#sh-n)">
+    <rect x="40" y="212" width="188" height="72" rx="10" fill="#8b5cf6" stroke="#7c3aed" stroke-width="2"/>
+  </g>
+  <text x="134" y="238" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#ffffff">NIK Stabilisation</text>
+  <text x="134" y="256" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" fill="#ede9fe">nik_deg_mod(t): 1 → 0</text>
+  <text x="134" y="272" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#ddd6fe">(stops NIK destruction!)</text>
+
+  <line x1="234" y1="248" x2="294" y2="248" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arr-purp)"/>
+
+  <g filter="url(#sh-n)">
+    <rect x="302" y="212" width="234" height="72" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+  </g>
+  <text x="419" y="238" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#0f172a">NIK Accumulates</text>
+  <text x="419" y="256" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Processes p100 → p52 &amp; degrades IκBδ</text>
+  <text x="419" y="272" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">(frees RelB to pair with p52)</text>
+
+  <line x1="542" y1="248" x2="602" y2="248" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arr-purp)"/>
+
+  <g filter="url(#sh-n)">
+    <rect x="610" y="212" width="206" height="72" rx="10" fill="#6d28d9" stroke="#5b21b6" stroke-width="2"/>
+  </g>
+  <text x="713" y="242" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#ffffff">Nuclear RelB:p52 ↑</text>
+  <text x="713" y="264" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11.5" fill="#e9d5ff">RelBnp52n</text>
+</svg>

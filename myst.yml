@@ -36,6 +36,11 @@ project:
       children:
         - file: book/tutorial-2/01-modifiers-and-induction.ipynb
         - file: book/tutorial-2/02-modifier-challenges.ipynb
+    - title: "Tutorial 3: CSV2Julia, Dynamic Inputs & NF-κB"
+      children:
+        - file: book/tutorial-3/01-csv2julia-rules-and-modes.ipynb
+        - file: book/tutorial-3/02-time-dependent-inputs.ipynb
+        - file: book/tutorial-3/03-published-nfkb-model.ipynb
 
 site:
   template: book-theme

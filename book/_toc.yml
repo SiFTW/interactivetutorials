@@ -10,3 +10,8 @@ parts:
     chapters:
       - file: tutorial-2/01-modifiers-and-induction
       - file: tutorial-2/02-modifier-challenges
+  - caption: "Tutorial 3: CSV2Julia, Dynamic Inputs & NF-κB"
+    chapters:
+      - file: tutorial-3/01-csv2julia-rules-and-modes
+      - file: tutorial-3/02-time-dependent-inputs
+      - file: tutorial-3/03-published-nfkb-model

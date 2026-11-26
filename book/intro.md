@@ -27,6 +27,12 @@ Each reader gets a **fresh, isolated workspace** containing all the starter mode
 1. **[Modifiers & Induced Expression](./tutorial-2/01-modifiers-and-induction.ipynb)** — Learn how **modifiers** (like transcription factors or enzymes) control reaction rates without being consumed, build an **NF-κB → IκB** induced expression model, and practice reading Julia error messages.
 2. **[Modifier Challenges (NF-κB / IκB Pathway)](./tutorial-2/02-modifier-challenges.ipynb)** — Stabilise `IkB` with basal expression and degradation, add reversible **`NFkB` + `IkB` binding/unbinding**, and expand the pathway with **`IkB` mRNA** transcription and translation.
 
+## What you will learn in Tutorial 3
+
+1. **[CSV2Julia Rules, Parameter Naming & Modes](./tutorial-3/01-csv2julia-rules-and-modes.ipynb)** — Master the exact rules of `CSV2Julia` (placeholders, the `prefix_label` underscore rule, and parameter numbering), compare **`inline`**, **`scan`**, and **`param`** modes side by side, and modify parameters at run-time on the Toy Model without regenerating ODE code.
+2. **[Creating Time-Dependent Input Curves](./tutorial-3/02-time-dependent-inputs.ipynb)** — Learn what a time-dependent function $f(t)$ is in plain English, build constant, pulse, smooth-decay, and linearly interpolated experimental input curves, and swap dynamic inputs into the Toy Model at run-time using `CSV2Julia`'s `(t)` syntax.
+3. **[Running the Published NF-κB Model](./tutorial-3/03-published-nfkb-model.ipynb)** — Generate and simulate the published **101-species, 257-parameter NF-κB model** ([`SiFTW/NFkBModel`](https://github.com/SiFTW/NFkBModel)), drive canonical **NEMO/IKK** and non-canonical **NIK** inputs to watch nuclear **RelA:p50** (`RelAnp50n`) and **RelB:p52** (`RelBnp52n`) rise respectively, and test runtime parameter perturbations.
+
 :::{note} Want to follow along on your own machine or the lab JupyterHub?
 Every notebook page can also be downloaded as a `.ipynb` file (or opened from the [GitHub repository](https://github.com/SiFTW/interactivetutorials)). When you transition from these tutorials to full-scale lab research, see the [Mitchell Lab Handbook](https://docs.mitchell.science/) for connecting to our research compute servers.
 :::
