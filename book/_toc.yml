@@ -19,3 +19,7 @@ parts:
     chapters:
       - file: tutorial-4/01-combining-modules
       - file: tutorial-4/02-recreating-figure-5
+  - caption: "Tutorial 5: Cell Fate — Apoptosis & Cell Cycle"
+    chapters:
+      - file: tutorial-5/01-apoptosis-bcl2-figure1b
+      - file: tutorial-5/02-cell-cycle-myc-figure1e
