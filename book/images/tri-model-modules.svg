@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" role="img" aria-label="How the BCR, TLR, linking, and NF-kB CSV modules combine into the 150-species Jayawant et al. Figure 5 Tri-Model">
+  <defs>
+    <marker id="arr-t" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+    <marker id="arr-b" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#0284c7"/>
+    </marker>
+    <marker id="arr-g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#0d9488"/>
+    </marker>
+    <filter id="sh-t" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="892" height="332" rx="14" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="450" y="34" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Modular Architecture of the Figure 5 Tri-Model (150 Species, 444 Parameters)</text>
+
+  <!-- BCR Module (top left) -->
+  <g filter="url(#sh-t)">
+    <rect x="24" y="54" width="248" height="114" rx="12" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <rect x="24" y="54" width="248" height="32" rx="10" fill="#0ea5e9"/>
+    <rect x="24" y="74" width="248" height="12" fill="#0ea5e9"/>
+  </g>
+  <text x="148" y="75" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#ffffff">BCR Module  (-BCR)</text>
+  <text x="148" y="106" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">Input: <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700" fill="#0369a1">k3_signal-BCR(t)</tspan></text>
+  <text x="148" y="126" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">CBM complex → TAK1 → IKKp / IKKpp</text>
+  <text x="148" y="150" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">Mutations: CD79B (basal BCR), TAK1</text>
+
+  <!-- TLR Module (bottom left) -->
+  <g filter="url(#sh-t)">
+    <rect x="24" y="192" width="248" height="118" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+    <rect x="24" y="192" width="248" height="32" rx="10" fill="#14b8a6"/>
+    <rect x="24" y="212" width="248" height="12" fill="#14b8a6"/>
+  </g>
+  <text x="148" y="213" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#ffffff">TLR Module  (-TLR)</text>
+  <text x="148" y="244" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">Input: <tspan font-family="ui-monospace, SFMono-Regular, monospace" font-weight="700" fill="#0f766e">k2_LPSmod-TLR(t)</tspan></text>
+  <text x="148" y="264" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">MYD88 / TRIF → TRAF6 → IKK_on</text>
+  <text x="148" y="288" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="600" fill="#b91c1c">Mutations: MYD88 L265P, TAK1</text>
+
+  <!-- Arrows from BCR and TLR into linking -->
+  <path d="M 272 111 L 310 111 L 310 162 L 334 162" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arr-b)"/>
+  <path d="M 272 251 L 310 251 L 310 202 L 334 202" fill="none" stroke="#0d9488" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arr-g)"/>
+
+  <!-- linking Module (center) -->
+  <g filter="url(#sh-t)">
+    <rect x="342" y="108" width="234" height="148" rx="12" fill="#fffbeb" stroke="#d97706" stroke-width="2.2"/>
+    <rect x="342" y="108" width="234" height="32" rx="10" fill="#f59e0b"/>
+    <rect x="342" y="128" width="234" height="12" fill="#f59e0b"/>
+  </g>
+  <text x="459" y="129" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#ffffff">linking Module (-linking)</text>
+  <text x="459" y="160" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#92400e">Shared IKK Adapter</text>
+  <text x="459" y="182" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#334155">Sums BCR + TLR active IKK</text>
+  <text x="459" y="200" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11.5" font-weight="700" fill="#b45309">→ totalActiveIKK</text>
+  <text x="459" y="224" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#64748b">Replaces standalone ikk1(t)</text>
+  <text x="459" y="240" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#64748b">reactions inside NFkB</text>
+
+  <!-- Arrow from linking to NFkB -->
+  <line x1="576" y1="182" x2="622" y2="182" stroke="#334155" stroke-width="2.5" marker-end="url(#arr-t)"/>
+
+  <!-- NFkB Module (right) -->
+  <g filter="url(#sh-t)">
+    <rect x="630" y="96" width="246" height="172" rx="12" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+    <rect x="630" y="96" width="246" height="32" rx="10" fill="#8b5cf6"/>
+    <rect x="630" y="116" width="246" height="12" fill="#8b5cf6"/>
+  </g>
+  <text x="753" y="117" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#ffffff">NF-κB Module  (-NFkB)</text>
+  <text x="753" y="150" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">IκBα/β/ε degradation driven by</text>
+  <text x="753" y="168" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11.5" font-weight="700" fill="#6d28d9">totalActiveIKK</text>
+  <text x="753" y="194" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">Cell-line RNA-seq scaling:</text>
+  <text x="753" y="212" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" fill="#334155">k1_RelASynth-NFkB</text>
+  <text x="753" y="228" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="10.5" fill="#334155">basal_RelBSynth-NFkB</text>
+  <text x="753" y="252" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#0369a1">Readout: Nuclear RelA:p50</text>
+</svg>
