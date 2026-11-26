@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 410" role="img" aria-label="End-to-end patient-specific lymphoma modelling pipeline from genomic sequencing to 6-hour virtual avatar simulation to AAPP stratification and 10-year clinical survival">
+  <defs>
+    <marker id="arr7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#334155"/>
+    </marker>
+    <marker id="arr7-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arr7-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="410" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+
+  <text x="480" y="34" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#0f172a">
+    Patient-Specific Lymphoma Modelling Pipeline (Norris et al., 2024)
+  </text>
+  <text x="480" y="55" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12.5" fill="#475569">
+    Translating individual DLBCL sequencing profiles into 6-hour molecular readouts that predict 10-year clinical outcomes
+  </text>
+
+  <!-- Step 1: Patient Sequencing -->
+  <rect x="22" y="84" width="204" height="196" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="124" y="109" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#1d4ed8">1. Patient Sequencing</text>
+  <text x="124" y="128" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e40af">(WES / Targeted Panel)</text>
+  <text x="124" y="155" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#0f172a">• Copy-number gains (AMP → 1.5×)</text>
+  <text x="124" y="176" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#0f172a">• Deletions (HETLOSS → 0.5×)</text>
+  <text x="124" y="197" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#0f172a">• Point mutations (MYD88, BCL2)</text>
+  <text x="124" y="218" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#0f172a">• Gene fusions (BCL6, MYC)</text>
+  <rect x="32" y="234" width="184" height="34" rx="6" fill="#dbeafe" stroke="#60a5fa" stroke-width="1"/>
+  <text x="124" y="255" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.2" font-weight="600" fill="#1e3a8a">Same-target hits multiply</text>
+
+  <!-- Arrow 1 -> 2 -->
+  <line x1="226" y1="182" x2="254" y2="182" stroke="#334155" stroke-width="2.2" marker-end="url(#arr7)"/>
+
+  <!-- Step 2: Virtual Avatar ODE -->
+  <rect x="258" y="84" width="210" height="196" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="363" y="109" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#6d28d9">2. Virtual Avatar (12 h)</text>
+  <text x="363" y="128" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#5b21b6">(193-species ODE model)</text>
+  <text x="363" y="155" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.6" fill="#0f172a">• Modify only mutated parameters</text>
+  <text x="363" y="176" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.6" fill="#0f172a">• Run 1 deterministic founder cell</text>
+  <text x="363" y="197" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.6" fill="#0f172a">• Fast: ~0.6 seconds per patient</text>
+  <text x="363" y="218" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.6" fill="#0f172a">• Read molecular state at t = 6 h</text>
+  <rect x="268" y="234" width="190" height="34" rx="6" fill="#f3e8ff" stroke="#a855f7" stroke-width="1"/>
+  <text x="363" y="255" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.2" font-weight="600" fill="#581c87">Before division / death starts</text>
+
+  <!-- Arrow 2 -> 3 -->
+  <line x1="468" y1="182" x2="496" y2="182" stroke="#334155" stroke-width="2.2" marker-end="url(#arr7)"/>
+
+  <!-- Step 3: 6h AA/PP Classification -->
+  <rect x="500" y="84" width="210" height="196" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="605" y="109" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#b91c1c">3. 6-Hour Stratification</text>
+  <text x="605" y="128" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#991b1b">(Compare vs cohort mean)</text>
+  <text x="605" y="155" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.2" font-weight="600" fill="#7c3aed">PP (Pro-Proliferative):</text>
+  <text x="605" y="172" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e293b">Cdh1 &lt; cohort mean (faster G1)</text>
+  <text x="605" y="198" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.2" font-weight="600" fill="#dc2626">AA (Anti-Apoptotic):</text>
+  <text x="605" y="215" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#1e293b">cSmac &amp; cCytoC &lt; mean</text>
+  <rect x="514" y="234" width="182" height="34" rx="6" fill="#fee2e2" stroke="#f87171" stroke-width="1"/>
+  <text x="605" y="255" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.8" font-weight="700" fill="#991b1b">AAPP = Both AA and PP</text>
+
+  <!-- Arrow 3 -> 4 -->
+  <line x1="710" y1="182" x2="738" y2="182" stroke="#334155" stroke-width="2.2" marker-end="url(#arr7)"/>
+
+  <!-- Step 4: Clinical Prognosis -->
+  <rect x="742" y="84" width="196" height="196" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+  <text x="840" y="109" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="700" fill="#15803d">4. Clinical Prognosis</text>
+  <text x="840" y="128" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#166534">(10-Year OS &amp; PFS)</text>
+  <text x="840" y="155" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.2" font-weight="700" fill="#b91c1c">AAPP (8–25%): Poor</text>
+  <text x="840" y="176" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.2" fill="#92400e">AA or PP only: Intermediate</text>
+  <text x="840" y="197" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.2" font-weight="700" fill="#15803d">Other (neither): Good</text>
+  <text x="840" y="220" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.8" fill="#334155">+ Genetic Cluster / IPI</text>
+  <rect x="756" y="234" width="168" height="34" rx="6" fill="#dcfce7" stroke="#4ade80" stroke-width="1"/>
+  <text x="840" y="255" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" font-weight="600" fill="#14532d">Guides risk-adapted trials</text>
+
+  <!-- Bottom Clinical Banner -->
+  <rect x="22" y="302" width="916" height="86" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="480" y="328" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#0f172a">
+    Why Simulation Adds Information Beyond Counting Mutations
+  </text>
+  <text x="480" y="350" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">
+    Different patients reach the same dangerous AAPP state through completely different mutations — e.g. MYC + BCL2, MYD88 + CD79B, or MCL1 + RB1.
+  </text>
+  <text x="480" y="370" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#475569">
+    Simulating 6 hours of intracellular signalling reveals functional "double-hit-like" patients across every genomic cluster and cell-of-origin subtype.
+  </text>
+</svg>

@@ -49,6 +49,11 @@ Each reader gets a **fresh, isolated workspace** containing all the starter mode
 2. **[Heterogeneous Populations & MYC + BCL2 Synergy (Norris *et al.* Figure 2B)](./tutorial-6/02-double-hit-myc-bcl2-figure2.ipynb)** — Scale up to heterogeneous virtual B-cell populations (`preCV = 0.11`), quantify **super-additive synergy** vs additivity in **MYC + BCL2** Double-Hit Lymphoma, and test simulated venetoclax / CDK4/6 interventions.
 3. **[Why MYC + BCL6 Differs from MYC + BCL2 (Norris *et al.* Figure 2C)](./tutorial-6/03-double-hit-myc-bcl6-vs-bcl2.ipynb)** — Compare **MYC + BCL6** against **MYC + BCL2**, inspect the `BCL6 ⊣ Blimp1` differentiation circuit to see why WHO 2022 reclassified *MYC*+*BCL6*, and test general **AA + PP** synergy (such as multiple myeloma `gain1q`).
 
+## What you will learn in Tutorial 7
+
+1. **[Patient Virtual Avatars & 6-Hour Biomarkers (Norris *et al.* Figure 3)](./tutorial-7/01-patient-avatars-and-6h-biomarkers.ipynb)** — Map real DLBCL sequencing data (`patientData.csv` and `muts2ParamsNEW.csv`) directly into individual virtual B-cell avatars, see how upstream NF-κB mutations mimic both MYC and BCL2, stratify 12 real patients by 6-hour `Cdh1`, `cSmac`, and `cCytoC`, and test personalised targeted drugs.
+2. **[From 6-Hour Simulations to 10-Year Clinical Survival (Norris *et al.* Figures 4 & 5)](./tutorial-7/02-predicting-clinical-survival-figures4-5.ipynb)** — Build Kaplan–Meier survival curves and log-rank tests from first principles in Julia across **466 real DLBCL patients** (Discovery Cohort C1 and Validation Cohort C2), and combine `AAPP` signalling with genetic clusters and clinical IPI to stratify long-term prognosis.
+
 :::{note} Want to follow along on your own machine or the lab JupyterHub?
 Every notebook page can also be downloaded as a `.ipynb` file (or opened from the [GitHub repository](https://github.com/SiFTW/interactivetutorials)). When you transition from these tutorials to full-scale lab research, see the [Mitchell Lab Handbook](https://docs.mitchell.science/) for connecting to our research compute servers.
 :::
