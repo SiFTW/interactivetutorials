@@ -43,6 +43,12 @@ Each reader gets a **fresh, isolated workspace** containing all the starter mode
 1. **[Apoptosis Timing & Scanning BCL2 (Norris *et al.* Figure 1B)](./tutorial-5/01-apoptosis-bcl2-figure1b.ipynb)** — Build the 59-species apoptosis ODE model, clamp the external death-ligand species with `fixSpecies.jl`, scan **BCL2** overexpression (`1×` to `100×`) to measure time to cell death (`Cleaved PARP > 10%`), and explore the clinical relevance of `BCL2` deregulation and BH3 mimetics (venetoclax).
 2. **[Cell Cycle Timing & Scanning c-MYC (Norris *et al.* Figure 1E)](./tutorial-5/02-cell-cycle-myc-figure1e.ipynb)** — Build the 37-species cell-cycle ODE model with mitotic division callbacks (`ContinuousCallback`), scan **c-MYC** overexpression (`1×` to `100×`) to see why **G1** specifically shortens, and connect `BCL2` + `MYC` Double-Hit Lymphoma to upcoming multiscale modelling.
 
+## What you will learn in Tutorial 6
+
+1. **[From Separate Modules to One Dividing, Dying Cell](./tutorial-6/01-building-a-dividing-dying-cell.ipynb)** — Combine the `NFkB`, `cellCycle`, `apoptosis`, `differentiation`, and `linking` modules into the **193-species, 563-parameter** multiscale B-cell model, learn how `ContinuousCallback` tripwires trigger mitotic division and apoptosis, and trace a single virtual cell's branching lineage tree.
+2. **[Heterogeneous Populations & MYC + BCL2 Synergy (Norris *et al.* Figure 2B)](./tutorial-6/02-double-hit-myc-bcl2-figure2.ipynb)** — Scale up to heterogeneous virtual B-cell populations (`preCV = 0.11`), quantify **super-additive synergy** vs additivity in **MYC + BCL2** Double-Hit Lymphoma, and test simulated venetoclax / CDK4/6 interventions.
+3. **[Why MYC + BCL6 Differs from MYC + BCL2 (Norris *et al.* Figure 2C)](./tutorial-6/03-double-hit-myc-bcl6-vs-bcl2.ipynb)** — Compare **MYC + BCL6** against **MYC + BCL2**, inspect the `BCL6 ⊣ Blimp1` differentiation circuit to see why WHO 2022 reclassified *MYC*+*BCL6*, and test general **AA + PP** synergy (such as multiple myeloma `gain1q`).
+
 :::{note} Want to follow along on your own machine or the lab JupyterHub?
 Every notebook page can also be downloaded as a `.ipynb` file (or opened from the [GitHub repository](https://github.com/SiFTW/interactivetutorials)). When you transition from these tutorials to full-scale lab research, see the [Mitchell Lab Handbook](https://docs.mitchell.science/) for connecting to our research compute servers.
 :::

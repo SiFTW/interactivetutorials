@@ -23,3 +23,8 @@ parts:
     chapters:
       - file: tutorial-5/01-apoptosis-bcl2-figure1b
       - file: tutorial-5/02-cell-cycle-myc-figure1e
+  - caption: "Tutorial 6: Multiscale Modelling — Double-Hit Lymphoma"
+    chapters:
+      - file: tutorial-6/01-building-a-dividing-dying-cell
+      - file: tutorial-6/02-double-hit-myc-bcl2-figure2
+      - file: tutorial-6/03-double-hit-myc-bcl6-vs-bcl2
