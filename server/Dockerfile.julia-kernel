@@ -117,6 +117,7 @@ COPY --chown=${NB_USER}:${NB_USER} tutorials/NFkB_Figure5/ /home/${NB_USER}/work
 COPY --chown=${NB_USER}:${NB_USER} tutorials/apoptosis/ /home/${NB_USER}/work/apoptosis/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/cellCycle/ /home/${NB_USER}/work/cellCycle/
 COPY --chown=${NB_USER}:${NB_USER} tutorials/multiscale/ /home/${NB_USER}/work/multiscale/
+COPY --chown=${NB_USER}:${NB_USER} tutorials/vareli_microenvironment/ /home/${NB_USER}/work/vareli_microenvironment/
 
 USER ${NB_USER}
 WORKDIR /home/${NB_USER}/work
