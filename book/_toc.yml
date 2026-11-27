@@ -28,3 +28,7 @@ parts:
       - file: tutorial-6/01-building-a-dividing-dying-cell
       - file: tutorial-6/02-double-hit-myc-bcl2-figure2
       - file: tutorial-6/03-double-hit-myc-bcl6-vs-bcl2
+  - caption: "Tutorial 7: Patient-Specific Lymphoma Modelling"
+    chapters:
+      - file: tutorial-7/01-patient-avatars-and-6h-biomarkers
+      - file: tutorial-7/02-predicting-clinical-survival-figures4-5
