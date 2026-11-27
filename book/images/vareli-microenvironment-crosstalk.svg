@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430" width="920" height="430" role="img" aria-label="Microenvironment CD40L and NF-kB crosstalk in RIVA versus SUDHL8 cell lines">
+  <defs>
+    <marker id="arr-dark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+    </marker>
+    <marker id="arr-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0f766e"/>
+    </marker>
+    <marker id="arr-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#be123c"/>
+    </marker>
+  </defs>
+
+  <rect width="920" height="430" rx="14" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <text x="460" y="30" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="#0f172a">
+    How Basal BCR Activity Rewires the Microenvironmental CD40L Response (Vareli et al., Fig. 6C–D)
+  </text>
+
+  <!-- LEFT PANEL: RIVA -->
+  <rect x="20" y="48" width="428" height="362" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+  <rect x="20" y="48" width="428" height="36" rx="12" fill="#ccfbf1"/>
+  <rect x="20" y="72" width="428" height="12" fill="#ccfbf1"/>
+  <text x="234" y="72" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#115e59">
+    RIVA Cell Line — Low Basal BCR (BCR = 0.0)
+  </text>
+
+  <!-- Step 1: Basal steady state -->
+  <rect x="40" y="98" width="388" height="70" rx="8" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.5"/>
+  <text x="54" y="118" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#0f766e">1. Resting Steady State (Before CD40L)</text>
+  <text x="54" y="137" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• Low nuclear RelA:p50 → little p100 / IκBδ synthesised</text>
+  <text x="54" y="155" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• RelA:p50 (94%) &amp; cRel:p50 (65%) bound to IκBα / IκBε</text>
+
+  <!-- Arrow down -->
+  <line x1="234" y1="168" x2="234" y2="196" stroke="#0f766e" stroke-width="2" marker-end="url(#arr-teal)"/>
+
+  <!-- Step 2: CD40L TME -->
+  <rect x="40" y="198" width="388" height="72" rx="8" fill="#fefce8" stroke="#fde047" stroke-width="1.5"/>
+  <text x="54" y="218" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#854d0e">2. CD40L Tumour Microenvironment (NIK Stabilised)</text>
+  <text x="54" y="237" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• Non-canonical NIK / IKK1 processes p100 → p52</text>
+  <text x="54" y="255" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• cRel stays locked to IκBα / IκBε (insensitive to NIK)</text>
+
+  <!-- Arrow down -->
+  <line x1="234" y1="270" x2="234" y2="298" stroke="#0f766e" stroke-width="2" marker-end="url(#arr-teal)"/>
+
+  <!-- Step 3: Outcome -->
+  <rect x="40" y="300" width="388" height="92" rx="8" fill="#ecfdf5" stroke="#34d399" stroke-width="1.8"/>
+  <text x="54" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#065f46">3. Nuclear Output &amp; Drug Resistance</text>
+  <rect x="54" y="330" width="172" height="48" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="1.4"/>
+  <text x="140" y="350" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#047857">RelB:p52 ↑↑ (8.5×)</text>
+  <text x="140" y="368" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#334155">Drives BCL-xL ↑</text>
+
+  <rect x="242" y="330" width="172" height="48" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="328" y="350" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#64748b">cRel:p50 ~ flat</text>
+  <text x="328" y="368" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#64748b">Resists venetoclax (BCL2i)</text>
+
+  <!-- RIGHT PANEL: SUDHL8 -->
+  <rect x="472" y="48" width="428" height="362" rx="12" fill="#ffffff" stroke="#e11d48" stroke-width="2"/>
+  <rect x="472" y="48" width="428" height="36" rx="12" fill="#ffe4e6"/>
+  <rect x="472" y="72" width="428" height="12" fill="#ffe4e6"/>
+  <text x="686" y="72" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#9f1239">
+    SUDHL8 — High Basal BCR / BTK (BCR = 0.005)
+  </text>
+
+  <!-- Step 1: Basal steady state -->
+  <rect x="492" y="98" width="388" height="70" rx="8" fill="#fff1f2" stroke="#fda4af" stroke-width="1.5"/>
+  <text x="506" y="118" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#be123c">1. Primed Steady State (Before CD40L)</text>
+  <text x="506" y="137" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• Basal BCR degrades IκBα/IκBε → high RelA → p100 ↑</text>
+  <text x="506" y="155" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• p100 forms IκBδ traps that sequester 84% of cRel:p50</text>
+
+  <!-- Arrow down -->
+  <line x1="686" y1="168" x2="686" y2="196" stroke="#be123c" stroke-width="2" marker-end="url(#arr-rose)"/>
+
+  <!-- Step 2: CD40L TME -->
+  <rect x="492" y="198" width="388" height="72" rx="8" fill="#fefce8" stroke="#fde047" stroke-width="1.5"/>
+  <text x="506" y="218" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#854d0e">2. CD40L Tumour Microenvironment (Crosstalk!)</text>
+  <text x="506" y="237" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• NIK processes p100 → p52, activating RelB:p52</text>
+  <text x="506" y="255" font-family="system-ui, -apple-system, sans-serif" font-size="11.5" fill="#334155">• Processing dismantles IκBδ traps → frees cRel:p50!</text>
+
+  <!-- Arrow down -->
+  <line x1="686" y1="270" x2="686" y2="298" stroke="#be123c" stroke-width="2" marker-end="url(#arr-rose)"/>
+
+  <!-- Step 3: Outcome -->
+  <rect x="492" y="300" width="388" height="92" rx="8" fill="#fff1f2" stroke="#fb7185" stroke-width="1.8"/>
+  <text x="506" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#9f1239">3. Nuclear Output &amp; Drug Resistance</text>
+  <rect x="506" y="330" width="172" height="48" rx="6" fill="#ffffff" stroke="#10b981" stroke-width="1.4"/>
+  <text x="592" y="350" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#047857">RelB:p52 ↑↑</text>
+  <text x="592" y="368" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#334155">Drives BCL-xL ↑</text>
+
+  <rect x="694" y="330" width="172" height="48" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.6"/>
+  <text x="780" y="350" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#be123c">cRel:p50 ↑↑ (4.0×)</text>
+  <text x="780" y="368" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="10.5" fill="#334155">Drives MCL1 ↑ (resists BCL-xLi)</text>
+</svg>

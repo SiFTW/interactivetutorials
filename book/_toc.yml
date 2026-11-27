@@ -15,10 +15,12 @@ parts:
       - file: tutorial-3/01-csv2julia-rules-and-modes
       - file: tutorial-3/02-time-dependent-inputs
       - file: tutorial-3/03-published-nfkb-model
-  - caption: "Tutorial 4: Multi-Module Models & Figure 5"
+  - caption: "Tutorial 4: Multi-Module Models — Mutations & Microenvironment"
     chapters:
       - file: tutorial-4/01-combining-modules
       - file: tutorial-4/02-recreating-figure-5
+      - file: tutorial-4/03-microenvironment-crosstalk-figure6
+      - file: tutorial-4/04-btk-rescue-and-ikb-knockouts
   - caption: "Tutorial 5: Cell Fate — Apoptosis & Cell Cycle"
     chapters:
       - file: tutorial-5/01-apoptosis-bcl2-figure1b

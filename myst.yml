@@ -41,10 +41,12 @@ project:
         - file: book/tutorial-3/01-csv2julia-rules-and-modes.ipynb
         - file: book/tutorial-3/02-time-dependent-inputs.ipynb
         - file: book/tutorial-3/03-published-nfkb-model.ipynb
-    - title: "Tutorial 4: Multi-Module Models & Figure 5"
+    - title: "Tutorial 4: Multi-Module Models — Mutations & Microenvironment"
       children:
         - file: book/tutorial-4/01-combining-modules.ipynb
         - file: book/tutorial-4/02-recreating-figure-5.ipynb
+        - file: book/tutorial-4/03-microenvironment-crosstalk-figure6.ipynb
+        - file: book/tutorial-4/04-btk-rescue-and-ikb-knockouts.ipynb
     - title: "Tutorial 5: Cell Fate — Apoptosis & Cell Cycle"
       children:
         - file: book/tutorial-5/01-apoptosis-bcl2-figure1b.ipynb
